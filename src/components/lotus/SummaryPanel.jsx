@@ -19,12 +19,12 @@ function BaselineDeltaCard({ metrics, mode }) {
 
   if (!metrics || mode === "baseline" || !baselineAvailable) {
     return (
-      <div className="bg-slate-50 rounded-lg p-3">
-        <div className="flex items-center gap-2 mb-1">
+      <div className="bg-slate-50 rounded-lg p-2">
+        <div className="flex items-center gap-1 mb-0.5">
           <TrendingUp className="w-3 h-3 text-slate-400" />
-          <span className="text-xs text-slate-400 font-medium">Δ vs Baseline</span>
+          <span className="text-[10px] text-slate-400 font-medium">Δ vs Baseline</span>
         </div>
-        <p className="text-xs text-slate-400 mt-2">No baseline</p>
+        <p className="text-[10px] text-slate-400 mt-1">No baseline</p>
       </div>
     );
   }
@@ -36,8 +36,8 @@ function BaselineDeltaCard({ metrics, mode }) {
   const latencyDelta = (metrics.total?.total_latency_ms || 0) - (baselineSnap.performance.total_latency_ms || 0);
 
   return (
-    <div className={`rounded-lg p-3 ${tokenDelta > 0 ? 'bg-red-50' : tokenDelta < 0 ? 'bg-green-50' : 'bg-slate-50'}`}>
-      <div className="flex items-center gap-2 mb-1">
+    <div className={`rounded-lg p-2 ${tokenDelta > 0 ? 'bg-red-50' : tokenDelta < 0 ? 'bg-green-50' : 'bg-slate-50'}`}>
+      <div className="flex items-center gap-1 mb-0.5">
         {tokenDelta > 0 ? (
           <TrendingUp className="w-3 h-3 text-red-600" />
         ) : tokenDelta < 0 ? (
@@ -45,13 +45,13 @@ function BaselineDeltaCard({ metrics, mode }) {
         ) : (
           <TrendingUp className="w-3 h-3 text-slate-500" />
         )}
-        <span className="text-xs text-slate-600 font-medium">Δ vs Baseline</span>
+        <span className="text-[10px] text-slate-600 font-medium">Δ vs Baseline</span>
       </div>
-      <p className={`text-lg font-bold ${tokenDelta > 0 ? 'text-red-700' : tokenDelta < 0 ? 'text-green-700' : 'text-slate-700'}`}>
+      <p className={`text-base font-bold ${tokenDelta > 0 ? 'text-red-700' : tokenDelta < 0 ? 'text-green-700' : 'text-slate-700'}`}>
         {tokenDelta > 0 ? '+' : ''}{tokenDelta}t
       </p>
-      <p className={`text-xs ${latencyDelta > 0 ? 'text-red-600' : latencyDelta < 0 ? 'text-green-600' : 'text-slate-500'}`}>
-        {latencyDelta > 0 ? '+' : ''}{latencyDelta}ms latency
+      <p className={`text-[10px] ${latencyDelta > 0 ? 'text-red-600' : latencyDelta < 0 ? 'text-green-600' : 'text-slate-500'}`}>
+        {latencyDelta > 0 ? '+' : ''}{latencyDelta}ms
       </p>
     </div>
   );
@@ -90,103 +90,62 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="mb-4">
+      <CardContent className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
           <PipelineStatus 
             stage={evidence.safe_mode_applied ? "governance" : "output"} 
             safeModeApplied={evidence.safe_mode_applied}
           />
+          <Badge className={`${
+            evidence.validation_passed ? "bg-green-600" :
+            evidence.safe_mode_applied ? "bg-amber-600" :
+            "bg-red-600"
+          } text-white text-[10px] px-2 py-0.5`}>
+            {evidence.validation_passed ? "✓ Contract Satisfied" : evidence.safe_mode_applied ? "⚠ Withheld" : "✗ Failed"}
+          </Badge>
         </div>
 
-        <div className="flex items-center gap-2">
-          {evidence.validation_passed ? (
-            <CheckCircle2 className="w-5 h-5 text-green-600" />
-          ) : evidence.safe_mode_applied ? (
-            <Shield className="w-5 h-5 text-amber-600" />
-          ) : (
-            <XCircle className="w-5 h-5 text-red-500" />
-          )}
-          <span className="text-sm font-medium text-slate-700">
-            {evidence.validation_passed ? "Contract Satisfied" : evidence.safe_mode_applied ? "Output Withheld (Correct)" : "Validation Failed"}
-          </span>
-        </div>
-
-        {evidence.safe_mode_applied && (
-          <div className="bg-amber-50 border-l-4 border-amber-600 rounded-lg p-3">
-            <p className="text-xs text-amber-800 font-semibold flex items-center gap-2">
-              <Shield className="w-3.5 h-3.5" />
-              Governance Protection Applied
-            </p>
-            <p className="text-xs text-amber-700 mt-1">Contract requirements not met after repair attempts. Output withheld to maintain reliability standards.</p>
-          </div>
-        )}
-
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-slate-50 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-1">
+        <div className="grid grid-cols-3 gap-2">
+          <div className="bg-slate-50 rounded-lg p-2">
+            <div className="flex items-center gap-1 mb-0.5">
               <Clock className="w-3 h-3 text-slate-500" />
-              <span className="text-xs text-slate-500 font-medium">Latency</span>
+              <span className="text-[10px] text-slate-500 font-medium">Latency</span>
             </div>
-            <p className="text-lg font-bold text-slate-900">{evidence.latency_ms}ms</p>
-            <p className="text-xs text-slate-500" title="Billable model time">💵 Model: {evidence.model_latency_ms}ms</p>
-            <p className="text-xs text-slate-400" title="App runtime (non-billable)">⚙️ Local: {evidence.local_latency_ms}ms</p>
+            <p className="text-base font-bold text-slate-900">{evidence.latency_ms}ms</p>
+            <p className="text-[10px] text-slate-500">💵 {evidence.model_latency_ms}ms ⚙️ {evidence.local_latency_ms}ms</p>
           </div>
 
-          <div className="bg-slate-50 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-1">
+          <div className="bg-slate-50 rounded-lg p-2">
+            <div className="flex items-center gap-1 mb-0.5">
               <Zap className="w-3 h-3 text-slate-500" />
-              <span className="text-xs text-slate-500 font-medium">Attempts</span>
+              <span className="text-[10px] text-slate-500 font-medium">Attempts</span>
             </div>
-            <p className="text-lg font-bold text-slate-900">{evidence.attempts}</p>
-            <p className="text-xs text-slate-500">💵 Repairs: {evidence.repairs}</p>
-            {evidence.local_repairs > 0 && (
-              <p className="text-xs text-slate-400">⚙️ Local: {evidence.local_repairs}</p>
-            )}
+            <p className="text-base font-bold text-slate-900">{evidence.attempts}</p>
+            <p className="text-[10px] text-slate-500">💵 {evidence.repairs} {evidence.local_repairs > 0 ? `⚙️ ${evidence.local_repairs}` : ''}</p>
           </div>
 
           <BaselineDeltaCard metrics={metrics} mode={mode} />
         </div>
 
-        {evidence.validation_summary && (
-          <div className="space-y-2">
-            <h4 className="text-xs font-semibold text-slate-700">Validation Details</h4>
-            <div className="space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-slate-600">Total Checks:</span>
-                <span className="font-medium">{evidence.validation_summary.total_checks}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-600">Passed:</span>
-                <span className="font-medium text-green-600">{evidence.validation_summary.passed_checks}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-600">Failed:</span>
-                <span className="font-medium text-red-600">{evidence.validation_summary.failed_checks}</span>
-              </div>
+        <div className="pt-2 border-t border-slate-200 space-y-0.5 text-[10px]">
+          <div className="flex justify-between items-center">
+            <span className="text-slate-500">Mode / Grounding:</span>
+            <span className="font-medium text-slate-700">{evidence.mode} / {evidence.grounding}</span>
+          </div>
+          {evidence.validation_summary && (
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500">Validation:</span>
+              <span className="font-medium text-slate-700">
+                {evidence.validation_summary.passed_checks} / {evidence.validation_summary.total_checks} passed
+              </span>
             </div>
-          </div>
-        )}
-
-        {evidence.hybrid_context_injected && (
-          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
-            <p className="text-xs text-emerald-800 font-medium">Hybrid Context Injected</p>
-            <p className="text-xs text-emerald-700 mt-1">Tokens saved: ~{evidence.hybrid_tokens_saved}</p>
-          </div>
-        )}
-
-        <div className="pt-3 border-t border-slate-200 space-y-1 text-xs">
-          <div className="flex justify-between">
-            <span className="text-slate-600">Mode:</span>
-            <Badge variant="secondary" className="text-[10px]">{evidence.mode}</Badge>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-600">Grounding:</span>
-            <Badge variant="secondary" className="text-[10px]">{evidence.grounding}</Badge>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-600">Request ID:</span>
-            <span className="font-mono text-[10px] text-slate-500">{evidence.request_id?.substring(0, 8)}</span>
-          </div>
+          )}
+          {evidence.hybrid_context_injected && (
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500">Hybrid Context:</span>
+              <span className="font-medium text-emerald-700">~{evidence.hybrid_tokens_saved}t saved</span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

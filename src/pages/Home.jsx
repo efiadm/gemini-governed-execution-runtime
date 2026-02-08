@@ -272,45 +272,42 @@ export default function Home() {
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <header className="border-b border-slate-200 bg-white sticky top-0 z-50 shadow-sm">
-        <div className="max-w-[1800px] mx-auto px-6 py-3">
+        <div className="max-w-[1800px] mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center shadow-lg">
-                <span className="text-white text-sm font-bold">TG</span>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center">
+                <span className="text-white text-xs font-bold">G3</span>
               </div>
               <div>
-                <h1 className="text-lg font-bold text-slate-900">Gemini 3 Governed Execution</h1>
-                <p className="text-xs text-slate-500">Knowledge → Governance → Experience → Understanding → Reliable Output</p>
+                <h1 className="text-base font-bold text-slate-900">Gemini 3 Governed Execution</h1>
+                <p className="text-[10px] text-slate-500">Knowledge → Governance → Experience → Understanding → Reliable Output</p>
               </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowTelemetry(!showTelemetry)}
-                className="text-xs"
+                className="text-xs h-7"
               >
                 {showTelemetry ? "Hide" : "Show"} Telemetry
               </Button>
-              <div className="text-xs text-slate-400">
-                {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-              </div>
               </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-[1800px] mx-auto px-6 py-6">
+      <main className="max-w-[1800px] mx-auto px-6 py-3">
         {/* Progress Stepper */}
         {progressStep && (
-          <div className="mb-6">
+          <div className="mb-3">
             <ProgressStepper step={progressStep} timestamps={progressTimestamps} />
           </div>
         )}
 
         {/* 3-Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
           {/* Left: Prompt Panel */}
           <PromptPanel
             prompt={prompt}

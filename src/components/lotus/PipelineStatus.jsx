@@ -22,25 +22,15 @@ export default function PipelineStatus({ stage, safeModeApplied }) {
   };
 
   return (
-    <div className="flex items-center gap-2 text-xs">
+    <div className="flex items-center gap-1.5 text-[10px]">
       {stages.map((s, idx) => {
         const status = getStageStatus(s.key);
         return (
           <React.Fragment key={s.key}>
-            <div className="flex items-center gap-1.5">
-              {status === "complete" && <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />}
-              {status === "active" && <Circle className="w-3.5 h-3.5 text-blue-600 animate-pulse" />}
-              {status === "withheld" && <XCircle className="w-3.5 h-3.5 text-amber-600" />}
-              {status === "pending" && <Circle className="w-3.5 h-3.5 text-slate-300" />}
-              <span className={`font-medium ${
-                status === "complete" ? "text-green-700" :
-                status === "active" ? "text-blue-700" :
-                status === "withheld" ? "text-amber-700" :
-                "text-slate-400"
-              }`}>
-                {s.label}
-              </span>
-            </div>
+            {status === "complete" && <CheckCircle2 className="w-2.5 h-2.5 text-green-600" />}
+            {status === "active" && <Circle className="w-2.5 h-2.5 text-blue-600" />}
+            {status === "withheld" && <XCircle className="w-2.5 h-2.5 text-amber-600" />}
+            {status === "pending" && <Circle className="w-2.5 h-2.5 text-slate-300" />}
             {idx < stages.length - 1 && <span className="text-slate-400">→</span>}
           </React.Fragment>
         );

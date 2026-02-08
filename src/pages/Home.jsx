@@ -279,8 +279,8 @@ export default function Home() {
                 <span className="text-white text-sm font-bold">TG</span>
               </div>
               <div>
-                <h1 className="text-lg font-bold text-slate-900">Trident Governed Runner</h1>
-                <p className="text-xs text-slate-500">Contract → Validate → Repair → Evidence</p>
+                <h1 className="text-lg font-bold text-slate-900">Gemini 3 Governed Execution</h1>
+                <p className="text-xs text-slate-500">Knowledge → Governance → Experience → Understanding → Reliable Output</p>
               </div>
               </div>
               <div className="flex items-center gap-3">

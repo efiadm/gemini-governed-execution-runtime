@@ -67,7 +67,8 @@ export default function Home() {
       return;
     }
 
-    const runMode = overrideMode || mode;
+    // Check if overrideMode is an event object (from button click)
+    const runMode = (typeof overrideMode === 'string') ? overrideMode : mode;
 
     setIsRunning(true);
     setProgressStep(null);

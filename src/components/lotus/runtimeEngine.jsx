@@ -367,13 +367,35 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress, set
 
   emitEvent(EventTypes.LOCAL_STEP, { step: "validation", attempt: 1 });
   localStart = Date.now();
-  try {
-    parsedOutput = tryParseJson(rawOutput);
-    validation = validateGovernedOutput(parsedOutput, { grounded: useGrounding, correctionMode, hadRepairs: false });
-  } catch (e) {
-    parsedOutput = null;
-    validation = { passed: false, errors: [`JSON parse failed: ${e.message}`] };
+  
+  // Local repair first
+  const localRepairResult = attemptLocalRepair(rawOutput);
+  if (localRepairResult.success && localRepairResult.parsed) {
+    localRepairs = localRepairResult.repairs.length;
+    const fieldResult = ensureRequiredFields(localRepairResult.parsed, { grounded: useGrounding, correctionMode });
+    if (fieldResult.modified) {
+      localRepairs += fieldResult.addedFields.length;
+    }
+    parsedOutput = fieldResult.parsed;
+    addArtifact({ 
+      type: "local_repair", 
+      repairs: localRepairResult.repairs,
+      mode: "hybrid", 
+      timestamp: Date.now() 
+    });
+  } else {
+    try {
+      parsedOutput = tryParseJson(rawOutput);
+    } catch (e) {
+      parsedOutput = null;
+      validation = { passed: false, errors: [`JSON parse failed: ${e.message}`] };
+    }
   }
+  
+  if (parsedOutput) {
+    validation = validateGovernedOutput(parsedOutput, { grounded: useGrounding, correctionMode, hadRepairs: false });
+  }
+  
   let localMs = Date.now() - localStart;
   totalLocalMs += localMs;
   

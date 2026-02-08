@@ -20,6 +20,20 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
     return delta;
   };
 
+  const COST_PER_1K_TOKENS = 0.002; // Example: $0.002 per 1K tokens
+  
+  const calculateCost = (tokens) => {
+    if (!tokens) return 0;
+    return (tokens / 1000) * COST_PER_1K_TOKENS;
+  };
+
+  const calculateEfficiencyScore = (mode) => {
+    const m = allModeMetrics[mode];
+    if (!m || !m.billable?.total_model_tokens || !m.total?.model_latency_ms) return null;
+    // Tokens per second
+    return ((m.billable.total_model_tokens / m.total.model_latency_ms) * 1000).toFixed(0);
+  };
+
   const MetricRow = ({ label, getValue, unit = "", isBillable = false, showDelta = false }) => {
     const baseVal = getValue(baseline);
     const govVal = getValue(governed);
@@ -60,104 +74,128 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
 
   const hasAuditData = allModeMetrics?.governed?.audit || allModeMetrics?.hybrid?.audit;
 
-  return (
-    <div className="space-y-6">
-      <div className="bg-gradient-to-r from-violet-50 to-indigo-50 border-l-4 border-violet-600 rounded-lg p-4 mb-6">
-        <h2 className="text-base font-bold text-slate-900 mb-1">Execution Metrics (Production Path)</h2>
-        <p className="text-xs text-slate-600">
-          <strong>Production-ready:</strong> Direct model calls to produce the returned answer. Repairs included if needed. 
-          <strong className="ml-2">Diagnostic features (drift, hallucination analysis) are optional and shown below.</strong>
-        </p>
-      </div>
-
-      <div className="flex items-center justify-between mb-4">
+  const PlaneTable = ({ title, subtitle, rows, bgColor = "bg-slate-50" }) => (
+    <div className="mb-6">
+      <div className="flex items-center justify-between mb-3">
         <div>
-          <h3 className="text-sm font-semibold text-slate-800">Billable vs Non-Billable Breakdown</h3>
-          <p className="text-xs text-slate-500 mt-1">
-            <strong>Model time:</strong> Billable API calls. <strong>Runtime-local:</strong> System-side validation/parsing (non-billable).
-          </p>
+          <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
+          <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowOnlyBillable(!showOnlyBillable)}
-        >
-          {showOnlyBillable ? "Show Full Breakdown" : "Show Only Billable"}
-        </Button>
       </div>
-
-      <div>
-        <h3 className="text-sm font-semibold text-slate-800 mb-3">Mode-by-Mode Totals</h3>
-        <div className="overflow-x-auto">
-          <div className="min-w-[600px]">
-            <div className="border border-slate-200 rounded-lg overflow-hidden">
-              <Table>
-            <TableHeader>
-              <TableRow className="bg-slate-50">
-                <TableHead className="text-xs font-bold">Metric</TableHead>
-                <TableHead className="text-center text-xs font-bold">Baseline</TableHead>
-                <TableHead className="text-center text-xs font-bold">Governed</TableHead>
-                <TableHead className="text-center text-xs font-bold">Hybrid</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <MetricRow label="End-to-End Latency" getValue={(m) => m?.total?.total_latency_ms} unit="ms" showDelta />
-              <MetricRow label="Model Latency (billable)" getValue={(m) => m?.total?.model_latency_ms} unit="ms" isBillable showDelta />
-              {!showOnlyBillable && <MetricRow label="Runtime-local (non-billable)" getValue={(m) => m?.local?.total_local_ms} unit="ms" />}
-              <MetricRow label="Prompt Tokens" getValue={(m) => m?.billable?.prompt_tokens_in} isBillable showDelta />
-              <MetricRow label="Completion Tokens" getValue={(m) => m?.billable?.completion_tokens_out} isBillable showDelta />
-              <MetricRow label="Total Tokens" getValue={(m) => m?.billable?.total_model_tokens} isBillable showDelta />
-              <MetricRow label="Extra Model Calls" getValue={(m) => m?.repair?.extra_model_calls_due_to_repair} isBillable showDelta />
-            </TableBody>
-          </Table>
-            </div>
+      <div className="overflow-x-auto">
+        <div className="min-w-[700px]">
+          <div className="border border-slate-200 rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className={bgColor}>
+                  <TableHead className="text-xs font-bold">Metric</TableHead>
+                  <TableHead className="text-center text-xs font-bold">Baseline</TableHead>
+                  <TableHead className="text-center text-xs font-bold">Governed</TableHead>
+                  <TableHead className="text-center text-xs font-bold">Hybrid</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>{rows}</TableBody>
+            </Table>
           </div>
         </div>
       </div>
+    </div>
+  );
 
-      {!showOnlyBillable && (
-        <div>
-          <h3 className="text-sm font-semibold text-slate-800 mb-3">Billable vs App Runtime Breakdown</h3>
-          <div className="overflow-x-auto">
-            <div className="min-w-[600px]">
-              <div className="border border-slate-200 rounded-lg overflow-hidden">
-                <Table>
-            <TableHeader>
-              <TableRow className="bg-slate-50">
-                <TableHead className="text-xs font-bold">Metric</TableHead>
-                <TableHead className="text-center text-xs font-bold">Baseline</TableHead>
-                <TableHead className="text-center text-xs font-bold">Governed</TableHead>
-                <TableHead className="text-center text-xs font-bold">Hybrid</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow className="bg-red-50/50">
-                <TableCell colSpan={4} className="text-xs font-bold text-red-800">Billable (Model)</TableCell>
-              </TableRow>
-              <MetricRow label="Prompt Tokens In" getValue={(m) => m?.billable?.prompt_tokens_in} />
-              <MetricRow label="Completion Tokens Out" getValue={(m) => m?.billable?.completion_tokens_out} />
-              <MetricRow label="Total Model Tokens" getValue={(m) => m?.billable?.total_model_tokens} />
-              <MetricRow label="Extra Tokens (Repairs)" getValue={(m) => m?.repair?.extra_tokens_due_to_repair?.toFixed(0)} />
-              <MetricRow label="Model Latency" getValue={(m) => m?.total?.model_latency_ms} unit="ms" />
-              
-              <TableRow className="bg-slate-50">
-                <TableCell colSpan={4} className="text-xs font-bold text-slate-800">
-                  Runtime-local (non-billable)
-                  <span className="ml-2 text-[10px] text-slate-500 font-normal">
-                    Browser/runtime + artifact store: validation, parsing, evidence assembly — not billable model time
-                  </span>
-                </TableCell>
-              </TableRow>
-              <MetricRow label="Validation" getValue={(m) => m?.local?.local_validation_ms} unit="ms" />
-              <MetricRow label="Render" getValue={(m) => m?.local?.local_render_ms} unit="ms" />
-              <MetricRow label="Total Runtime-local" getValue={(m) => m?.local?.total_local_ms} unit="ms" />
-            </TableBody>
-          </Table>
-                </div>
-              </div>
-            </div>
-        </div>
-      )}
+  const executionRows = (
+    <>
+      <MetricRow label="Model Latency (base call)" getValue={(m) => {
+        const baseLatency = m?.total?.model_latency_ms || 0;
+        const repairLatency = (m?.repair?.extra_model_calls_due_to_repair || 0) * (baseLatency / (m?.total?.attempts || 1));
+        return Math.max(0, baseLatency - repairLatency).toFixed(0);
+      }} unit="ms" isBillable showDelta />
+      <MetricRow label="Base Tokens (pre-repair)" getValue={(m) => {
+        const total = m?.billable?.total_model_tokens || 0;
+        const extra = m?.repair?.extra_tokens_due_to_repair || 0;
+        return Math.max(0, total - extra);
+      }} isBillable showDelta />
+      <MetricRow label="Estimated Cost" getValue={(m) => {
+        const total = m?.billable?.total_model_tokens || 0;
+        const extra = m?.repair?.extra_tokens_due_to_repair || 0;
+        return `$${calculateCost(Math.max(0, total - extra)).toFixed(4)}`;
+      }} isBillable />
+      <MetricRow label="Efficiency (tok/sec)" getValue={(m) => calculateEfficiencyScore(m.mode)} />
+    </>
+  );
+
+  const diagnosticsRows = (
+    <>
+      <MetricRow label="Validation Time" getValue={(m) => m?.local?.local_validation_ms} unit="ms" />
+      <MetricRow label="Render Time" getValue={(m) => m?.local?.local_render_ms} unit="ms" />
+      <MetricRow label="Evidence Assembly" getValue={(m) => {
+        const total = m?.local?.total_local_ms || 0;
+        const validation = m?.local?.local_validation_ms || 0;
+        const render = m?.local?.local_render_ms || 0;
+        return Math.max(0, total - validation - render).toFixed(0);
+      }} unit="ms" />
+      <MetricRow label="Total Runtime-local" getValue={(m) => m?.local?.total_local_ms} unit="ms" showDelta />
+    </>
+  );
+
+  const repairRows = (
+    <>
+      <MetricRow label="Extra Model Calls" getValue={(m) => m?.repair?.extra_model_calls_due_to_repair || 0} isBillable showDelta />
+      <MetricRow label="Extra Tokens (repairs)" getValue={(m) => m?.repair?.extra_tokens_due_to_repair?.toFixed(0) || 0} isBillable showDelta />
+      <MetricRow label="Repair Latency (model)" getValue={(m) => {
+        const baseLatency = m?.total?.model_latency_ms || 0;
+        const repairCalls = m?.repair?.extra_model_calls_due_to_repair || 0;
+        const attempts = m?.total?.attempts || 1;
+        return (repairCalls > 0 ? (baseLatency / attempts) * repairCalls : 0).toFixed(0);
+      }} unit="ms" isBillable showDelta />
+      <MetricRow label="Repair Cost" getValue={(m) => {
+        const extra = m?.repair?.extra_tokens_due_to_repair || 0;
+        return `$${calculateCost(extra).toFixed(4)}`;
+      }} isBillable showDelta />
+    </>
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-gradient-to-r from-violet-50 to-indigo-50 border-l-4 border-violet-600 rounded-lg p-4 mb-6">
+        <h2 className="text-base font-bold text-slate-900 mb-1">Three-Plane Performance Analysis</h2>
+        <p className="text-xs text-slate-600">
+          <strong>Clear tradeoff separation:</strong> Execution (base generation), Diagnostics (non-billable local), Repairs (billable recovery). Each delta shows which plane drives cost/latency differences.
+        </p>
+      </div>
+
+      <PlaneTable
+        title="🚀 Plane A: Execution (Base Generation)"
+        subtitle="💵 Billable — Initial model call to generate response (no repairs)"
+        rows={executionRows}
+        bgColor="bg-violet-50"
+      />
+
+      <PlaneTable
+        title="🔍 Plane B: Diagnostics (Runtime-Local)"
+        subtitle="⚙️ Non-Billable — Browser-side validation, parsing, evidence assembly"
+        rows={diagnosticsRows}
+        bgColor="bg-blue-50"
+      />
+
+      <PlaneTable
+        title="🔧 Plane C: Repairs (Recovery Calls)"
+        subtitle="💵 Billable — Extra model calls + tokens to fix validation failures"
+        rows={repairRows}
+        bgColor="bg-amber-50"
+      />
+
+      <Card className="border-slate-300 bg-slate-50">
+        <CardContent className="py-4">
+          <h3 className="text-sm font-bold text-slate-800 mb-3">Key Tradeoffs</h3>
+          <ul className="space-y-2 text-xs text-slate-700">
+            <li>• <strong>Execution plane:</strong> Baseline={baseline?.billable?.total_model_tokens || 0}t, Governed={(governed?.billable?.total_model_tokens || 0) - (governed?.repair?.extra_tokens_due_to_repair || 0)}t — base generation cost before repairs</li>
+            <li>• <strong>Diagnostics plane:</strong> Baseline={baseline?.local?.total_local_ms || 0}ms, Governed={governed?.local?.total_local_ms || 0}ms — non-billable validation overhead</li>
+            <li>• <strong>Repairs plane:</strong> Governed adds {governed?.repair?.extra_model_calls_due_to_repair || 0} calls, {(governed?.repair?.extra_tokens_due_to_repair || 0).toFixed(0)} tokens — billable recovery cost</li>
+            <li>• <strong>Hybrid efficiency:</strong> Saves ~{hybrid?.hybrid_tokens_saved || 0}t via context injection, but repair plane shows {hybrid?.repair?.extra_model_calls_due_to_repair || 0} extra calls</li>
+            <li>• <strong>Cost attribution:</strong> "Hybrid is slower" = ${calculateCost(hybrid?.repair?.extra_tokens_due_to_repair || 0).toFixed(4)} repair cost, not execution cost</li>
+          </ul>
+        </CardContent>
+      </Card>
 
       {hasAuditData && (
         <div className="border-t-4 border-blue-300 pt-6 mt-8">

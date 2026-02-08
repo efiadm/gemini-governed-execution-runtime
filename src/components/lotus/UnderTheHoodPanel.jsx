@@ -118,7 +118,7 @@ export default function UnderTheHoodPanel() {
               )}
             </div>
             {validation.passed === null ? (
-              <p className="text-[10px] text-slate-400 italic">Not applicable for baseline mode.</p>
+              <p className="text-[10px] text-slate-400 italic">Not applicable in baseline mode (no governance layer).</p>
             ) : (
               <div className="text-[10px] text-slate-500 space-y-0.5">
                 <div>Attempts: {validation.attempts || 0}</div>
@@ -196,7 +196,7 @@ export default function UnderTheHoodPanel() {
               ) : (
                 <div className="flex items-center justify-between p-2 bg-slate-100 rounded">
                   <span className="text-slate-500 text-xs">Structure Score:</span>
-                  <span className="text-slate-400 text-xs italic">Not applicable (baseline)</span>
+                  <span className="text-slate-400 text-xs italic">Not applicable in baseline mode (no governance layer).</span>
                 </div>
               )}
               <div className="flex items-center justify-between p-2 bg-slate-50 rounded">

@@ -238,7 +238,7 @@ export default function DriftTab() {
                     <TableHead className="text-xs">Stability</TableHead>
                     <TableHead className="text-xs">Structure</TableHead>
                     <TableHead className="text-xs">Authority Flags</TableHead>
-                    <TableHead className="text-xs">H-Risk</TableHead>
+                    <TableHead className="text-xs">Hallucination Pattern Recognition</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

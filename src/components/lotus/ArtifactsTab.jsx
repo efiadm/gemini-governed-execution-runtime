@@ -11,6 +11,7 @@ export default function ArtifactsTab() {
   const [showAll, setShowAll] = useState(false);
   const [filterMode, setFilterMode] = useState("all");
   const [filterType, setFilterType] = useState("all");
+  const [showLimit] = useState(10);
 
   useEffect(() => {
     const unsubscribe = subscribeToRunState((state) => {
@@ -38,7 +39,7 @@ export default function ArtifactsTab() {
     return true;
   });
 
-  const displayedArtifacts = showAll ? filteredArtifacts : filteredArtifacts.slice(-10);
+  const displayedArtifacts = showAll ? filteredArtifacts : filteredArtifacts.slice(-showLimit);
   const uniqueTypes = [...new Set(artifacts.map(a => a.type))];
 
   return (
@@ -46,17 +47,17 @@ export default function ArtifactsTab() {
       <Card className="border-slate-200">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-semibold text-slate-700">Artifact Store</CardTitle>
-            {artifacts.length > 10 && !showAll && (
+            <CardTitle className="text-sm font-semibold text-slate-700">Artifact Store (Runtime-Local)</CardTitle>
+            {artifacts.length > showLimit && !showAll && (
               <Button variant="ghost" size="sm" onClick={() => setShowAll(true)}>
-                View all ({artifacts.length})
+                Show all ({artifacts.length})
               </Button>
             )}
           </div>
         </CardHeader>
         <CardContent>
           <p className="text-xs text-slate-500 mb-4">
-            App runtime artifacts generated during runs. Hybrid uses these to reduce billable tokens.
+            Runtime artifacts (app logic, non-billable). Hybrid mode uses these to reduce billable model tokens.
           </p>
 
           {artifacts.length > 0 && (
@@ -116,9 +117,9 @@ export default function ArtifactsTab() {
             </div>
           )}
 
-          {showAll && filteredArtifacts.length > 10 && (
+          {showAll && filteredArtifacts.length > showLimit && (
             <Button variant="ghost" size="sm" onClick={() => setShowAll(false)} className="w-full mt-3">
-              Show less
+              Show last {showLimit} only
             </Button>
           )}
         </CardContent>

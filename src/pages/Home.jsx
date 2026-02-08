@@ -12,6 +12,7 @@ import TestsTab from "@/components/lotus/TestsTab";
 import PerformanceTab from "@/components/lotus/PerformanceTab";
 import ArtifactsTab from "@/components/lotus/ArtifactsTab";
 import DriftTab from "@/components/lotus/DriftTab";
+import UnderTheHoodPanel from "@/components/lotus/UnderTheHoodPanel";
 import TruncationWidget from "@/components/lotus/TruncationWidget";
 import ProgressStepper from "@/components/lotus/ProgressStepper";
 import SummaryTab from "@/components/lotus/SummaryTab";
@@ -333,6 +334,9 @@ export default function Home() {
                 <TabsTrigger value="summary" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
                   Summary
                 </TabsTrigger>
+                <TabsTrigger value="underhood" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
+                  Under the Hood
+                </TabsTrigger>
                 <TabsTrigger value="evidence" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
                   Evidence
                 </TabsTrigger>
@@ -354,6 +358,10 @@ export default function Home() {
             <div className="p-6">
               <TabsContent value="summary" className="mt-0">
                 <SummaryTab />
+              </TabsContent>
+
+              <TabsContent value="underhood" className="mt-0">
+                <UnderTheHoodPanel />
               </TabsContent>
 
               <TabsContent value="evidence" className="mt-0">

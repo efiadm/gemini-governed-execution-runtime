@@ -287,7 +287,7 @@ export default function Home() {
                 onClick={() => setShowTelemetry(!showTelemetry)}
                 className="text-xs h-7"
               >
-                {showTelemetry ? "Hide" : "Show"} Telemetry
+                {showTelemetry ? "Hide" : "Show"} Execution Trace
               </Button>
               </div>
           </div>
@@ -328,6 +328,7 @@ export default function Home() {
             evidence={currentEvidence}
             mode={mode}
             isRunning={isRunning}
+            showTelemetry={showTelemetry}
           />
 
           {/* Right: Summary Panel */}

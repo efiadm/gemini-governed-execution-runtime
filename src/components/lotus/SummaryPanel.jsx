@@ -2,7 +2,8 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, XCircle, Clock, Zap, Download } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Zap, Download, FileJson } from "lucide-react";
+import { downloadEvidenceFile } from "./auditExporter";
 
 export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
   if (!evidence) {
@@ -23,12 +24,18 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-semibold text-slate-700">Summary</CardTitle>
-          {onDownload && (
-            <Button variant="ghost" size="sm" onClick={onDownload} className="h-7">
-              <Download className="w-3 h-3 mr-1" />
-              Evidence
+          <div className="flex gap-1">
+            {onDownload && (
+              <Button variant="ghost" size="sm" onClick={onDownload} className="h-7">
+                <Download className="w-3 h-3 mr-1" />
+                Evidence
+              </Button>
+            )}
+            <Button variant="ghost" size="sm" onClick={downloadEvidenceFile} className="h-7">
+              <FileJson className="w-3 h-3 mr-1" />
+              Export
             </Button>
-          )}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">

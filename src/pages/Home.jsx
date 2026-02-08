@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 import PromptInput from "@/components/governance/PromptInput";
 import ModeControls from "@/components/governance/ModeControls";
@@ -19,6 +20,9 @@ import ProgressIndicator from "@/components/governance/ProgressIndicator";
 import ComparisonTable from "@/components/governance/ComparisonTable";
 import NextStepsPanel from "@/components/governance/NextStepsPanel";
 import TelemetryPanel from "@/components/governance/TelemetryPanel";
+import TelemetryStrip from "@/components/governance/TelemetryStrip";
+import PerformanceTab from "@/components/governance/PerformanceTab";
+import ArtifactsTab from "@/components/governance/ArtifactsTab";
 
 import {
   TEST_SUITE,
@@ -33,6 +37,10 @@ import {
   runHybrid,
 } from "@/components/governance/governanceEngine";
 import { callLLM } from "@/components/governance/runtimeHelper";
+import { lintPrompt, compactAdversarialPrompt } from "@/components/governance/preflightLinter";
+import { listArtifacts } from "@/components/governance/localStore";
+import { minimizeContext, buildMinimizedSystemPrompt, ARTIFACT_STRATEGIES } from "@/components/governance/contextMinimizer";
+import { calculateMetrics, calculateDeltaMetrics, calculateTruncationRisk } from "@/components/governance/metricsCalculator";
 
 const DEFAULT_MODEL = "gemini-3-flash-preview";
 const MAX_REPAIR_ATTEMPTS = 2;
@@ -179,9 +187,15 @@ export default function Home() {
 
   // Metrics tracking
   const [metrics, setMetrics] = useState({});
+  const [allModeMetrics, setAllModeMetrics] = useState({});
+  const [deltaMetrics, setDeltaMetrics] = useState(null);
+  const [truncationRisk, setTruncationRisk] = useState(0);
   const [progressStep, setProgressStep] = useState(null);
+  const [activeTab, setActiveTab] = useState("performance");
+  const [artifactStrategy, setArtifactStrategy] = useState(ARTIFACT_STRATEGIES.MINIMAL);
 
   const allEvidence = useRef([]);
+  const baselineMetricsRef = useRef(null);
 
   const handleRun = useCallback(async () => {
     if (!prompt.trim()) {
@@ -207,16 +221,10 @@ export default function Home() {
         setRawJson(null);
         allEvidence.current.push(res.evidence);
 
-        const tokensIn = estimateTokens(prompt);
-        const tokensOut = estimateTokens(res.output);
-        setMetrics({
-          baseline: {
-            latency_ms: res.evidence.latency_ms,
-            tokens_in: tokensIn,
-            tokens_out: tokensOut,
-            tokens_total: tokensIn + tokensOut,
-          },
-        });
+        const metrics = calculateMetrics(res.evidence, res.output, prompt, "baseline");
+        setAllModeMetrics({ baseline: metrics });
+        baselineMetricsRef.current = metrics;
+        setTruncationRisk(calculateTruncationRisk(metrics.billable.total_model_tokens));
 
         await base44.entities.GovernanceRun.create({
           prompt,
@@ -235,19 +243,14 @@ export default function Home() {
         setRawJson(res.output);
         allEvidence.current.push(res.evidence);
 
-        const tokensIn = estimateTokens(prompt);
-        const tokensOut = estimateTokens(JSON.stringify(res.output));
-        setMetrics((prev) => ({
-          ...prev,
-          governed: {
-            latency_ms: res.evidence.latency_ms,
-            tokens_in: tokensIn,
-            tokens_out: tokensOut,
-            tokens_total: tokensIn + tokensOut,
-            total_repairs: res.evidence.repairs,
-            validation_pass_rate: res.validation.passed ? 100 : 0,
-          },
-        }));
+        const metrics = calculateMetrics(res.evidence, res.rawOutput, prompt, "governed");
+        setAllModeMetrics((prev) => ({ ...prev, governed: metrics }));
+        
+        if (baselineMetricsRef.current) {
+          const delta = calculateDeltaMetrics(metrics, baselineMetricsRef.current);
+          setDeltaMetrics(delta);
+        }
+        setTruncationRisk(calculateTruncationRisk(metrics.billable.total_model_tokens));
 
         await base44.entities.GovernanceRun.create({
           prompt,
@@ -269,19 +272,14 @@ export default function Home() {
         setRawJson(res.output);
         allEvidence.current.push(res.evidence);
 
-        const tokensIn = estimateTokens(prompt);
-        const tokensOut = estimateTokens(JSON.stringify(res.output));
-        setMetrics((prev) => ({
-          ...prev,
-          hybrid: {
-            latency_ms: res.evidence.latency_ms,
-            tokens_in: tokensIn,
-            tokens_out: tokensOut,
-            tokens_total: tokensIn + tokensOut,
-            total_repairs: res.evidence.repairs,
-            validation_pass_rate: res.validation.passed ? 100 : 0,
-          },
-        }));
+        const metrics = calculateMetrics(res.evidence, res.rawOutput, prompt, "hybrid");
+        setAllModeMetrics((prev) => ({ ...prev, hybrid: metrics }));
+        
+        if (baselineMetricsRef.current) {
+          const delta = calculateDeltaMetrics(metrics, baselineMetricsRef.current);
+          setDeltaMetrics(delta);
+        }
+        setTruncationRisk(calculateTruncationRisk(metrics.billable.total_model_tokens));
 
         await base44.entities.GovernanceRun.create({
           prompt,
@@ -464,9 +462,12 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        {/* Controls */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column: Input + Output */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Controls */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
           <PromptInput value={prompt} onChange={setPrompt} disabled={isRunning || isTestRunning} />
           <div className="flex flex-col sm:flex-row sm:items-end gap-5 sm:justify-between flex-wrap">
             <div className="flex flex-wrap items-end gap-5">
@@ -498,39 +499,69 @@ export default function Home() {
               isTestRunning={isTestRunning}
               hasEvidence={allEvidence.current.length > 0}
             />
-          </div>
-        </div>
+              </div>
+            </div>
 
-        {/* Progress Indicator */}
-        {progressStep && <ProgressIndicator currentStep={progressStep} mode={mode} />}
+            {/* Progress Indicator */}
+            {progressStep && <ProgressIndicator currentStep={progressStep} mode={mode} />}
 
-        {/* Telemetry Panel - Always Visible */}
-        <TelemetryPanel evidence={evidence} mode={mode} />
-
-        {/* Comparison Table */}
-        <ComparisonTable metrics={metrics} />
-
-        {/* Output Panels */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="space-y-6">
+            {/* Output */}
             <RenderedOutput data={renderedData} mode={mode} />
             <RawJsonPanel data={rawJson} />
           </div>
-          <div className="space-y-6">
-            <EvidencePanel evidence={evidence} onDownload={evidence ? handleDownloadCurrentEvidence : null} />
-            <ValidationPanel validation={validation} evidence={evidence} />
-            <NextStepsPanel evidence={evidence} validation={validation} mode={mode} />
+
+          {/* Right Column: Tabs Panel */}
+          <div className="lg:col-span-1">
+            <Card className="border-slate-200 shadow-sm rounded-2xl sticky top-24">
+              <CardHeader className="pb-3 border-b border-slate-100">
+                <div className="flex gap-2 overflow-x-auto">
+                  {["performance", "evidence", "artifacts", "tests"].map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                        activeTab === tab
+                          ? "bg-slate-900 text-white"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </CardHeader>
+              <CardContent className="p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+                {activeTab === "performance" && <PerformanceTab allModeMetrics={allModeMetrics} />}
+                {activeTab === "evidence" && (
+                  <div className="space-y-4">
+                    <EvidencePanel evidence={evidence} onDownload={evidence ? handleDownloadCurrentEvidence : null} />
+                    <ValidationPanel validation={validation} evidence={evidence} />
+                    <NextStepsPanel evidence={evidence} validation={validation} mode={mode} />
+                  </div>
+                )}
+                {activeTab === "artifacts" && <ArtifactsTab />}
+                {activeTab === "tests" && (
+                  <TestSuiteTable
+                    results={testResults}
+                    isRunning={isTestRunning}
+                    currentTestId={currentTestId}
+                    onViewEvidence={handleViewTestEvidence}
+                  />
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
 
-        {/* Test Suite */}
-        <TestSuiteTable
-          results={testResults}
-          isRunning={isTestRunning}
-          currentTestId={currentTestId}
-          onViewEvidence={handleViewTestEvidence}
-        />
       </main>
+
+      {/* Telemetry Strip - Bottom Right */}
+      <TelemetryStrip 
+        metrics={allModeMetrics[mode]}
+        deltaMetrics={deltaMetrics}
+        truncationRisk={truncationRisk}
+        mode={mode}
+      />
 
       {/* Test Evidence Drawer */}
       <TestEvidenceDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} testData={drawerData} />

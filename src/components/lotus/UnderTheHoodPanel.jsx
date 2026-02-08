@@ -23,11 +23,49 @@ export default function UnderTheHoodPanel() {
     );
   }
 
-  const { mode, validation, performance, drift, hallucination, evidence } = runState;
+  const { mode, validation, performance, drift, hallucination, evidence, audit } = runState;
   const perf = performance?.[mode] || {};
 
   return (
     <div className="space-y-6">
+      {/* Audit Status Banner */}
+      {audit && audit.status && (
+        <Card className={`border-2 ${
+          audit.status === "complete" ? "border-green-500 bg-green-50" :
+          audit.status === "running" ? "border-blue-500 bg-blue-50" :
+          audit.status === "failed" ? "border-red-500 bg-red-50" :
+          "border-slate-300 bg-slate-50"
+        }`}>
+          <CardContent className="py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Badge className={`${
+                  audit.status === "complete" ? "bg-green-600" :
+                  audit.status === "running" ? "bg-blue-600" :
+                  audit.status === "failed" ? "bg-red-600" :
+                  "bg-slate-500"
+                }`}>
+                  Audit: {audit.status.toUpperCase()}
+                </Badge>
+                {audit.depth && <span className="text-xs text-slate-600">Depth: {audit.depth}</span>}
+                {audit.duration_ms && (
+                  <span className="text-xs text-slate-600">Duration: {audit.duration_ms}ms (non-blocking)</span>
+                )}
+              </div>
+              {audit.started_at && (
+                <div className="text-xs text-slate-500">
+                  Started: {new Date(audit.started_at).toLocaleTimeString()}
+                  {audit.completed_at && ` • Completed: ${new Date(audit.completed_at).toLocaleTimeString()}`}
+                </div>
+              )}
+            </div>
+            {audit.status === "failed" && audit.error && (
+              <p className="text-xs text-red-700 mt-2">Error: {audit.error}</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Compact Metric Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="border-slate-200">

@@ -144,20 +144,43 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
 
       {hasAuditData && (
         <div className="border-t-2 border-slate-300 pt-6">
-          <h3 className="text-sm font-semibold text-slate-800 mb-3">Audit Metrics (Non-Blocking, Excluded from Execution)</h3>
+          <h3 className="text-sm font-semibold text-slate-800 mb-3">Audit Path Metrics (Non-Blocking)</h3>
           <p className="text-xs text-slate-500 mb-4">
-            Async audits run after execution completes. Not included in execution latency or token counts.
+            <strong>Separate from execution:</strong> Async audits run after response returned. Not included in execution latency or billable metrics.
           </p>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-xs text-blue-800">
-              Audit pipeline: {allModeMetrics?.governed?.audit?.status || allModeMetrics?.hybrid?.audit?.status || "pending"}
-            </p>
-            {allModeMetrics?.governed?.audit?.duration_ms && (
-              <p className="text-xs text-blue-700 mt-1">
-                Audit duration: {allModeMetrics.governed.audit.duration_ms}ms (separate from execution)
-              </p>
-            )}
-          </div>
+          <Card className="border-blue-200 bg-blue-50">
+            <CardContent className="py-4">
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Audit Status:</span>
+                  <Badge className={`${
+                    (allModeMetrics?.governed?.audit?.status || allModeMetrics?.hybrid?.audit?.status) === "complete" ? "bg-green-600" :
+                    (allModeMetrics?.governed?.audit?.status || allModeMetrics?.hybrid?.audit?.status) === "running" ? "bg-blue-600" :
+                    (allModeMetrics?.governed?.audit?.status || allModeMetrics?.hybrid?.audit?.status) === "failed" ? "bg-red-600" :
+                    "bg-slate-500"
+                  }`}>
+                    {(allModeMetrics?.governed?.audit?.status || allModeMetrics?.hybrid?.audit?.status || "pending").toUpperCase()}
+                  </Badge>
+                </div>
+                {(allModeMetrics?.governed?.audit?.duration_ms || allModeMetrics?.hybrid?.audit?.duration_ms) && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Audit Duration:</span>
+                    <span className="font-mono text-slate-800">
+                      {allModeMetrics?.governed?.audit?.duration_ms || allModeMetrics?.hybrid?.audit?.duration_ms}ms
+                    </span>
+                  </div>
+                )}
+                {(allModeMetrics?.governed?.audit?.depth || allModeMetrics?.hybrid?.audit?.depth) && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Audit Depth:</span>
+                    <span className="text-slate-800">
+                      {allModeMetrics?.governed?.audit?.depth || allModeMetrics?.hybrid?.audit?.depth}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

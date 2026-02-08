@@ -352,10 +352,10 @@ export default function Home() {
         </div>
 
         {/* Bottom Dock: Tabs */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="border-b border-slate-200 px-6">
-              <TabsList className="bg-transparent border-0 p-0 h-12">
+            <div className="border-b border-slate-200 px-6 overflow-x-auto">
+              <TabsList className="bg-transparent border-0 p-0 h-12 min-w-max">
                 <TabsTrigger value="summary" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
                   Summary
                 </TabsTrigger>
@@ -380,55 +380,50 @@ export default function Home() {
               </TabsList>
             </div>
 
-            <div className="p-6">
-              <TabsContent value="summary" className="mt-0">
-                <SummaryTab />
-              </TabsContent>
+            <div className="p-6 overflow-x-auto">
+              <div className="min-w-0">
+                <TabsContent value="summary" className="mt-0">
+                  <SummaryTab />
+                </TabsContent>
 
-              <TabsContent value="underhood" className="mt-0">
-                <UnderTheHoodPanel />
-              </TabsContent>
+                <TabsContent value="underhood" className="mt-0">
+                  <UnderTheHoodPanel />
+                </TabsContent>
 
-              <TabsContent value="evidence" className="mt-0">
-                <EvidenceTab evidence={currentEvidence} />
-              </TabsContent>
-              
-              <TabsContent value="performance" className="mt-0">
-                <PerformanceTab
-                  allModeMetrics={allModeMetrics}
-                  baselineMetrics={baselineRef.current}
-                />
-              </TabsContent>
-              
-              <TabsContent value="drift" className="mt-0">
-                <DriftTab />
-              </TabsContent>
-              
-              <TabsContent value="artifacts" className="mt-0">
-                <ArtifactsTab />
-              </TabsContent>
-              
-              <TabsContent value="tests" className="mt-0">
-                <TestsTab
-                  results={testResults}
-                  isRunning={isTestRunning}
-                  currentTestId={currentTestId}
-                  onRunTestSuite={handleRunTestSuite}
-                />
-              </TabsContent>
+                <TabsContent value="evidence" className="mt-0">
+                  <EvidenceTab evidence={currentEvidence} />
+                </TabsContent>
+                
+                <TabsContent value="performance" className="mt-0">
+                  <PerformanceTab
+                    allModeMetrics={allModeMetrics}
+                    baselineMetrics={baselineRef.current}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="drift" className="mt-0">
+                  <DriftTab />
+                </TabsContent>
+                
+                <TabsContent value="artifacts" className="mt-0">
+                  <ArtifactsTab />
+                </TabsContent>
+                
+                <TabsContent value="tests" className="mt-0">
+                  <TestsTab
+                    results={testResults}
+                    isRunning={isTestRunning}
+                    currentTestId={currentTestId}
+                    onRunTestSuite={handleRunTestSuite}
+                  />
+                </TabsContent>
+              </div>
             </div>
           </Tabs>
         </div>
       </main>
 
-      {/* Truncation Widget */}
-      {showTelemetry && (
-        <TruncationWidget
-          truncationRisk={truncationRisk}
-          metrics={allModeMetrics[mode]}
-          mode={mode}
-        />
-      )}
+
     </div>
   );
 }

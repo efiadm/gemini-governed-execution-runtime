@@ -12,6 +12,8 @@ import { getArtifactContext, shouldInjectContext } from "./artifactStore";
 import { generateRequestId, estimateTokens, hashPrompt } from "./utils";
 import { emitEvent, EventTypes } from "./eventBus";
 import { updateRunState, addAttempt, addArtifact } from "./runStore";
+import { attemptLocalRepair, ensureRequiredFields } from "./localRepair";
+import { checkCache, saveToCache } from "./cacheReplay";
 
 async function callModel(prompt, grounded) {
   try {
@@ -156,13 +158,36 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress) {
 
   emitEvent(EventTypes.LOCAL_STEP, { step: "validation", attempt: 1 });
   let localStart = Date.now();
-  try {
-    parsedOutput = tryParseJson(rawOutput);
-    validation = validateGovernedOutput(parsedOutput, { grounded: useGrounding, correctionMode, hadRepairs: false });
-  } catch (e) {
-    parsedOutput = null;
-    validation = { passed: false, errors: [`JSON parse failed: ${e.message}`] };
+  let localRepairs = 0;
+  
+  // Try local repair first
+  const localRepairResult = attemptLocalRepair(rawOutput);
+  if (localRepairResult.success && localRepairResult.parsed) {
+    localRepairs = localRepairResult.repairs.length;
+    const fieldResult = ensureRequiredFields(localRepairResult.parsed, { grounded: useGrounding, correctionMode });
+    if (fieldResult.modified) {
+      localRepairs += fieldResult.addedFields.length;
+    }
+    parsedOutput = fieldResult.parsed;
+    addArtifact({ 
+      type: "local_repair", 
+      repairs: localRepairResult.repairs.concat(fieldResult.addedFields.map(f => `added_field_${f}`)),
+      mode: "governed", 
+      timestamp: Date.now() 
+    });
+  } else {
+    try {
+      parsedOutput = tryParseJson(rawOutput);
+    } catch (e) {
+      parsedOutput = null;
+      validation = { passed: false, errors: [`JSON parse failed: ${e.message}`] };
+    }
   }
+  
+  if (parsedOutput) {
+    validation = validateGovernedOutput(parsedOutput, { grounded: useGrounding, correctionMode, hadRepairs: false });
+  }
+  
   let localMs = Date.now() - localStart;
   totalLocalMs += localMs;
   
@@ -257,11 +282,13 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress) {
       grounding: useGrounding ? "on" : "off",
       prompt_hash: hashPrompt(prompt),
       prompt_preview: prompt.substring(0, 100),
+      prompt_full: prompt,
       latency_ms: totalLatency,
       model_latency_ms: totalModelMs,
       local_latency_ms: totalLocalMs,
       attempts: attemptDetails.length,
       repairs,
+      local_repairs: localRepairs,
       validation_passed: !safeModeApplied,
       safe_mode_applied: safeModeApplied,
       correction_mode: correctionMode,

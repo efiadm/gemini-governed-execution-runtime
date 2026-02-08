@@ -6,7 +6,7 @@ export const MODELS_REGISTRY = [
   { value: "gemini-1.5-pro", label: "Gemini 1.5 Pro" },
 ];
 
-export const DEFAULT_MODEL = "gemini-3-flash-preview";
+export const DEFAULT_MODEL = "gemini-3-pro";
 
 const STORAGE_KEY = "lotus.model.selected";
 

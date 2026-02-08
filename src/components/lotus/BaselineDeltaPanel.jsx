@@ -35,7 +35,7 @@ export default function BaselineDeltaPanel({ onRunBaseline }) {
         </CardHeader>
         <CardContent>
           <p className="text-xs text-amber-700 mb-3">
-            No baseline run found for this prompt/model/grounding combination.
+            Comparison requires a baseline reference run (raw tokens/latency). Baseline does not produce governance artifacts.
           </p>
           <Button
             size="sm"

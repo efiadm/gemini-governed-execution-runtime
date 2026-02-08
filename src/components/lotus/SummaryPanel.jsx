@@ -24,7 +24,7 @@ function BaselineDeltaCard({ metrics, mode }) {
           <TrendingUp className="w-3 h-3 text-slate-400" />
           <span className="text-[10px] text-slate-400 font-medium">Δ vs Baseline</span>
         </div>
-        <p className="text-[10px] text-slate-400 mt-1">No baseline</p>
+        <p className="text-[10px] text-slate-400 mt-1">Comparison requires a baseline reference run (raw tokens/latency). Baseline does not produce governance artifacts.</p>
       </div>
     );
   }

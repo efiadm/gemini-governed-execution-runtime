@@ -59,7 +59,7 @@ export default function DriftTab() {
                 {renderStabilityTrend()}
               </div>
             ) : (
-              <p className="text-xs text-slate-400 italic">Requires repeat execution — run the same prompt at least twice to enable.</p>
+              <p className="text-xs text-slate-400 italic">Not applicable in baseline mode (no governance layer).</p>
             )}
           </CardContent>
         </Card>
@@ -77,7 +77,7 @@ export default function DriftTab() {
                 </p>
               </>
             ) : (
-              <p className="text-xs text-slate-400 italic">Not applicable — baseline mode has no contract.</p>
+              <p className="text-xs text-slate-400 italic">Not applicable in baseline mode (no governance layer).</p>
             )}
           </CardContent>
         </Card>

@@ -1,0 +1,145 @@
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, XCircle, Clock } from "lucide-react";
+
+export default function EvidenceTab({ evidence }) {
+  if (!evidence) {
+    return <p className="text-sm text-slate-400 italic">No evidence data. Run a prompt to see details.</p>;
+  }
+
+  if (evidence.error) {
+    return (
+      <Card className="border-red-200 bg-red-50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold text-red-800">Error</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-red-700">{evidence.error_message}</p>
+          <p className="text-xs text-red-600 mt-2">Code: {evidence.error_code}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card className="border-slate-200">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold text-slate-700">Request Metadata</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-xs">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <span className="text-slate-500">Request ID:</span>
+              <p className="font-mono text-slate-800">{evidence.request_id}</p>
+            </div>
+            <div>
+              <span className="text-slate-500">Timestamp:</span>
+              <p className="text-slate-800">{new Date(evidence.timestamp).toLocaleString()}</p>
+            </div>
+            <div>
+              <span className="text-slate-500">Mode:</span>
+              <p className="text-slate-800">{evidence.mode}</p>
+            </div>
+            <div>
+              <span className="text-slate-500">Model:</span>
+              <p className="text-slate-800">{evidence.model}</p>
+            </div>
+            <div>
+              <span className="text-slate-500">Grounding:</span>
+              <p className="text-slate-800">{evidence.grounding}</p>
+            </div>
+            <div>
+              <span className="text-slate-500">Prompt Hash:</span>
+              <p className="font-mono text-slate-800">{evidence.prompt_hash?.substring(0, 16)}</p>
+            </div>
+          </div>
+          <div>
+            <span className="text-slate-500">Prompt Preview:</span>
+            <p className="text-slate-700 bg-slate-50 p-2 rounded mt-1">{evidence.prompt_preview}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {evidence.attemptDetails && evidence.attemptDetails.length > 0 && (
+        <Card className="border-slate-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-slate-700">Attempts</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {evidence.attemptDetails.map((att, i) => (
+                <div key={i} className="border border-slate-200 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {att.ok ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-red-500" />
+                      )}
+                      <span className="text-xs font-medium text-slate-700">
+                        Attempt {att.attempt} ({att.kind})
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-slate-500">
+                      <span>Model: {att.model_ms}ms</span>
+                      <span>Local: {att.local_ms}ms</span>
+                    </div>
+                  </div>
+                  {att.errors && att.errors.length > 0 && (
+                    <div className="space-y-1">
+                      {att.errors.map((err, j) => (
+                        <p key={j} className="text-xs text-red-700 bg-red-50 p-2 rounded">{err}</p>
+                      ))}
+                    </div>
+                  )}
+                  <details className="text-xs">
+                    <summary className="text-slate-600 cursor-pointer hover:text-slate-800">
+                      Raw preview
+                    </summary>
+                    <pre className="bg-slate-900 text-slate-100 p-2 rounded mt-2 text-[10px] overflow-auto">
+                      {att.raw_preview}
+                    </pre>
+                  </details>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {evidence.validation_summary && (
+        <Card className="border-slate-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-slate-700">Validation Summary</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-3 gap-3 text-xs">
+              <div className="bg-slate-50 rounded p-2 text-center">
+                <p className="text-slate-500">Total</p>
+                <p className="text-lg font-bold text-slate-900">{evidence.validation_summary.total_checks}</p>
+              </div>
+              <div className="bg-green-50 rounded p-2 text-center">
+                <p className="text-green-600">Passed</p>
+                <p className="text-lg font-bold text-green-700">{evidence.validation_summary.passed_checks}</p>
+              </div>
+              <div className="bg-red-50 rounded p-2 text-center">
+                <p className="text-red-600">Failed</p>
+                <p className="text-lg font-bold text-red-700">{evidence.validation_summary.failed_checks}</p>
+              </div>
+            </div>
+            {evidence.validation_summary.failures && evidence.validation_summary.failures.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-slate-700">Failures:</p>
+                {evidence.validation_summary.failures.map((f, i) => (
+                  <p key={i} className="text-xs text-red-700 bg-red-50 p-2 rounded">{f}</p>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}

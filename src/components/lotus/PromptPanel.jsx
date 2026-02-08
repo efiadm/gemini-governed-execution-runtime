@@ -1,0 +1,127 @@
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Play, Trash2, FlaskConical } from "lucide-react";
+
+export default function PromptPanel({
+  prompt,
+  onPromptChange,
+  mode,
+  onModeChange,
+  grounding,
+  onGroundingChange,
+  model,
+  onModelChange,
+  presets,
+  onRun,
+  onClear,
+  isRunning,
+  isTestRunning,
+}) {
+  const disabled = isRunning || isTestRunning;
+
+  return (
+    <Card className="border-slate-200 shadow-sm h-full">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm font-semibold text-slate-700">Prompt Input</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label className="text-xs font-semibold text-slate-500">Preset Prompts</Label>
+          <Select onValueChange={(v) => onPromptChange(presets[v])} disabled={disabled}>
+            <SelectTrigger className="text-sm">
+              <SelectValue placeholder="Select preset..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="adversary">Governance Adversary</SelectItem>
+              <SelectItem value="factual">Factual w/ Sources</SelectItem>
+              <SelectItem value="correction">Correction Mode</SelectItem>
+              <SelectItem value="narration">Status Narration Trap</SelectItem>
+              <SelectItem value="truncation">Truncation Stress</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-xs font-semibold text-slate-500">Your Prompt</Label>
+          <Textarea
+            value={prompt}
+            onChange={(e) => onPromptChange(e.target.value)}
+            placeholder="Enter your prompt here..."
+            className="min-h-[200px] text-sm"
+            disabled={disabled}
+          />
+        </div>
+
+        <div className="space-y-3">
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold text-slate-500">Mode</Label>
+            <div className="flex gap-2">
+              {["baseline", "governed", "hybrid"].map((m) => (
+                <button
+                  key={m}
+                  onClick={() => onModeChange(m)}
+                  disabled={disabled}
+                  className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition-all ${
+                    mode === m
+                      ? "bg-violet-600 text-white shadow-sm"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  } disabled:opacity-50`}
+                >
+                  {m.charAt(0).toUpperCase() + m.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold text-slate-500">Grounding</Label>
+            <div className="flex gap-2">
+              {["off", "auto", "on"].map((g) => (
+                <button
+                  key={g}
+                  onClick={() => onGroundingChange(g)}
+                  disabled={disabled}
+                  className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition-all ${
+                    grounding === g
+                      ? "bg-slate-900 text-white shadow-sm"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  } disabled:opacity-50`}
+                >
+                  {g.charAt(0).toUpperCase() + g.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold text-slate-500">Model</Label>
+            <Select value={model} onValueChange={onModelChange} disabled={disabled}>
+              <SelectTrigger className="text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="gemini-2.0-flash-exp">gemini-2.0-flash-exp</SelectItem>
+                <SelectItem value="gemini-1.5-pro">gemini-1.5-pro</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="flex gap-2 pt-2">
+          <Button onClick={onRun} disabled={disabled || !prompt.trim()} className="flex-1 bg-violet-600 hover:bg-violet-700">
+            <Play className="w-4 h-4 mr-2" />
+            Run
+          </Button>
+          <Button variant="outline" onClick={onClear} disabled={disabled} className="flex-1">
+            <Trash2 className="w-4 h-4 mr-2" />
+            Clear
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

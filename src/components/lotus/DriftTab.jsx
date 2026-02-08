@@ -228,8 +228,10 @@ export default function DriftTab() {
             <CardTitle className="text-sm font-semibold text-slate-700">Recent Runs (Last 5)</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="border border-slate-200 rounded-lg overflow-hidden">
-              <Table>
+            <div className="overflow-x-auto">
+              <div className="min-w-[800px]">
+                <div className="border border-slate-200 rounded-lg overflow-hidden">
+                  <Table>
                 <TableHeader>
                   <TableRow className="bg-slate-50">
                     <TableHead className="text-xs">Mode</TableHead>
@@ -279,6 +281,8 @@ export default function DriftTab() {
                   ))}
                 </TableBody>
               </Table>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

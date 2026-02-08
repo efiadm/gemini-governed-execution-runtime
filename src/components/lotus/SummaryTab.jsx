@@ -46,13 +46,15 @@ export default function SummaryTab() {
           <CardTitle className="text-sm font-semibold text-slate-700">Lane Comparison</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-4 gap-2 text-xs">
-            <div className="font-semibold text-slate-600">Metric</div>
-            {lanes.map(lane => (
-              <div key={lane} className={`font-semibold text-slate-700 text-center p-2 rounded ${laneColors[lane]}`}>
-                {lane.charAt(0).toUpperCase() + lane.slice(1)}
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <div className="min-w-[500px]">
+              <div className="grid grid-cols-4 gap-2 text-xs">
+                <div className="font-semibold text-slate-600">Metric</div>
+                {lanes.map(lane => (
+                  <div key={lane} className={`font-semibold text-slate-700 text-center p-2 rounded ${laneColors[lane]}`}>
+                    {lane.charAt(0).toUpperCase() + lane.slice(1)}
+                  </div>
+                ))}
             
             <div className="text-slate-600 py-2">Tokens (billable)</div>
             {lanes.map(lane => (
@@ -81,6 +83,8 @@ export default function SummaryTab() {
                 {validation?.repairs || 0}
               </div>
             ))}
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

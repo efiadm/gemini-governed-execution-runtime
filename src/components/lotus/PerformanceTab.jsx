@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowUp, ArrowDown } from "lucide-react";
@@ -79,8 +80,10 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
 
       <div>
         <h3 className="text-sm font-semibold text-slate-800 mb-3">Mode-by-Mode Totals</h3>
-        <div className="border border-slate-200 rounded-lg overflow-hidden">
-          <Table>
+        <div className="overflow-x-auto">
+          <div className="min-w-[600px]">
+            <div className="border border-slate-200 rounded-lg overflow-hidden">
+              <Table>
             <TableHeader>
               <TableRow className="bg-slate-50">
                 <TableHead className="text-xs font-bold">Metric</TableHead>
@@ -99,14 +102,18 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
               <MetricRow label="Extra Model Calls" getValue={(m) => m?.repair?.extra_model_calls_due_to_repair} isBillable showDelta />
             </TableBody>
           </Table>
+            </div>
+          </div>
         </div>
       </div>
 
       {!showOnlyBillable && (
         <div>
           <h3 className="text-sm font-semibold text-slate-800 mb-3">Billable vs App Runtime Breakdown</h3>
-        <div className="border border-slate-200 rounded-lg overflow-hidden">
-          <Table>
+          <div className="overflow-x-auto">
+            <div className="min-w-[600px]">
+              <div className="border border-slate-200 rounded-lg overflow-hidden">
+                <Table>
             <TableHeader>
               <TableRow className="bg-slate-50">
                 <TableHead className="text-xs font-bold">Metric</TableHead>
@@ -138,7 +145,9 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
               <MetricRow label="Total Runtime-local" getValue={(m) => m?.local?.total_local_ms} unit="ms" />
             </TableBody>
           </Table>
-        </div>
+                </div>
+              </div>
+            </div>
         </div>
       )}
 

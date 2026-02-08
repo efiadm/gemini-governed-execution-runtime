@@ -27,37 +27,29 @@ export default function BaselineDeltaPanel({ onRunBaseline }) {
   const currentPerf = performance?.[mode] || {};
   const baselineSnap = getBaselineSnapshot(prompt_hash, model, grounding);
 
-  if (!baselineAvailable || !baselineSnap) {
+  if (!baselineAvailable || !baselineSnap?.execution_metrics) {
     return (
-      <Card className="border-amber-200 bg-amber-50 relative z-0">
+      <Card className="border-slate-200 bg-slate-50 relative z-0">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold text-amber-800">Performance Δ vs Baseline</CardTitle>
+          <CardTitle className="text-sm font-semibold text-slate-700">Performance Δ vs Baseline</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-xs text-amber-700 mb-3">
-            Comparison requires a baseline reference run (raw tokens/latency). Baseline does not produce governance artifacts.
+          <p className="text-xs text-slate-500">
+            Baseline reference unavailable.
           </p>
-          <Button
-            size="sm"
-            onClick={onRunBaseline}
-            className="bg-amber-600 hover:bg-amber-700"
-          >
-            <Play className="w-3 h-3 mr-2" />
-            Run Baseline Now
-          </Button>
         </CardContent>
       </Card>
     );
   }
 
-  const baselinePerf = baselineSnap.performance;
+  const baselineMetrics = baselineSnap.execution_metrics;
   const getDelta = (current, baseline) => {
     if (!current || !baseline) return null;
     return current - baseline;
   };
 
-  const tokenDelta = getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens);
-  const latencyDelta = getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms);
+  const tokenDelta = getDelta(currentPerf.billable?.total_model_tokens, baselineMetrics.total_tokens);
+  const latencyDelta = getDelta(currentPerf.total?.model_latency_ms, baselineMetrics.model_latency_ms);
 
   return (
     <Card className="border-slate-200 relative z-0">

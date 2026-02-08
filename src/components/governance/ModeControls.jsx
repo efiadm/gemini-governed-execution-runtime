@@ -39,6 +39,7 @@ export default function ModeControls({
             [
               { value: "baseline", label: "Baseline" },
               { value: "governed", label: "Governed" },
+              { value: "hybrid", label: "Hybrid" },
             ],
             mode,
             disabled ? () => {} : onModeChange

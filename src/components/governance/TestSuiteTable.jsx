@@ -49,6 +49,7 @@ export default function TestSuiteTable({ results, isRunning, currentTestId, onVi
                 <TableHead className="text-[10px] uppercase tracking-wider font-bold">Test</TableHead>
                 <TableHead className="text-[10px] uppercase tracking-wider font-bold text-center">Baseline</TableHead>
                 <TableHead className="text-[10px] uppercase tracking-wider font-bold text-center">Governed</TableHead>
+                <TableHead className="text-[10px] uppercase tracking-wider font-bold text-center">Hybrid</TableHead>
                 <TableHead className="text-[10px] uppercase tracking-wider font-bold text-center">Attempts</TableHead>
                 <TableHead className="text-[10px] uppercase tracking-wider font-bold text-center">Repairs</TableHead>
                 <TableHead className="text-[10px] uppercase tracking-wider font-bold text-center">Latency</TableHead>
@@ -91,6 +92,19 @@ export default function TestSuiteTable({ results, isRunning, currentTestId, onVi
                           <CheckCircle2 className="w-4 h-4 text-green-600 mx-auto" />
                         ) : r.governedResult === "safe_mode" ? (
                           <Badge className="bg-amber-100 text-amber-800 text-[10px]">Safe Mode</Badge>
+                        ) : (
+                          <XCircle className="w-4 h-4 text-red-500 mx-auto" />
+                        )
+                      ) : (
+                        <span className="text-slate-300">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {r.hybridResult !== undefined ? (
+                        r.hybridResult === "pass" ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 mx-auto" />
+                        ) : r.hybridResult === "safe_mode" ? (
+                          <Badge className="bg-amber-100 text-amber-800 text-[10px]">Safe</Badge>
                         ) : (
                           <XCircle className="w-4 h-4 text-red-500 mx-auto" />
                         )

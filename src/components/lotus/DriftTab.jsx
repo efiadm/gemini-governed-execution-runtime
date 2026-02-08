@@ -233,6 +233,8 @@ export default function DriftTab() {
                 <TableHeader>
                   <TableRow className="bg-slate-50">
                     <TableHead className="text-xs">Mode</TableHead>
+                    <TableHead className="text-xs">Grounding</TableHead>
+                    <TableHead className="text-xs">Model</TableHead>
                     <TableHead className="text-xs">Stability</TableHead>
                     <TableHead className="text-xs">Structure</TableHead>
                     <TableHead className="text-xs">Authority Flags</TableHead>
@@ -244,6 +246,12 @@ export default function DriftTab() {
                     <TableRow key={i}>
                       <TableCell className="text-xs">
                         <Badge variant="outline" className="text-[10px]">{run.mode}</Badge>
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        <Badge variant="outline" className="text-[10px]">{run.grounding || "—"}</Badge>
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        <span className="text-[10px] text-slate-600">{run.model || "—"}</span>
                       </TableCell>
                       <TableCell className="text-xs font-mono">
                         {run.drift?.stability_score !== null 

@@ -15,11 +15,12 @@ let currentRunState = {
     passed: null,
     attempts: 0,
     repairs: 0,
+    local_repairs: 0,
     errors: [],
   },
   performance: {
     billable: {},
-    app_runtime: {},
+    local: {},
     total: {},
   },
   artifacts: [],
@@ -28,10 +29,14 @@ let currentRunState = {
   raw_output: null,
   drift: null,
   hallucination: null,
+  evidence: null,
 };
 
 // Store last N=25 RunRecords in memory
 let runHistory = [];
+
+// Baseline snapshots keyed by (prompt_hash, model, grounding)
+let baselineSnapshots = {};
 
 const listeners = [];
 
@@ -114,4 +119,23 @@ export function addToRunHistory(record) {
   if (runHistory.length > 25) {
     runHistory.shift();
   }
+  
+  // Store baseline snapshot for delta comparison
+  if (record.mode === "baseline") {
+    const key = `${record.prompt_hash}_${record.model}_${record.grounding}`;
+    baselineSnapshots[key] = {
+      performance: record.performance?.baseline || {},
+      timestamp: record.timestamp,
+    };
+  }
+}
+
+export function getBaselineSnapshot(promptHash, model, grounding) {
+  const key = `${promptHash}_${model}_${grounding}`;
+  return baselineSnapshots[key] || null;
+}
+
+export function hasBaselineSnapshot(promptHash, model, grounding) {
+  const key = `${promptHash}_${model}_${grounding}`;
+  return !!baselineSnapshots[key];
 }

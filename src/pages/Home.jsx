@@ -16,6 +16,7 @@ import UnderTheHoodPanel from "@/components/lotus/UnderTheHoodPanel";
 import TruncationWidget from "@/components/lotus/TruncationWidget";
 import ProgressStepper from "@/components/lotus/ProgressStepper";
 import SummaryTab from "@/components/lotus/SummaryTab";
+import BaselineDeltaPanel from "@/components/lotus/BaselineDeltaPanel";
 
 import { runBaseline, runGoverned, runHybrid } from "@/components/lotus/runtimeEngine";
 import { TEST_SUITE, runTestSuite } from "@/components/lotus/testSuite";
@@ -60,17 +61,22 @@ export default function Home() {
     setStoredModel(newModel);
   }, []);
 
-  const handleRun = useCallback(async () => {
+  const handleRun = useCallback(async (overrideMode = null) => {
     if (!prompt.trim()) {
       toast.error("Enter a prompt first");
       return;
     }
 
+    const runMode = overrideMode || mode;
+
     setIsRunning(true);
     setProgressStep(null);
     setProgressTimestamps({});
-    setCurrentOutput(null);
-    setCurrentEvidence(null);
+    
+    if (!overrideMode) {
+      setCurrentOutput(null);
+      setCurrentEvidence(null);
+    }
 
     const requestId = generateRequestId();
     const startTime = Date.now();
@@ -83,9 +89,9 @@ export default function Home() {
         setProgressTimestamps(prev => ({ ...prev, [step]: Date.now() }));
       };
 
-      if (mode === "baseline") {
+      if (runMode === "baseline") {
         result = await runBaseline(prompt, grounding, model, onProgress);
-      } else if (mode === "governed") {
+      } else if (runMode === "governed") {
         result = await runGoverned(prompt, grounding, model, onProgress);
       } else {
         result = await runHybrid(prompt, grounding, model, onProgress);
@@ -94,10 +100,10 @@ export default function Home() {
       setCurrentOutput(result.output);
       setCurrentEvidence(result.evidence);
       
-      const metrics = calculateMetrics(result.evidence, result.rawOutput, prompt, mode);
-      setAllModeMetrics(prev => ({ ...prev, [mode]: metrics }));
+      const metrics = calculateMetrics(result.evidence, result.rawOutput, prompt, runMode);
+      setAllModeMetrics(prev => ({ ...prev, [runMode]: metrics }));
       
-      if (mode === "baseline") {
+      if (runMode === "baseline") {
         baselineRef.current = metrics;
       }
       
@@ -122,7 +128,7 @@ export default function Home() {
       const runRecord = {
         run_id: requestId,
         timestamp: new Date().toISOString(),
-        mode,
+        mode: runMode,
         grounding,
         model,
         prompt_text: prompt,
@@ -133,14 +139,15 @@ export default function Home() {
         parsed_output: governedJson,
         raw_output: result.rawOutput,
         validation: {
-          passed: result.evidence?.validation_passed ?? (mode === "baseline" ? null : false),
+          passed: result.evidence?.validation_passed ?? (runMode === "baseline" ? null : false),
           attempts: result.evidence?.attempts || 0,
           repairs: result.evidence?.repairs || 0,
+          local_repairs: result.evidence?.local_repairs || 0,
           errors: result.evidence?.validation_summary?.failures || [],
         },
         performance: {
           baseline: baselineRef.current || {},
-          [mode]: metrics,
+          [runMode]: metrics,
         },
         evidence: result.evidence,
         artifacts: getRunState().artifacts || [],
@@ -165,7 +172,7 @@ export default function Home() {
 
       await base44.entities.GovernanceRun.create({
         prompt,
-        mode,
+        mode: runMode,
         grounding,
         raw_output: result.rawOutput,
         parsed_output: typeof result.output === "object" ? result.output : null,
@@ -190,6 +197,11 @@ export default function Home() {
       setTimeout(() => setProgressStep(null), 2000);
     }
   }, [prompt, mode, grounding, model]);
+
+  const handleRunBaselineForDelta = useCallback(async () => {
+    await handleRun("baseline");
+    toast.success("Baseline run completed for Δ comparison");
+  }, [handleRun]);
 
   const handleRunTestSuite = useCallback(async () => {
     setIsTestRunning(true);
@@ -317,13 +329,18 @@ export default function Home() {
             isRunning={isRunning}
           />
 
-          {/* Right: Summary Panel */}
-          <SummaryPanel
-            evidence={currentEvidence}
-            metrics={allModeMetrics[mode]}
-            mode={mode}
-            onDownload={handleDownloadEvidence}
-          />
+          {/* Right: Summary Panel + Baseline Delta */}
+          <div className="space-y-4">
+            <SummaryPanel
+              evidence={currentEvidence}
+              metrics={allModeMetrics[mode]}
+              mode={mode}
+              onDownload={handleDownloadEvidence}
+            />
+            {mode !== "baseline" && (
+              <BaselineDeltaPanel onRunBaseline={handleRunBaselineForDelta} />
+            )}
+          </div>
         </div>
 
         {/* Bottom Dock: Tabs */}

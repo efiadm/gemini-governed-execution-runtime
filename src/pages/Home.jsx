@@ -17,7 +17,7 @@ import TruncationWidget from "@/components/lotus/TruncationWidget";
 import ProgressStepper from "@/components/lotus/ProgressStepper";
 import SummaryTab from "@/components/lotus/SummaryTab";
 
-import SettingsPanel from "@/components/lotus/SettingsPanel";
+
 
 import { runBaseline, runGoverned, runHybrid } from "@/components/lotus/runtimeEngine";
 import { runAuditPipeline } from "@/components/lotus/auditPipeline";
@@ -412,8 +412,7 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Floating Settings Panel */}
-      <SettingsPanel />
+
     </div>
   );
 }

@@ -1,9 +1,60 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, XCircle, Clock, Zap, Download, FileJson } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Zap, Download, FileJson, TrendingUp, TrendingDown } from "lucide-react";
 import { downloadEvidenceFile } from "./auditExporter";
+import { getBaselineSnapshot, hasBaselineSnapshot, getRunState } from "./runStore";
+
+function BaselineDeltaCard({ metrics, mode }) {
+  const [baselineAvailable, setBaselineAvailable] = useState(false);
+  const runState = getRunState();
+
+  useEffect(() => {
+    if (runState.prompt_hash && runState.model && runState.grounding && mode !== "baseline") {
+      setBaselineAvailable(hasBaselineSnapshot(runState.prompt_hash, runState.model, runState.grounding));
+    }
+  }, [runState.prompt_hash, runState.model, runState.grounding, mode]);
+
+  if (!metrics || mode === "baseline" || !baselineAvailable) {
+    return (
+      <div className="bg-slate-50 rounded-lg p-3">
+        <div className="flex items-center gap-2 mb-1">
+          <TrendingUp className="w-3 h-3 text-slate-400" />
+          <span className="text-xs text-slate-400 font-medium">Δ vs Baseline</span>
+        </div>
+        <p className="text-xs text-slate-400 mt-2">No baseline</p>
+      </div>
+    );
+  }
+
+  const baselineSnap = getBaselineSnapshot(runState.prompt_hash, runState.model, runState.grounding);
+  if (!baselineSnap) return null;
+
+  const tokenDelta = (metrics.billable?.total_model_tokens || 0) - (baselineSnap.performance.total_model_tokens || 0);
+  const latencyDelta = (metrics.total?.total_latency_ms || 0) - (baselineSnap.performance.total_latency_ms || 0);
+
+  return (
+    <div className={`rounded-lg p-3 ${tokenDelta > 0 ? 'bg-red-50' : tokenDelta < 0 ? 'bg-green-50' : 'bg-slate-50'}`}>
+      <div className="flex items-center gap-2 mb-1">
+        {tokenDelta > 0 ? (
+          <TrendingUp className="w-3 h-3 text-red-600" />
+        ) : tokenDelta < 0 ? (
+          <TrendingDown className="w-3 h-3 text-green-600" />
+        ) : (
+          <TrendingUp className="w-3 h-3 text-slate-500" />
+        )}
+        <span className="text-xs text-slate-600 font-medium">Δ vs Baseline</span>
+      </div>
+      <p className={`text-lg font-bold ${tokenDelta > 0 ? 'text-red-700' : tokenDelta < 0 ? 'text-green-700' : 'text-slate-700'}`}>
+        {tokenDelta > 0 ? '+' : ''}{tokenDelta}t
+      </p>
+      <p className={`text-xs ${latencyDelta > 0 ? 'text-red-600' : latencyDelta < 0 ? 'text-green-600' : 'text-slate-500'}`}>
+        {latencyDelta > 0 ? '+' : ''}{latencyDelta}ms latency
+      </p>
+    </div>
+  );
+}
 
 export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
   if (!evidence) {
@@ -57,7 +108,7 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <div className="bg-slate-50 rounded-lg p-3">
             <div className="flex items-center gap-2 mb-1">
               <Clock className="w-3 h-3 text-slate-500" />
@@ -79,6 +130,8 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
               <p className="text-xs text-slate-400">⚙️ Local: {evidence.local_repairs}</p>
             )}
           </div>
+
+          <BaselineDeltaCard metrics={metrics} mode={mode} />
         </div>
 
         {evidence.validation_summary && (

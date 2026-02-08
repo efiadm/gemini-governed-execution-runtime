@@ -57,13 +57,15 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
     );
   };
 
+  const hasAuditData = allModeMetrics?.governed?.audit || allModeMetrics?.hybrid?.audit;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-slate-800">Performance Metrics</h3>
+          <h3 className="text-sm font-semibold text-slate-800">Execution Metrics (Billable)</h3>
           <p className="text-xs text-slate-500 mt-1">
-            <strong>Billable:</strong> Model API calls (tokens × time). <strong>Runtime-local (non-billable):</strong> Browser/runtime logic + artifact store (validation, parsing, metrics).
+            <strong>Execution only:</strong> Model calls to produce the returned answer. <strong>Runtime-local:</strong> System-side validation/parsing (non-billable). <strong>Audit metrics shown separately below.</strong>
           </p>
         </div>
         <Button
@@ -137,6 +139,25 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
             </TableBody>
           </Table>
         </div>
+        </div>
+      )}
+
+      {hasAuditData && (
+        <div className="border-t-2 border-slate-300 pt-6">
+          <h3 className="text-sm font-semibold text-slate-800 mb-3">Audit Metrics (Non-Blocking, Excluded from Execution)</h3>
+          <p className="text-xs text-slate-500 mb-4">
+            Async audits run after execution completes. Not included in execution latency or token counts.
+          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-xs text-blue-800">
+              Audit pipeline: {allModeMetrics?.governed?.audit?.status || allModeMetrics?.hybrid?.audit?.status || "pending"}
+            </p>
+            {allModeMetrics?.governed?.audit?.duration_ms && (
+              <p className="text-xs text-blue-700 mt-1">
+                Audit duration: {allModeMetrics.governed.audit.duration_ms}ms (separate from execution)
+              </p>
+            )}
+          </div>
         </div>
       )}
     </div>

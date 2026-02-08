@@ -17,8 +17,11 @@ import TruncationWidget from "@/components/lotus/TruncationWidget";
 import ProgressStepper from "@/components/lotus/ProgressStepper";
 import SummaryTab from "@/components/lotus/SummaryTab";
 import BaselineDeltaPanel from "@/components/lotus/BaselineDeltaPanel";
+import SettingsPanel from "@/components/lotus/SettingsPanel";
 
 import { runBaseline, runGoverned, runHybrid } from "@/components/lotus/runtimeEngine";
+import { runAuditPipeline } from "@/components/lotus/auditPipeline";
+import { getSettings } from "@/components/lotus/settingsStore";
 import { TEST_SUITE, runTestSuite } from "@/components/lotus/testSuite";
 import { calculateMetrics, calculateTruncationRisk } from "@/components/lotus/metricsEngine";
 import { generateRequestId } from "@/components/lotus/utils";
@@ -90,17 +93,20 @@ export default function Home() {
         setProgressTimestamps(prev => ({ ...prev, [step]: Date.now() }));
       };
 
+      const settings = getSettings();
+      
       if (runMode === "baseline") {
         result = await runBaseline(prompt, grounding, model, onProgress);
       } else if (runMode === "governed") {
-        result = await runGoverned(prompt, grounding, model, onProgress);
+        result = await runGoverned(prompt, grounding, model, onProgress, settings);
       } else {
-        result = await runHybrid(prompt, grounding, model, onProgress);
+        result = await runHybrid(prompt, grounding, model, onProgress, settings);
       }
-
+      
+      // Execution complete - update UI immediately
       setCurrentOutput(result.output);
       setCurrentEvidence(result.evidence);
-      
+
       const metrics = calculateMetrics(result.evidence, result.rawOutput, prompt, runMode);
       setAllModeMetrics(prev => ({ ...prev, [runMode]: metrics }));
       
@@ -330,7 +336,7 @@ export default function Home() {
             isRunning={isRunning}
           />
 
-          {/* Right: Summary Panel + Baseline Delta */}
+          {/* Right: Summary Panel + Baseline Delta + Settings */}
           <div className="space-y-4">
             <SummaryPanel
               evidence={currentEvidence}
@@ -341,6 +347,7 @@ export default function Home() {
             {mode !== "baseline" && (
               <BaselineDeltaPanel onRunBaseline={handleRunBaselineForDelta} />
             )}
+            <SettingsPanel />
           </div>
         </div>
 

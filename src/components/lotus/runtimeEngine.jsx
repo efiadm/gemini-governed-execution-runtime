@@ -121,11 +121,12 @@ export async function runBaseline(prompt, groundingSetting, model, onProgress) {
   };
 }
 
-export async function runGoverned(prompt, groundingSetting, model, onProgress) {
+export async function runGoverned(prompt, groundingSetting, model, onProgress, settings = {}) {
   const t0 = Date.now();
   const requestId = generateRequestId();
   const useGrounding = shouldUseGrounding(groundingSetting, prompt);
   const correctionMode = detectCorrectionMode(prompt);
+  const repairCap = settings.repairCap ?? 1;
   
   emitEvent(EventTypes.RUN_STARTED, { mode: "governed", requestId, prompt });
   
@@ -137,6 +138,8 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress) {
   let safeModeApplied = false;
   let totalModelMs = 0;
   let totalLocalMs = 0;
+  let executionTokensIn = 0;
+  let executionTokensOut = 0;
 
   // Emit contract artifact
   addArtifact({ type: "contract", content: "Governed JSON Schema", mode: "governed", timestamp: Date.now() });
@@ -206,8 +209,8 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress) {
   attemptDetails.push(att1);
   addAttempt(att1);
 
-  // Repair loop (max 2 repairs)
-  while (!validation.passed && repairs < 2) {
+  // Repair loop (configurable cap)
+  while (!validation.passed && repairs < repairCap) {
     onProgress?.("repair");
     repairs++;
     
@@ -292,6 +295,8 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress) {
       validation_passed: !safeModeApplied,
       safe_mode_applied: safeModeApplied,
       correction_mode: correctionMode,
+      repair_cap: repairCap,
+      execution_only: true,
       attemptDetails,
       validation_summary: {
         total_checks: validation.errors.length + (validation.passed ? 10 : 0),
@@ -303,11 +308,12 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress) {
   };
 }
 
-export async function runHybrid(prompt, groundingSetting, model, onProgress) {
+export async function runHybrid(prompt, groundingSetting, model, onProgress, settings = {}) {
   const t0 = Date.now();
   const requestId = generateRequestId();
   const useGrounding = shouldUseGrounding(groundingSetting, prompt);
   const correctionMode = detectCorrectionMode(prompt);
+  const repairCap = settings.repairCap ?? 1;
   
   emitEvent(EventTypes.RUN_STARTED, { mode: "hybrid", requestId, prompt });
   
@@ -316,6 +322,7 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress) {
   let rawOutput = "";
   let validation = { passed: false, errors: [] };
   let repairs = 0;
+  let localRepairs = 0;
   let safeModeApplied = false;
   let totalModelMs = 0;
   let totalLocalMs = 0;
@@ -385,8 +392,8 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress) {
   attemptDetails.push(att1);
   addAttempt(att1);
 
-  // Hybrid: Only 1 repair attempt (faster)
-  if (!validation.passed && repairs < 1) {
+  // Hybrid: Use repair cap from settings
+  if (!validation.passed && repairs < repairCap) {
     onProgress?.("repair");
     repairs++;
     
@@ -466,9 +473,12 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress) {
       local_latency_ms: totalLocalMs,
       attempts: attemptDetails.length,
       repairs,
+      local_repairs: localRepairs,
       validation_passed: !safeModeApplied,
       safe_mode_applied: safeModeApplied,
       correction_mode: correctionMode,
+      repair_cap: repairCap,
+      execution_only: true,
       hybrid_context_injected: contextInjected,
       hybrid_context_header: contextHeader,
       hybrid_tokens_saved: tokensSaved,

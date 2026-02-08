@@ -62,11 +62,19 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
 
   return (
     <div className="space-y-6">
+      <div className="bg-gradient-to-r from-violet-50 to-indigo-50 border-l-4 border-violet-600 rounded-lg p-4 mb-6">
+        <h2 className="text-base font-bold text-slate-900 mb-1">Execution Metrics (Production Path)</h2>
+        <p className="text-xs text-slate-600">
+          <strong>Production-ready:</strong> Direct model calls to produce the returned answer. Repairs included if needed. 
+          <strong className="ml-2">Diagnostic features (drift, hallucination analysis) are optional and shown below.</strong>
+        </p>
+      </div>
+
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-slate-800">Execution Metrics (Billable)</h3>
+          <h3 className="text-sm font-semibold text-slate-800">Billable vs Non-Billable Breakdown</h3>
           <p className="text-xs text-slate-500 mt-1">
-            <strong>Execution only:</strong> Model calls to produce the returned answer. <strong>Runtime-local:</strong> System-side validation/parsing (non-billable). <strong>Audit metrics shown separately below.</strong>
+            <strong>Model time:</strong> Billable API calls. <strong>Runtime-local:</strong> System-side validation/parsing (non-billable).
           </p>
         </div>
         <Button
@@ -152,11 +160,14 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
       )}
 
       {hasAuditData && (
-        <div className="border-t-2 border-slate-300 pt-6">
-          <h3 className="text-sm font-semibold text-slate-800 mb-3">Audit Path Metrics (Non-Blocking)</h3>
-          <p className="text-xs text-slate-500 mb-4">
-            <strong>Separate from execution:</strong> Async audits run after response returned. Not included in execution latency or billable metrics.
-          </p>
+        <div className="border-t-4 border-blue-300 pt-6 mt-8">
+          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4 border-blue-600 rounded-lg p-4 mb-4">
+            <h2 className="text-base font-bold text-slate-900 mb-1">Diagnostics (Optional / Non-Default)</h2>
+            <p className="text-xs text-slate-600">
+              <strong>Post-execution analysis:</strong> Async audits run after response returned. <strong className="text-blue-700">Not included in execution latency or billable metrics.</strong> Enable in settings if needed.
+            </p>
+          </div>
+          <h3 className="text-sm font-semibold text-slate-800 mb-3">Audit Path Metrics</h3>
           <Card className="border-blue-200 bg-blue-50">
             <CardContent className="py-4">
               <div className="space-y-2 text-xs">

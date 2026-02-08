@@ -117,10 +117,14 @@ export default function UnderTheHoodPanel() {
                 <XCircle className="w-5 h-5 text-red-500" />
               )}
             </div>
-            <div className="text-[10px] text-slate-500 space-y-0.5">
-              <div>Attempts: {validation.attempts || 0}</div>
-              <div>Repairs: {validation.repairs || 0}</div>
-            </div>
+            {validation.passed === null ? (
+              <p className="text-[10px] text-slate-400 italic">Not applicable for baseline mode.</p>
+            ) : (
+              <div className="text-[10px] text-slate-500 space-y-0.5">
+                <div>Attempts: {validation.attempts || 0}</div>
+                <div>Repairs: {validation.repairs || 0}</div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -141,9 +145,11 @@ export default function UnderTheHoodPanel() {
                 }`}>
                   {hallucination.risk}
                 </Badge>
-                <div className="text-[10px] text-slate-500 mt-2">
-                  Drift: {drift?.stability_score !== null ? (drift.stability_score * 100).toFixed(0) + "%" : "N/A"}
-                </div>
+                {drift?.stability_score !== null && (
+                  <div className="text-[10px] text-slate-500 mt-2">
+                    Drift: {(drift.stability_score * 100).toFixed(0)}%
+                  </div>
+                )}
               </>
             ) : (
               <p className="text-xs text-slate-400">N/A</p>
@@ -182,12 +188,17 @@ export default function UnderTheHoodPanel() {
                 <span className="text-slate-600">Authority Flags:</span>
                 <span className="font-mono text-slate-800">{drift?.authority_drift_flags?.total || 0}</span>
               </div>
-              <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                <span className="text-slate-600">Structure Score:</span>
-                <span className="font-mono text-slate-800">
-                  {drift?.structure_drift !== null ? drift.structure_drift + "%" : "N/A"}
-                </span>
-              </div>
+              {drift?.structure_drift !== null ? (
+                <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
+                  <span className="text-slate-600">Structure Score:</span>
+                  <span className="font-mono text-slate-800">{drift.structure_drift}%</span>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between p-2 bg-slate-100 rounded">
+                  <span className="text-slate-500 text-xs">Structure Score:</span>
+                  <span className="text-slate-400 text-xs italic">Not applicable (baseline)</span>
+                </div>
+              )}
               <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
                 <span className="text-slate-600">Hybrid Context:</span>
                 <Badge variant="outline">

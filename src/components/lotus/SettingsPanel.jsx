@@ -83,43 +83,42 @@ export default function SettingsPanel() {
             Async analysis after execution completes (non-blocking, excluded from execution metrics)
           </p>
 
-          {settings.auditEnabled && (
-            <>
-              <div className="space-y-2 mt-3">
-                <Label className="text-xs font-medium text-slate-700">Audit Depth</Label>
-                <Select
-                  value={settings.auditDepth}
-                  onValueChange={(val) => handleChange("auditDepth", val)}
-                >
-                  <SelectTrigger className="h-8">
-                    <SelectValue />
-                    </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="light">Light (structure checks only)</SelectItem>
-                    <SelectItem value="standard">Standard (+ drift analysis)</SelectItem>
-                    <SelectItem value="heavy">Heavy (+ model calls)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <div className="space-y-2 mt-3">
+            <Label className={`text-xs font-medium ${!settings.auditEnabled ? 'text-slate-400' : 'text-slate-700'}`}>Audit Depth</Label>
+            <Select
+              value={settings.auditDepth}
+              onValueChange={(val) => handleChange("auditDepth", val)}
+              disabled={!settings.auditEnabled}
+            >
+              <SelectTrigger className={`h-8 ${!settings.auditEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <SelectValue />
+                </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="light">Light (structure checks only)</SelectItem>
+                <SelectItem value="standard">Standard (+ drift analysis)</SelectItem>
+                <SelectItem value="heavy">Heavy (+ model calls)</SelectItem>
+              </SelectContent>
+            </Select>
+            {!settings.auditEnabled && <p className="text-[10px] text-slate-500">This setting applies when Audit Path is enabled.</p>}
+          </div>
 
-              <div className="space-y-2 mt-3">
-                <Label className="text-xs font-medium text-slate-700">Audit Model</Label>
-                <Select
-                  value={settings.auditModel}
-                  onValueChange={(val) => handleChange("auditModel", val)}
-                >
-                  <SelectTrigger className="h-8">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="cheaper">Cheaper (Flash)</SelectItem>
-                    <SelectItem value="same">Same as execution</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-[10px] text-slate-500">Only used for heavy audit depth</p>
-              </div>
-            </>
-          )}
+          <div className="space-y-2 mt-3">
+            <Label className={`text-xs font-medium ${!settings.auditEnabled ? 'text-slate-400' : 'text-slate-700'}`}>Audit Model</Label>
+            <Select
+              value={settings.auditModel}
+              onValueChange={(val) => handleChange("auditModel", val)}
+              disabled={!settings.auditEnabled}
+            >
+              <SelectTrigger className={`h-8 ${!settings.auditEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="cheaper">Cheaper (Flash)</SelectItem>
+                <SelectItem value="same">Same as execution</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-[10px] text-slate-500">{!settings.auditEnabled ? 'This setting applies when Audit Path is enabled.' : 'Only used for heavy audit depth'}</p>
+          </div>
         </div>
         </div>
       </SheetContent>

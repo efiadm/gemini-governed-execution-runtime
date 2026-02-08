@@ -159,7 +159,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
         <h2 className="text-base font-bold text-slate-900 mb-1">Execution vs Reliability Tradeoffs</h2>
         <p className="text-xs text-slate-600">
           <strong>Plane A (Execution):</strong> Base generation cost. <strong>Plane B (Diagnostics):</strong> Optional validation overhead. <strong>Plane C (Repairs):</strong> Conditional recovery cost. 
-          <span className="block mt-1 text-violet-700 font-semibold">Governed execution is cheaper than baseline before reliability layers.</span>
+          <span className="block mt-1 text-violet-700 font-semibold">Governance increases base execution cost but reduces downstream reliability and recovery costs by preventing invalid or unstable outputs.</span>
         </p>
       </div>
 

@@ -37,21 +37,21 @@ function BaselineDeltaCard({ metrics, mode }) {
   const latencyDelta = (metrics.total?.model_latency_ms || 0) - (baselineMetrics.model_latency_ms || 0);
 
   return (
-    <div className={`rounded-lg p-2 ${tokenDelta > 0 ? 'bg-red-50' : tokenDelta < 0 ? 'bg-green-50' : 'bg-slate-50'}`}>
+    <div className={`rounded-lg p-2 ${tokenDelta > 0 ? 'bg-orange-50' : tokenDelta < 0 ? 'bg-blue-50' : 'bg-slate-50'}`}>
       <div className="flex items-center gap-1 mb-0.5">
         {tokenDelta > 0 ? (
-          <TrendingUp className="w-3 h-3 text-red-600" />
+          <TrendingUp className="w-3 h-3 text-orange-600" />
         ) : tokenDelta < 0 ? (
-          <TrendingDown className="w-3 h-3 text-green-600" />
+          <TrendingDown className="w-3 h-3 text-blue-600" />
         ) : (
           <TrendingUp className="w-3 h-3 text-slate-500" />
         )}
         <span className="text-[10px] text-slate-600 font-medium">Δ vs Baseline</span>
       </div>
-      <p className={`text-base font-bold ${tokenDelta > 0 ? 'text-red-700' : tokenDelta < 0 ? 'text-green-700' : 'text-slate-700'}`}>
+      <p className={`text-base font-bold ${tokenDelta > 0 ? 'text-orange-700' : tokenDelta < 0 ? 'text-blue-700' : 'text-slate-700'}`}>
         {tokenDelta > 0 ? '+' : ''}{tokenDelta}t
       </p>
-      <p className={`text-[10px] ${latencyDelta > 0 ? 'text-red-600' : latencyDelta < 0 ? 'text-green-600' : 'text-slate-500'}`}>
+      <p className={`text-[10px] ${latencyDelta > 0 ? 'text-orange-600' : latencyDelta < 0 ? 'text-blue-600' : 'text-slate-500'}`}>
         {latencyDelta > 0 ? '+' : ''}{latencyDelta}ms
       </p>
     </div>
@@ -102,10 +102,10 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
           </div>
           <Badge className={`${
             evidence.validation_passed ? "bg-green-600" :
-            evidence.safe_mode_applied ? "bg-amber-600" :
+            evidence.safe_mode_applied ? "bg-green-600" :
             "bg-red-600"
           } text-white text-xs px-2 py-1 whitespace-nowrap`}>
-            {evidence.validation_passed ? "✓ Contract Satisfied" : evidence.safe_mode_applied ? "⚠ Withheld" : "✗ Failed"}
+            {evidence.validation_passed ? "✓ Contract Satisfied" : evidence.safe_mode_applied ? "✓ Contained (Fail-Safe)" : "✗ Failed"}
           </Badge>
         </div>
 

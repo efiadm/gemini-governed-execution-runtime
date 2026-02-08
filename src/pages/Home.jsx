@@ -16,6 +16,9 @@ import EvidencePanel from "@/components/governance/EvidencePanel";
 import TestEvidenceDrawer from "@/components/governance/TestEvidenceDrawer";
 import MetricsPanel from "@/components/governance/MetricsPanel";
 import ProgressIndicator from "@/components/governance/ProgressIndicator";
+import ComparisonTable from "@/components/governance/ComparisonTable";
+import NextStepsPanel from "@/components/governance/NextStepsPanel";
+import TelemetryPanel from "@/components/governance/TelemetryPanel";
 
 import {
   TEST_SUITE,
@@ -501,8 +504,11 @@ export default function Home() {
         {/* Progress Indicator */}
         {progressStep && <ProgressIndicator currentStep={progressStep} mode={mode} />}
 
-        {/* Metrics Panel */}
-        <MetricsPanel metrics={metrics} />
+        {/* Telemetry Panel - Always Visible */}
+        <TelemetryPanel evidence={evidence} mode={mode} />
+
+        {/* Comparison Table */}
+        <ComparisonTable metrics={metrics} />
 
         {/* Output Panels */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -513,7 +519,7 @@ export default function Home() {
           <div className="space-y-6">
             <EvidencePanel evidence={evidence} onDownload={evidence ? handleDownloadCurrentEvidence : null} />
             <ValidationPanel validation={validation} evidence={evidence} />
-            <HowItWorks />
+            <NextStepsPanel evidence={evidence} validation={validation} mode={mode} />
           </div>
         </div>
 

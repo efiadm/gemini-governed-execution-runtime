@@ -305,6 +305,104 @@ ${previousJson}
 Return ONLY the corrected JSON object. Fix ALL errors listed above. No markdown. No commentary.`;
 }
 
+export function estimateTokens(text) {
+  // Rough estimate: ~4 chars per token
+  return Math.ceil((text || "").length / 4);
+}
+
+export async function runHybrid(prompt, grounded, correctionMode, model, onProgress) {
+  // Hybrid: lightweight governance with max 1 repair attempt
+  const t0 = Date.now();
+  const attemptDetails = [];
+  let parsedOutput = null;
+  let rawOutput = "";
+  let validation = { passed: false, errors: [] };
+  let repairs = 0;
+  let safeModeApplied = false;
+
+  onProgress?.("contract");
+  const systemPrompt = buildGovernedSystemPrompt(grounded, correctionMode);
+
+  // Attempt 1: Initial
+  let currentPrompt = `${systemPrompt}\n\nUser prompt: ${prompt}`;
+  let attemptStart = Date.now();
+  
+  onProgress?.("validate");
+  const { callLLM } = await import("./runtimeHelper");
+  rawOutput = await callLLM(currentPrompt, grounded);
+  let attemptLatency = Date.now() - attemptStart;
+
+  try {
+    parsedOutput = tryParseJson(rawOutput);
+    validation = validateGovernedOutput(parsedOutput, { grounded, correctionMode, hadRepairs: false });
+  } catch (e) {
+    validation = { passed: false, errors: [`JSON parse failed: ${e.message}`] };
+  }
+
+  attemptDetails.push({
+    kind: "initial",
+    ok: validation.passed,
+    latency_ms: attemptLatency,
+    raw_preview: rawOutput.substring(0, 240),
+    errors: validation.errors,
+  });
+
+  // Hybrid: Only 1 repair attempt (faster)
+  if (!validation.passed && repairs < 1) {
+    onProgress?.("repair");
+    repairs++;
+    const repairPrompt = buildRepairPrompt(validation.errors, rawOutput);
+    currentPrompt = `${systemPrompt}\n\n${repairPrompt}`;
+
+    attemptStart = Date.now();
+    rawOutput = await callLLM(currentPrompt, grounded);
+    attemptLatency = Date.now() - attemptStart;
+
+    try {
+      parsedOutput = tryParseJson(rawOutput);
+      validation = validateGovernedOutput(parsedOutput, { grounded, correctionMode, hadRepairs: true });
+    } catch (e) {
+      validation = { passed: false, errors: [`JSON parse failed on repair: ${e.message}`] };
+    }
+
+    attemptDetails.push({
+      kind: "repair",
+      ok: validation.passed,
+      latency_ms: attemptLatency,
+      raw_preview: rawOutput.substring(0, 240),
+      errors: validation.errors,
+    });
+  }
+
+  // Safe mode fallback
+  if (!validation.passed) {
+    parsedOutput = generateSafeModeOutput(grounded, correctionMode);
+    safeModeApplied = true;
+    validation = { passed: true, errors: [] };
+  }
+
+  onProgress?.("evidence");
+  const totalLatency = Date.now() - t0;
+
+  return {
+    output: parsedOutput,
+    rawOutput,
+    validation,
+    evidence: {
+      timestamp: new Date().toISOString(),
+      mode: "hybrid",
+      model,
+      grounding: grounded ? "on" : "off",
+      latency_ms: totalLatency,
+      attempts: attemptDetails.length,
+      repairs,
+      validation_passed: !safeModeApplied,
+      safe_mode_applied: safeModeApplied,
+      attemptDetails,
+    },
+  };
+}
+
 export const TEST_SUITE = [
   {
     id: "TS-01",

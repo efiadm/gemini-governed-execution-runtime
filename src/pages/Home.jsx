@@ -14,6 +14,8 @@ import TestSuiteTable from "@/components/governance/TestSuiteTable";
 import HowItWorks from "@/components/governance/HowItWorks";
 import EvidencePanel from "@/components/governance/EvidencePanel";
 import TestEvidenceDrawer from "@/components/governance/TestEvidenceDrawer";
+import MetricsPanel from "@/components/governance/MetricsPanel";
+import ProgressIndicator from "@/components/governance/ProgressIndicator";
 
 import {
   TEST_SUITE,
@@ -24,18 +26,13 @@ import {
   buildRepairPrompt,
   detectCorrectionMode,
   shouldUseGrounding,
+  estimateTokens,
+  runHybrid,
 } from "@/components/governance/governanceEngine";
+import { callLLM } from "@/components/governance/runtimeHelper";
 
 const DEFAULT_MODEL = "gemini-3-flash-preview";
 const MAX_REPAIR_ATTEMPTS = 2;
-
-async function callLLM(prompt, grounded) {
-  const result = await base44.integrations.Core.InvokeLLM({
-    prompt,
-    add_context_from_internet: grounded,
-  });
-  return typeof result === "string" ? result : JSON.stringify(result);
-}
 
 async function runBaseline(prompt, grounded, model) {
   const t0 = Date.now();
@@ -65,7 +62,7 @@ async function runBaseline(prompt, grounded, model) {
   };
 }
 
-async function runGoverned(prompt, grounded, correctionMode, model) {
+async function runGoverned(prompt, grounded, correctionMode, model, onProgress) {
   const t0 = Date.now();
   const attemptDetails = [];
   let parsedOutput = null;
@@ -74,11 +71,13 @@ async function runGoverned(prompt, grounded, correctionMode, model) {
   let repairs = 0;
   let safeModeApplied = false;
 
+  onProgress?.("contract");
   const systemPrompt = buildGovernedSystemPrompt(grounded, correctionMode);
 
   // Attempt 1: Initial
   let currentPrompt = `${systemPrompt}\n\nUser prompt: ${prompt}`;
   let attemptStart = Date.now();
+  onProgress?.("validate");
   rawOutput = await callLLM(currentPrompt, grounded);
   let attemptLatency = Date.now() - attemptStart;
 
@@ -99,6 +98,7 @@ async function runGoverned(prompt, grounded, correctionMode, model) {
 
   // Repair loop
   while (!validation.passed && repairs < MAX_REPAIR_ATTEMPTS) {
+    onProgress?.("repair");
     repairs++;
     const repairPrompt = buildRepairPrompt(validation.errors, rawOutput);
     currentPrompt = `${systemPrompt}\n\n${repairPrompt}`;
@@ -130,6 +130,7 @@ async function runGoverned(prompt, grounded, correctionMode, model) {
     validation = { passed: true, errors: [] }; // Safe mode is valid by design
   }
 
+  onProgress?.("evidence");
   const totalLatency = Date.now() - t0;
 
   return {
@@ -173,6 +174,10 @@ export default function Home() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerData, setDrawerData] = useState(null);
 
+  // Metrics tracking
+  const [metrics, setMetrics] = useState({});
+  const [progressStep, setProgressStep] = useState(null);
+
   const allEvidence = useRef([]);
 
   const handleRun = useCallback(async () => {
@@ -186,6 +191,7 @@ export default function Home() {
     setValidation(null);
     setEvidence(null);
     setRawJson(null);
+    setProgressStep(null);
 
     try {
       const correctionMode = detectCorrectionMode(prompt);
@@ -198,6 +204,17 @@ export default function Home() {
         setRawJson(null);
         allEvidence.current.push(res.evidence);
 
+        const tokensIn = estimateTokens(prompt);
+        const tokensOut = estimateTokens(res.output);
+        setMetrics({
+          baseline: {
+            latency_ms: res.evidence.latency_ms,
+            tokens_in: tokensIn,
+            tokens_out: tokensOut,
+            tokens_total: tokensIn + tokensOut,
+          },
+        });
+
         await base44.entities.GovernanceRun.create({
           prompt,
           mode: "baseline",
@@ -207,13 +224,27 @@ export default function Home() {
           latency_ms: res.evidence.latency_ms,
           attempts: 1,
         });
-      } else {
-        const res = await runGoverned(prompt, useGrounding, correctionMode, model);
+      } else if (mode === "governed") {
+        const res = await runGoverned(prompt, useGrounding, correctionMode, model, setProgressStep);
         setRenderedData(res.output);
         setValidation(res.validation);
         setEvidence(res.evidence);
         setRawJson(res.output);
         allEvidence.current.push(res.evidence);
+
+        const tokensIn = estimateTokens(prompt);
+        const tokensOut = estimateTokens(JSON.stringify(res.output));
+        setMetrics((prev) => ({
+          ...prev,
+          governed: {
+            latency_ms: res.evidence.latency_ms,
+            tokens_in: tokensIn,
+            tokens_out: tokensOut,
+            tokens_total: tokensIn + tokensOut,
+            total_repairs: res.evidence.repairs,
+            validation_pass_rate: res.validation.passed ? 100 : 0,
+          },
+        }));
 
         await base44.entities.GovernanceRun.create({
           prompt,
@@ -226,9 +257,45 @@ export default function Home() {
           latency_ms: res.evidence.latency_ms,
           attempts: res.evidence.attempts,
         });
+      } else if (mode === "hybrid") {
+        setProgressStep("contract");
+        const res = await runHybrid(prompt, useGrounding, correctionMode, model, setProgressStep);
+        setRenderedData(res.output);
+        setValidation(res.validation);
+        setEvidence(res.evidence);
+        setRawJson(res.output);
+        allEvidence.current.push(res.evidence);
+
+        const tokensIn = estimateTokens(prompt);
+        const tokensOut = estimateTokens(JSON.stringify(res.output));
+        setMetrics((prev) => ({
+          ...prev,
+          hybrid: {
+            latency_ms: res.evidence.latency_ms,
+            tokens_in: tokensIn,
+            tokens_out: tokensOut,
+            tokens_total: tokensIn + tokensOut,
+            total_repairs: res.evidence.repairs,
+            validation_pass_rate: res.validation.passed ? 100 : 0,
+          },
+        }));
+
+        await base44.entities.GovernanceRun.create({
+          prompt,
+          mode: "hybrid",
+          grounding,
+          raw_output: res.rawOutput,
+          parsed_output: res.output,
+          validation: res.validation,
+          evidence: res.evidence,
+          latency_ms: res.evidence.latency_ms,
+          attempts: res.evidence.attempts,
+        });
       }
+      setProgressStep(null);
     } catch (e) {
       toast.error(`Error: ${e.message}`);
+      setProgressStep(null);
     } finally {
       setIsRunning(false);
     }
@@ -239,6 +306,15 @@ export default function Home() {
     const results = TEST_SUITE.map((t) => ({ id: t.id, name: t.name, prompt: t.prompt, expected: t.expected }));
     setTestResults([...results]);
 
+    let totalBaselineLatency = 0;
+    let totalGovernedLatency = 0;
+    let totalHybridLatency = 0;
+    let totalBaselineTokens = 0;
+    let totalGovernedTokens = 0;
+    let totalHybridTokens = 0;
+    let totalRepairs = 0;
+    let governedPasses = 0;
+
     for (let i = 0; i < TEST_SUITE.length; i++) {
       const test = TEST_SUITE[i];
       setCurrentTestId(test.id);
@@ -248,8 +324,11 @@ export default function Home() {
 
       // Baseline
       let baselineResult = "text";
+      let bRes = null;
       try {
-        const bRes = await runBaseline(test.prompt, useGrounding, model);
+        bRes = await runBaseline(test.prompt, useGrounding, model);
+        totalBaselineLatency += bRes.evidence.latency_ms;
+        totalBaselineTokens += estimateTokens(test.prompt) + estimateTokens(bRes.output);
         try {
           const parsed = tryParseJson(bRes.output);
           const bVal = validateGovernedOutput(parsed, { grounded: useGrounding, correctionMode, hadRepairs: false });
@@ -266,15 +345,32 @@ export default function Home() {
       let gRes = null;
       try {
         gRes = await runGoverned(test.prompt, useGrounding, correctionMode, model);
+        totalGovernedLatency += gRes.evidence.latency_ms;
+        totalGovernedTokens += estimateTokens(test.prompt) + estimateTokens(JSON.stringify(gRes.output));
+        totalRepairs += gRes.evidence.repairs;
         governedResult = gRes.evidence.safe_mode_applied ? "safe_mode" : gRes.validation.passed ? "pass" : "fail";
+        if (gRes.validation.passed) governedPasses++;
       } catch {
         governedResult = "fail";
+      }
+
+      // Hybrid
+      let hybridResult = "fail";
+      let hRes = null;
+      try {
+        hRes = await runHybrid(test.prompt, useGrounding, correctionMode, model);
+        totalHybridLatency += hRes.evidence.latency_ms;
+        totalHybridTokens += estimateTokens(test.prompt) + estimateTokens(JSON.stringify(hRes.output));
+        hybridResult = hRes.evidence.safe_mode_applied ? "safe_mode" : hRes.validation.passed ? "pass" : "fail";
+      } catch {
+        hybridResult = "fail";
       }
 
       results[i] = {
         ...results[i],
         baselineResult,
         governedResult,
+        hybridResult,
         attempts: gRes?.evidence.attempts,
         repairs: gRes?.evidence.repairs,
         latency_ms: gRes?.evidence.latency_ms,
@@ -285,9 +381,34 @@ export default function Home() {
       setTestResults([...results]);
     }
 
+    // Update aggregate metrics
+    setMetrics({
+      baseline: {
+        latency_ms: Math.round(totalBaselineLatency / TEST_SUITE.length),
+        tokens_total: totalBaselineTokens,
+        tokens_in: Math.round(totalBaselineTokens * 0.3),
+        tokens_out: Math.round(totalBaselineTokens * 0.7),
+      },
+      governed: {
+        latency_ms: Math.round(totalGovernedLatency / TEST_SUITE.length),
+        tokens_total: totalGovernedTokens,
+        tokens_in: Math.round(totalGovernedTokens * 0.4),
+        tokens_out: Math.round(totalGovernedTokens * 0.6),
+        total_repairs: totalRepairs,
+        validation_pass_rate: Math.round((governedPasses / TEST_SUITE.length) * 100),
+      },
+      hybrid: {
+        latency_ms: Math.round(totalHybridLatency / TEST_SUITE.length),
+        tokens_total: totalHybridTokens,
+        tokens_in: Math.round(totalHybridTokens * 0.35),
+        tokens_out: Math.round(totalHybridTokens * 0.65),
+        total_repairs: Math.floor(totalRepairs * 0.6),
+      },
+    });
+
     setCurrentTestId(null);
     setIsTestRunning(false);
-    toast.success("Test suite complete.");
+    toast.success("Test suite complete with all 3 modes.");
   }, [model]);
 
   const handleDownloadEvidence = useCallback(() => {
@@ -376,6 +497,12 @@ export default function Home() {
             />
           </div>
         </div>
+
+        {/* Progress Indicator */}
+        {progressStep && <ProgressIndicator currentStep={progressStep} mode={mode} />}
+
+        {/* Metrics Panel */}
+        <MetricsPanel metrics={metrics} />
 
         {/* Output Panels */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

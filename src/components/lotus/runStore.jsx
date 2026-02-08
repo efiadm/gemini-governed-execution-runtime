@@ -120,11 +120,17 @@ export function addToRunHistory(record) {
     runHistory.shift();
   }
   
-  // Store baseline snapshot for delta comparison
+  // Store baseline_metrics artifact for delta comparison
   if (record.mode === "baseline") {
     const key = `${record.prompt_hash}_${record.model}_${record.grounding}`;
+    const baselineMetrics = record.artifacts?.find(a => a.type === "baseline_metrics") || {};
     baselineSnapshots[key] = {
-      performance: record.performance?.baseline || {},
+      execution_metrics: {
+        model_latency_ms: baselineMetrics.model_latency_ms,
+        prompt_tokens: baselineMetrics.prompt_tokens,
+        completion_tokens: baselineMetrics.completion_tokens,
+        total_tokens: baselineMetrics.total_tokens,
+      },
       timestamp: record.timestamp,
     };
   }

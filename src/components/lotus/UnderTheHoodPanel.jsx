@@ -41,7 +41,7 @@ export default function UnderTheHoodPanel() {
             <p className="text-lg font-bold text-slate-900">{perf.total_latency_ms || 0}ms</p>
             <div className="text-[10px] text-slate-500 space-y-0.5 mt-1">
               <div>Model (billable): {perf.total_model_latency_ms || 0}ms</div>
-              <div>Runtime (non-billable): {perf.total_local_latency_ms || 0}ms</div>
+              <div>Runtime-local: {perf.total_local_latency_ms || 0}ms</div>
             </div>
           </CardContent>
         </Card>

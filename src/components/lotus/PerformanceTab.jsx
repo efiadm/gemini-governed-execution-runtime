@@ -63,7 +63,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
         <div>
           <h3 className="text-sm font-semibold text-slate-800">Performance Metrics</h3>
           <p className="text-xs text-slate-500 mt-1">
-            <strong>Billable:</strong> Model API calls (tokens × time). <strong>App Runtime:</strong> Non-billable logic (validation, parsing, metrics).
+            <strong>Billable:</strong> Model API calls (tokens × time). <strong>Runtime-local (non-billable):</strong> Browser/runtime logic + artifact store (validation, parsing, metrics).
           </p>
         </div>
         <Button
@@ -90,7 +90,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
             <TableBody>
               <MetricRow label="End-to-End Latency" getValue={(m) => m?.total?.total_latency_ms} unit="ms" showDelta />
               <MetricRow label="Model Latency (billable)" getValue={(m) => m?.total?.model_latency_ms} unit="ms" isBillable showDelta />
-              {!showOnlyBillable && <MetricRow label="App Runtime (non-billable)" getValue={(m) => m?.local?.total_local_ms} unit="ms" />}
+              {!showOnlyBillable && <MetricRow label="Runtime-local (non-billable)" getValue={(m) => m?.local?.total_local_ms} unit="ms" />}
               <MetricRow label="Prompt Tokens" getValue={(m) => m?.billable?.prompt_tokens_in} isBillable showDelta />
               <MetricRow label="Completion Tokens" getValue={(m) => m?.billable?.completion_tokens_out} isBillable showDelta />
               <MetricRow label="Total Tokens" getValue={(m) => m?.billable?.total_model_tokens} isBillable showDelta />
@@ -125,15 +125,15 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
               
               <TableRow className="bg-slate-50">
                 <TableCell colSpan={4} className="text-xs font-bold text-slate-800">
-                  App Runtime (non-billable)
+                  Runtime-local (non-billable)
                   <span className="ml-2 text-[10px] text-slate-500 font-normal">
-                    Browser/runtime logic: validation, parsing, evidence assembly — not billable model time
+                    Browser/runtime + artifact store: validation, parsing, evidence assembly — not billable model time
                   </span>
                 </TableCell>
               </TableRow>
               <MetricRow label="Validation" getValue={(m) => m?.local?.local_validation_ms} unit="ms" />
               <MetricRow label="Render" getValue={(m) => m?.local?.local_render_ms} unit="ms" />
-              <MetricRow label="Total App Runtime" getValue={(m) => m?.local?.total_local_ms} unit="ms" />
+              <MetricRow label="Total Runtime-local" getValue={(m) => m?.local?.total_local_ms} unit="ms" />
             </TableBody>
           </Table>
         </div>

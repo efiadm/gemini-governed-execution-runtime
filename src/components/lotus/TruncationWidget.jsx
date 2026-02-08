@@ -8,7 +8,8 @@ const STORAGE_KEY_POSITION = "lotus.telemetry.position";
 export default function TruncationWidget({ truncationRisk, metrics, mode }) {
   const [isExpanded, setIsExpanded] = useState(() => {
     if (typeof window === "undefined") return false;
-    return localStorage.getItem(STORAGE_KEY_EXPANDED) === "true";
+    const saved = localStorage.getItem(STORAGE_KEY_EXPANDED);
+    return saved === "true" ? true : false; // Default collapsed
   });
   const [position, setPosition] = useState(() => {
     if (typeof window === "undefined") return { bottom: 24, right: 24 };

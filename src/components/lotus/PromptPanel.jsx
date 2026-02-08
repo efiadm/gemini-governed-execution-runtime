@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Play, Trash2, FlaskConical } from "lucide-react";
+import { MODELS_REGISTRY } from "./modelsRegistry";
 
 export default function PromptPanel({
   prompt,
@@ -104,8 +105,9 @@ export default function PromptPanel({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="gemini-2.0-flash-exp">gemini-2.0-flash-exp</SelectItem>
-                <SelectItem value="gemini-1.5-pro">gemini-1.5-pro</SelectItem>
+                {MODELS_REGISTRY.map((m) => (
+                  <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

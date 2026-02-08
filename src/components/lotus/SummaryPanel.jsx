@@ -7,28 +7,12 @@ import { downloadEvidenceFile } from "./auditExporter";
 import { getBaselineSnapshot, getRunState } from "./runStore";
 import PipelineStatus from "./PipelineStatus";
 
-function BaselineDeltaCard({ metrics, mode }) {
-  const [baselineAvailable, setBaselineAvailable] = useState(false);
-  const runState = getRunState();
-
-  useEffect(() => {
-    if (runState.prompt_hash && runState.model && runState.grounding && mode !== "baseline") {
-      setBaselineAvailable(hasBaselineSnapshot(runState.prompt_hash, runState.model, runState.grounding));
-    }
-  }, [runState.prompt_hash, runState.model, runState.grounding, mode]);
-
-  if (!metrics || mode === "baseline" || !baselineAvailable) {
-    return (
-      <div className="bg-slate-50 rounded-lg p-2">
-        <div className="flex items-center gap-1 mb-0.5">
-          <TrendingUp className="w-3 h-3 text-slate-400" />
-          <span className="text-[10px] text-slate-400 font-medium">Δ vs Baseline</span>
-        </div>
-        <p className="text-[10px] text-slate-400 mt-1">Comparison requires a baseline reference run (raw tokens/latency). Baseline does not produce governance artifacts.</p>
-      </div>
-    );
+function BaselineDeltaCard({ metrics, mode, repairs }) {
+  if (!metrics || mode === "baseline" || !repairs || repairs === 0) {
+    return null;
   }
 
+  const runState = getRunState();
   const baselineSnap = getBaselineSnapshot(runState.prompt_hash, runState.model, runState.grounding);
   if (!baselineSnap?.execution_metrics) return null;
 
@@ -46,13 +30,13 @@ function BaselineDeltaCard({ metrics, mode }) {
         ) : (
           <TrendingUp className="w-3 h-3 text-slate-500" />
         )}
-        <span className="text-[10px] text-slate-600 font-medium">Δ vs Baseline</span>
+        <span className="text-[10px] text-slate-600 font-medium">Conditional Overhead</span>
       </div>
       <p className={`text-base font-bold ${tokenDelta > 0 ? 'text-orange-700' : tokenDelta < 0 ? 'text-blue-700' : 'text-slate-700'}`}>
         {tokenDelta > 0 ? '+' : ''}{tokenDelta}t
       </p>
       <p className={`text-[10px] ${latencyDelta > 0 ? 'text-orange-600' : latencyDelta < 0 ? 'text-blue-600' : 'text-slate-500'}`}>
-        {latencyDelta > 0 ? '+' : ''}{latencyDelta}ms
+        Recovery path
       </p>
     </div>
   );
@@ -76,7 +60,7 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
     <Card className="border-slate-200 shadow-sm h-full">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-semibold text-slate-700">Execution Summary (Production)</CardTitle>
+          <CardTitle className="text-sm font-semibold text-slate-700">Execution Summary</CardTitle>
           <div className="flex gap-1">
             {onDownload && (
               <Button variant="ghost" size="sm" onClick={onDownload} className="h-7">

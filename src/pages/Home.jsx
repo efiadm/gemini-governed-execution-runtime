@@ -336,7 +336,7 @@ export default function Home() {
             isRunning={isRunning}
           />
 
-          {/* Right: Summary Panel + Baseline Delta + Settings */}
+          {/* Right: Summary Panel + Baseline Delta */}
           <div className="space-y-4">
             <SummaryPanel
               evidence={currentEvidence}
@@ -347,7 +347,6 @@ export default function Home() {
             {mode !== "baseline" && (
               <BaselineDeltaPanel onRunBaseline={handleRunBaselineForDelta} />
             )}
-            <SettingsPanel />
           </div>
         </div>
 

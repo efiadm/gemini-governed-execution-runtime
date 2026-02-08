@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Settings } from "lucide-react";
 import { getSettings, updateSettings, subscribeToSettings } from "./settingsStore";
 
 export default function SettingsPanel() {
   const [settings, setSettings] = useState(getSettings());
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = subscribeToSettings((newSettings) => {
@@ -21,14 +23,20 @@ export default function SettingsPanel() {
   };
 
   return (
-    <Card className="border-slate-200">
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-2">
-          <Settings className="w-4 h-4 text-slate-600" />
-          <CardTitle className="text-sm font-semibold text-slate-700">Execution & Audit Settings</CardTitle>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="outline" size="icon" className="fixed right-6 bottom-6 h-12 w-12 rounded-full shadow-lg z-50 bg-white hover:bg-slate-50">
+          <Settings className="w-5 h-5 text-slate-700" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-[400px] sm:w-[500px] overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2">
+            <Settings className="w-4 h-4" />
+            Execution & Audit Settings
+          </SheetTitle>
+        </SheetHeader>
+        <div className="mt-6 space-y-4">
         <div className="space-y-2">
           <Label className="text-xs font-medium text-slate-700">Repair Cap (Execution)</Label>
           <Select
@@ -113,7 +121,7 @@ export default function SettingsPanel() {
             </>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </SheetContent>
+    </Sheet>
   );
 }

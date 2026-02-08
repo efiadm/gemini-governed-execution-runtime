@@ -39,56 +39,63 @@ export default function SummaryTab() {
     hybrid: "bg-purple-50",
   };
 
+  // Count how many lanes have complete data
+  const lanesWithData = lanes.filter(lane => 
+    performance?.[lane]?.total_model_tokens && performance?.[lane]?.total_model_latency_ms
+  ).length;
+
   return (
     <div className="space-y-6">
-      {/* Lane Comparison Table */}
-      <Card className="border-slate-200">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold text-slate-700">Lane Comparison</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <div className="min-w-[500px]">
-              <div className="grid grid-cols-4 gap-2 text-xs">
-                <div className="font-semibold text-slate-600">Metric</div>
-                {lanes.map(lane => (
-                  <div key={lane} className={`font-semibold text-slate-700 text-center p-2 rounded ${laneColors[lane]}`}>
-                    {lane.charAt(0).toUpperCase() + lane.slice(1)}
-                  </div>
-                ))}
-            
-            <div className="text-slate-600 py-2">Tokens (billable)</div>
-            {lanes.map(lane => (
-              <div key={lane} className="text-center font-mono py-2">
-                {performance?.[lane]?.total_model_tokens || "—"}
-              </div>
-            ))}
-            
-            <div className="text-slate-600 py-2">Model Time (billable)</div>
-            {lanes.map(lane => (
-              <div key={lane} className="text-center font-mono py-2">
-                {performance?.[lane]?.total_model_latency_ms || "—"}ms
-              </div>
-            ))}
-            
-            <div className="text-slate-600 py-2">Runtime-local</div>
-            {lanes.map(lane => (
-              <div key={lane} className="text-center font-mono py-2">
-                {performance?.[lane]?.total_local_latency_ms || "—"}ms
-              </div>
-            ))}
-            
-            <div className="text-slate-600 py-2">Repairs</div>
-            {lanes.map(lane => (
-              <div key={lane} className="text-center font-mono py-2">
-                {validation?.repairs || 0}
-              </div>
-            ))}
+      {/* Lane Comparison Table - only show if multiple lanes have data */}
+      {lanesWithData >= 2 && (
+        <Card className="border-slate-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-slate-700">Lane Comparison</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <div className="min-w-[500px]">
+                <div className="grid grid-cols-4 gap-2 text-xs">
+                  <div className="font-semibold text-slate-600">Metric</div>
+                  {lanes.map(lane => (
+                    <div key={lane} className={`font-semibold text-slate-700 text-center p-2 rounded ${laneColors[lane]}`}>
+                      {lane.charAt(0).toUpperCase() + lane.slice(1)}
+                    </div>
+                  ))}
+              
+              <div className="text-slate-600 py-2">Tokens (billable)</div>
+              {lanes.map(lane => (
+                <div key={lane} className="text-center font-mono py-2">
+                  {performance?.[lane]?.total_model_tokens || "—"}
+                </div>
+              ))}
+              
+              <div className="text-slate-600 py-2">Model Time (billable)</div>
+              {lanes.map(lane => (
+                <div key={lane} className="text-center font-mono py-2">
+                  {performance?.[lane]?.total_model_latency_ms || "—"}ms
+                </div>
+              ))}
+              
+              <div className="text-slate-600 py-2">Runtime-local</div>
+              {lanes.map(lane => (
+                <div key={lane} className="text-center font-mono py-2">
+                  {performance?.[lane]?.total_local_latency_ms || "—"}ms
+                </div>
+              ))}
+              
+              <div className="text-slate-600 py-2">Repairs</div>
+              {lanes.map(lane => (
+                <div key={lane} className="text-center font-mono py-2">
+                  {validation?.repairs || 0}
+                </div>
+              ))}
+                </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="border-slate-200">

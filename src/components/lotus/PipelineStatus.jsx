@@ -52,7 +52,7 @@ export default function PipelineStatus({ stage, safeModeApplied, validationPasse
           );
         })}
       </div>
-      <p className="text-[9px] text-slate-400 mt-1">Knowledge → Governance → Experience → Understanding → Reliable Output</p>
+      <p className="text-[9px] text-slate-500 mt-1 font-medium">Execution Stages: Knowledge → Governance → Experience → Understanding → Reliable Output</p>
     </div>
   );
 }

@@ -68,7 +68,7 @@ export default function SummaryTab() {
               </div>
             ))}
             
-            <div className="text-slate-600 py-2">App Runtime (non-billable)</div>
+            <div className="text-slate-600 py-2">Runtime-local</div>
             {lanes.map(lane => (
               <div key={lane} className="text-center font-mono py-2">
                 {performance?.[lane]?.total_local_latency_ms || "—"}ms

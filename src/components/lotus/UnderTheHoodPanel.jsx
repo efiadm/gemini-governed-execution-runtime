@@ -76,11 +76,15 @@ export default function UnderTheHoodPanel() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-bold text-slate-900">{perf.total_latency_ms || 0}ms</p>
-            <div className="text-[10px] text-slate-500 space-y-0.5 mt-1">
-              <div>Model (billable): {perf.total_model_latency_ms || 0}ms</div>
-              <div>Runtime-local: {perf.total_local_latency_ms || 0}ms</div>
-            </div>
+            <p className="text-lg font-bold text-slate-900">
+              {perf.total_latency_ms ? `${perf.total_latency_ms}ms` : mode === "baseline" ? "UNINSTRUMENTED" : "UNAVAILABLE"}
+            </p>
+            {perf.total_latency_ms && (
+              <div className="text-[10px] text-slate-500 space-y-0.5 mt-1">
+                <div>Model (billable): {perf.total_model_latency_ms || "—"}ms</div>
+                <div>Runtime-local: {perf.total_local_latency_ms || "—"}ms</div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -92,11 +96,15 @@ export default function UnderTheHoodPanel() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-bold text-slate-900">{perf.total_model_tokens || 0}</p>
-            <div className="text-[10px] text-slate-500 space-y-0.5 mt-1">
-              <div>In: {perf.prompt_tokens || 0}</div>
-              <div>Out: {perf.completion_tokens || 0}</div>
-            </div>
+            <p className="text-lg font-bold text-slate-900">
+              {perf.total_model_tokens ? perf.total_model_tokens : mode === "baseline" ? "UNINSTRUMENTED" : "UNAVAILABLE"}
+            </p>
+            {perf.total_model_tokens && (
+              <div className="text-[10px] text-slate-500 space-y-0.5 mt-1">
+                <div>In: {perf.prompt_tokens || "—"}</div>
+                <div>Out: {perf.completion_tokens || "—"}</div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -174,9 +182,9 @@ export default function UnderTheHoodPanel() {
               </div>
               <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
                 <span className="text-slate-600">Safe Mode:</span>
-                <Badge variant={evidence?.safe_mode_applied ? "destructive" : "outline"}>
-                  {evidence?.safe_mode_applied ? "Applied" : "No"}
-                </Badge>
+                  <Badge variant={evidence?.safe_mode_applied ? "default" : "outline"}>
+                    {evidence?.safe_mode_applied ? "Contained" : "No"}
+                  </Badge>
               </div>
               <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
                 <span className="text-slate-600">Grounding:</span>

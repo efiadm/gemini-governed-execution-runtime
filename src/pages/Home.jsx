@@ -422,7 +422,8 @@ export default function Home() {
         </div>
       </main>
 
-
+      {/* Floating Settings Panel */}
+      <SettingsPanel />
     </div>
   );
 }

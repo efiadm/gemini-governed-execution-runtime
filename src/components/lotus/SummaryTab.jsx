@@ -25,6 +25,7 @@ export default function SummaryTab() {
   const { mode, model, grounding, validation, performance } = runState;
   const baselinePerf = performance?.baseline || {};
   const currentPerf = performance?.[mode] || {};
+  const hasBaseline = baselinePerf && baselinePerf.total_model_tokens;
 
   const getDelta = (current, baseline) => {
     if (!current || !baseline) return null;
@@ -146,45 +147,47 @@ export default function SummaryTab() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Performance Δ</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {mode !== "baseline" && baselinePerf.total_model_tokens ? (
-              <>
-                <div className="flex justify-between text-xs">
-                  <span className="text-slate-600">Δ Tokens:</span>
-                  <div className="flex items-center gap-1">
-                    {getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) > 0 ? (
-                      <ArrowUp className="w-3 h-3 text-red-600" />
-                    ) : (
-                      <ArrowDown className="w-3 h-3 text-green-600" />
-                    )}
-                    <span className={`font-mono ${getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                      {Math.abs(getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) || 0)}
-                    </span>
+        {hasBaseline || mode === "baseline" ? (
+          <Card className="border-slate-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Performance Δ</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {mode !== "baseline" && hasBaseline ? (
+                <>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-600">Δ Tokens:</span>
+                    <div className="flex items-center gap-1">
+                      {getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) > 0 ? (
+                        <ArrowUp className="w-3 h-3 text-red-600" />
+                      ) : (
+                        <ArrowDown className="w-3 h-3 text-green-600" />
+                      )}
+                      <span className={`font-mono ${getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        {Math.abs(getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) || 0)}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-slate-600">Δ Latency:</span>
-                  <div className="flex items-center gap-1">
-                    {getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) > 0 ? (
-                      <ArrowUp className="w-3 h-3 text-red-600" />
-                    ) : (
-                      <ArrowDown className="w-3 h-3 text-green-600" />
-                    )}
-                    <span className={`font-mono ${getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                      {Math.abs(getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) || 0)}ms
-                    </span>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-600">Δ Latency:</span>
+                    <div className="flex items-center gap-1">
+                      {getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) > 0 ? (
+                        <ArrowUp className="w-3 h-3 text-red-600" />
+                      ) : (
+                        <ArrowDown className="w-3 h-3 text-green-600" />
+                      )}
+                      <span className={`font-mono ${getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        {Math.abs(getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) || 0)}ms
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </>
-            ) : (
-              <p className="text-xs text-slate-400 italic">Run baseline first for comparison</p>
-            )}
-          </CardContent>
-        </Card>
+                </>
+              ) : (
+                <p className="text-xs text-slate-400 italic">Baseline comparison unavailable — run the same prompt in Baseline mode to enable.</p>
+              )}
+            </CardContent>
+          </Card>
+        ) : null}
       </div>
 
       {runState.artifacts && runState.artifacts.length > 0 && (

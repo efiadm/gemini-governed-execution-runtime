@@ -1,7 +1,8 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FlaskConical, CheckCircle2, XCircle, Clock, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FlaskConical, CheckCircle2, XCircle, Clock, Loader2, Eye } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -11,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function TestSuiteTable({ results, isRunning, currentTestId }) {
+export default function TestSuiteTable({ results, isRunning, currentTestId, onViewEvidence }) {
   if (!results || results.length === 0) {
     return (
       <Card className="border-slate-200 shadow-sm rounded-2xl">
@@ -51,6 +52,7 @@ export default function TestSuiteTable({ results, isRunning, currentTestId }) {
                 <TableHead className="text-[10px] uppercase tracking-wider font-bold text-center">Attempts</TableHead>
                 <TableHead className="text-[10px] uppercase tracking-wider font-bold text-center">Repairs</TableHead>
                 <TableHead className="text-[10px] uppercase tracking-wider font-bold text-center">Latency</TableHead>
+                <TableHead className="text-[10px] uppercase tracking-wider font-bold text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -110,6 +112,19 @@ export default function TestSuiteTable({ results, isRunning, currentTestId }) {
                         </div>
                       ) : (
                         <span className="text-slate-300">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {r.governedResult && onViewEvidence && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onViewEvidence(r)}
+                          className="h-7 text-xs"
+                        >
+                          <Eye className="w-3 h-3 mr-1" />
+                          View
+                        </Button>
                       )}
                     </TableCell>
                   </TableRow>

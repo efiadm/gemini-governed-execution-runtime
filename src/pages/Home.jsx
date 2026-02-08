@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 import PromptInput from "@/components/governance/PromptInput";
 import ModeControls from "@/components/governance/ModeControls";
@@ -10,142 +12,167 @@ import ValidationPanel from "@/components/governance/ValidationPanel";
 import RawJsonPanel from "@/components/governance/RawJsonPanel";
 import TestSuiteTable from "@/components/governance/TestSuiteTable";
 import HowItWorks from "@/components/governance/HowItWorks";
+import EvidencePanel from "@/components/governance/EvidencePanel";
+import TestEvidenceDrawer from "@/components/governance/TestEvidenceDrawer";
 
 import {
-  GOVERNED_SYSTEM_PROMPT,
-  REPAIR_PROMPT_PREFIX,
-  REPAIR_PROMPT_SUFFIX,
   TEST_SUITE,
-  validateGovernanceOutput,
-  generateSafeModeJson,
+  validateGovernedOutput,
+  generateSafeModeOutput,
   tryParseJson,
+  buildGovernedSystemPrompt,
+  buildRepairPrompt,
+  detectCorrectionMode,
+  shouldUseGrounding,
 } from "@/components/governance/governanceEngine";
 
-const MODEL_NAME = "gemini-3-flash-preview";
+const DEFAULT_MODEL = "gemini-3-flash-preview";
+const MAX_REPAIR_ATTEMPTS = 2;
 
-async function callLLM(prompt, grounding, useGovernance) {
-  const fullPrompt = useGovernance
-    ? `${GOVERNED_SYSTEM_PROMPT}\n\nUser prompt: ${prompt}`
-    : prompt;
-
-  const shouldGround = grounding === "on" || (grounding === "auto" && /source|cite|reference|url|link|cloudflare|error 524/i.test(prompt));
-
+async function callLLM(prompt, grounded) {
   const result = await base44.integrations.Core.InvokeLLM({
-    prompt: fullPrompt,
-    add_context_from_internet: shouldGround,
+    prompt,
+    add_context_from_internet: grounded,
   });
-
-  return { result, grounded: shouldGround };
+  return typeof result === "string" ? result : JSON.stringify(result);
 }
 
-async function runGoverned(prompt, grounding, isCorrectionMode) {
-  const startTime = Date.now();
-  let attempts = 0;
-  let repairs = 0;
-  let lastValidation = null;
-  let parsedOutput = null;
-  let safeModeApplied = false;
-  let rawOutput = "";
+async function runBaseline(prompt, grounded, model) {
+  const t0 = Date.now();
+  const rawOutput = await callLLM(prompt, grounded);
+  const latency = Date.now() - t0;
 
-  // Attempt 1
-  attempts++;
-  const { result, grounded } = await callLLM(prompt, grounding, true);
-  rawOutput = typeof result === "string" ? result : JSON.stringify(result);
+  return {
+    output: rawOutput,
+    evidence: {
+      timestamp: new Date().toISOString(),
+      mode: "baseline",
+      model,
+      grounding: grounded ? "on" : "off",
+      latency_ms: latency,
+      attempts: 1,
+      repairs: 0,
+      validation_passed: null,
+      safe_mode_applied: false,
+      attemptDetails: [{
+        kind: "initial",
+        ok: true,
+        latency_ms: latency,
+        raw_preview: rawOutput.substring(0, 240),
+        errors: [],
+      }],
+    },
+  };
+}
+
+async function runGoverned(prompt, grounded, correctionMode, model) {
+  const t0 = Date.now();
+  const attemptDetails = [];
+  let parsedOutput = null;
+  let rawOutput = "";
+  let validation = { passed: false, errors: [] };
+  let repairs = 0;
+  let safeModeApplied = false;
+
+  const systemPrompt = buildGovernedSystemPrompt(grounded, correctionMode);
+
+  // Attempt 1: Initial
+  let currentPrompt = `${systemPrompt}\n\nUser prompt: ${prompt}`;
+  let attemptStart = Date.now();
+  rawOutput = await callLLM(currentPrompt, grounded);
+  let attemptLatency = Date.now() - attemptStart;
 
   try {
-    parsedOutput = typeof result === "object" ? result : tryParseJson(rawOutput);
-    lastValidation = validateGovernanceOutput(parsedOutput, grounding, isCorrectionMode);
-  } catch {
-    lastValidation = { passed: false, errors: ["JSON parse failed"], errorCount: 1 };
+    parsedOutput = tryParseJson(rawOutput);
+    validation = validateGovernedOutput(parsedOutput, { grounded, correctionMode, hadRepairs: false });
+  } catch (e) {
+    validation = { passed: false, errors: [`JSON parse failed: ${e.message}`] };
   }
 
-  // Repair loop (max 2)
-  while (!lastValidation.passed && repairs < 2) {
+  attemptDetails.push({
+    kind: "initial",
+    ok: validation.passed,
+    latency_ms: attemptLatency,
+    raw_preview: rawOutput.substring(0, 240),
+    errors: validation.errors,
+  });
+
+  // Repair loop
+  while (!validation.passed && repairs < MAX_REPAIR_ATTEMPTS) {
     repairs++;
-    attempts++;
-    const repairPrompt = `${GOVERNED_SYSTEM_PROMPT}\n\nOriginal user prompt: ${prompt}\n\n${REPAIR_PROMPT_PREFIX}${JSON.stringify(lastValidation.errors, null, 2)}\n\nPrevious (invalid) output:\n${rawOutput}${REPAIR_PROMPT_SUFFIX}`;
+    const repairPrompt = buildRepairPrompt(validation.errors, rawOutput);
+    currentPrompt = `${systemPrompt}\n\n${repairPrompt}`;
 
-    const repairResult = await base44.integrations.Core.InvokeLLM({
-      prompt: repairPrompt,
-      add_context_from_internet: grounded,
-    });
-
-    const repairRaw = typeof repairResult === "string" ? repairResult : JSON.stringify(repairResult);
-    rawOutput = repairRaw;
+    attemptStart = Date.now();
+    rawOutput = await callLLM(currentPrompt, grounded);
+    attemptLatency = Date.now() - attemptStart;
 
     try {
-      parsedOutput = typeof repairResult === "object" ? repairResult : tryParseJson(repairRaw);
-      lastValidation = validateGovernanceOutput(parsedOutput, grounding, isCorrectionMode);
-    } catch {
-      lastValidation = { passed: false, errors: ["JSON parse failed on repair attempt"], errorCount: 1 };
+      parsedOutput = tryParseJson(rawOutput);
+      validation = validateGovernedOutput(parsedOutput, { grounded, correctionMode, hadRepairs: true });
+    } catch (e) {
+      validation = { passed: false, errors: [`JSON parse failed on repair: ${e.message}`] };
     }
+
+    attemptDetails.push({
+      kind: "repair",
+      ok: validation.passed,
+      latency_ms: attemptLatency,
+      raw_preview: rawOutput.substring(0, 240),
+      errors: validation.errors,
+    });
   }
 
   // Safe mode fallback
-  if (!lastValidation.passed) {
-    parsedOutput = generateSafeModeJson(prompt);
+  if (!validation.passed) {
+    parsedOutput = generateSafeModeOutput(grounded, correctionMode);
     safeModeApplied = true;
-    lastValidation = validateGovernanceOutput(parsedOutput, grounding, false);
+    validation = { passed: true, errors: [] }; // Safe mode is valid by design
   }
 
-  const latency = Date.now() - startTime;
+  const totalLatency = Date.now() - t0;
 
-  const evidence = {
-    timestamp: new Date().toISOString(),
-    model: MODEL_NAME,
-    mode: "governed",
-    grounding: grounded ? "on" : "off",
-    latency_ms: latency,
-    attempts,
-    repairs,
-    safe_mode_applied: safeModeApplied,
-    validation_passed: lastValidation.passed,
-    prompt,
+  return {
+    output: parsedOutput,
+    rawOutput,
+    validation,
+    evidence: {
+      timestamp: new Date().toISOString(),
+      mode: "governed",
+      model,
+      grounding: grounded ? "on" : "off",
+      latency_ms: totalLatency,
+      attempts: attemptDetails.length,
+      repairs,
+      validation_passed: !safeModeApplied,
+      safe_mode_applied: safeModeApplied,
+      attemptDetails,
+    },
   };
-
-  return { parsedOutput, rawOutput, validation: lastValidation, evidence };
-}
-
-async function runBaseline(prompt, grounding) {
-  const startTime = Date.now();
-  const { result, grounded } = await callLLM(prompt, grounding, false);
-  const latency = Date.now() - startTime;
-  const raw = typeof result === "string" ? result : JSON.stringify(result, null, 2);
-
-  const evidence = {
-    timestamp: new Date().toISOString(),
-    model: MODEL_NAME,
-    mode: "baseline",
-    grounding: grounded ? "on" : "off",
-    latency_ms: latency,
-    attempts: 1,
-    repairs: 0,
-    safe_mode_applied: false,
-    validation_passed: null,
-    prompt,
-  };
-
-  return { output: raw, evidence };
 }
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
   const [mode, setMode] = useState("governed");
   const [grounding, setGrounding] = useState("auto");
+  const [model, setModel] = useState(DEFAULT_MODEL);
   const [isRunning, setIsRunning] = useState(false);
   const [isTestRunning, setIsTestRunning] = useState(false);
 
-  // Results state
+  // Current run results
   const [renderedData, setRenderedData] = useState(null);
   const [validation, setValidation] = useState(null);
   const [evidence, setEvidence] = useState(null);
   const [rawJson, setRawJson] = useState(null);
 
-  // Test suite state
+  // Test suite
   const [testResults, setTestResults] = useState([]);
   const [currentTestId, setCurrentTestId] = useState(null);
 
-  // Evidence collection
+  // Evidence drawer
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerData, setDrawerData] = useState(null);
+
   const allEvidence = useRef([]);
 
   const handleRun = useCallback(async () => {
@@ -153,102 +180,93 @@ export default function Home() {
       toast.error("Enter a prompt first.");
       return;
     }
+
     setIsRunning(true);
     setRenderedData(null);
     setValidation(null);
     setEvidence(null);
     setRawJson(null);
 
-    const startTime = Date.now();
+    try {
+      const correctionMode = detectCorrectionMode(prompt);
+      const useGrounding = shouldUseGrounding(grounding, prompt);
 
-    if (mode === "governed") {
-      const isCorrectionMode = /wrong|fix|correct|mistake/i.test(prompt);
-      const res = await runGoverned(prompt, grounding, isCorrectionMode);
-      setRenderedData(res.parsedOutput);
-      setValidation(res.validation);
-      setEvidence(res.evidence);
-      setRawJson(res.parsedOutput);
-      allEvidence.current.push(res.evidence);
+      if (mode === "baseline") {
+        const res = await runBaseline(prompt, useGrounding, model);
+        setRenderedData(res.output);
+        setEvidence(res.evidence);
+        setRawJson(null);
+        allEvidence.current.push(res.evidence);
 
-      await base44.entities.GovernanceRun.create({
-        prompt,
-        mode: "governed",
-        grounding,
-        raw_output: res.rawOutput,
-        parsed_output: res.parsedOutput,
-        validation: res.validation,
-        evidence: res.evidence,
-        latency_ms: res.evidence.latency_ms,
-        attempts: res.evidence.attempts,
-      });
-    } else {
-      const res = await runBaseline(prompt, grounding);
-      setRenderedData(res.output);
-      setValidation(null);
-      setEvidence(res.evidence);
-      setRawJson(null);
-      allEvidence.current.push(res.evidence);
+        await base44.entities.GovernanceRun.create({
+          prompt,
+          mode: "baseline",
+          grounding,
+          raw_output: res.output,
+          evidence: res.evidence,
+          latency_ms: res.evidence.latency_ms,
+          attempts: 1,
+        });
+      } else {
+        const res = await runGoverned(prompt, useGrounding, correctionMode, model);
+        setRenderedData(res.output);
+        setValidation(res.validation);
+        setEvidence(res.evidence);
+        setRawJson(res.output);
+        allEvidence.current.push(res.evidence);
 
-      await base44.entities.GovernanceRun.create({
-        prompt,
-        mode: "baseline",
-        grounding,
-        raw_output: res.output,
-        evidence: res.evidence,
-        latency_ms: res.evidence.latency_ms,
-        attempts: 1,
-      });
+        await base44.entities.GovernanceRun.create({
+          prompt,
+          mode: "governed",
+          grounding,
+          raw_output: res.rawOutput,
+          parsed_output: res.output,
+          validation: res.validation,
+          evidence: res.evidence,
+          latency_ms: res.evidence.latency_ms,
+          attempts: res.evidence.attempts,
+        });
+      }
+    } catch (e) {
+      toast.error(`Error: ${e.message}`);
+    } finally {
+      setIsRunning(false);
     }
-
-    setIsRunning(false);
-  }, [prompt, mode, grounding]);
+  }, [prompt, mode, grounding, model]);
 
   const handleRunTestSuite = useCallback(async () => {
     setIsTestRunning(true);
-    const results = TEST_SUITE.map((t) => ({
-      id: t.id,
-      name: t.name,
-    }));
+    const results = TEST_SUITE.map((t) => ({ id: t.id, name: t.name, prompt: t.prompt, expected: t.expected }));
     setTestResults([...results]);
 
     for (let i = 0; i < TEST_SUITE.length; i++) {
       const test = TEST_SUITE[i];
       setCurrentTestId(test.id);
 
-      // Run baseline
+      const correctionMode = detectCorrectionMode(test.prompt);
+      const useGrounding = shouldUseGrounding("auto", test.prompt);
+
+      // Baseline
       let baselineResult = "text";
       try {
-        const bRes = await runBaseline(test.prompt, "auto");
-        allEvidence.current.push({ ...bRes.evidence, test_id: test.id });
-
-        // Try to validate baseline against contract
+        const bRes = await runBaseline(test.prompt, useGrounding, model);
         try {
           const parsed = tryParseJson(bRes.output);
-          const bVal = validateGovernanceOutput(parsed, "auto", test.isCorrectionMode);
+          const bVal = validateGovernedOutput(parsed, { grounded: useGrounding, correctionMode, hadRepairs: false });
           baselineResult = bVal.passed ? "pass" : "fail";
         } catch {
-          baselineResult = "text"; // not even JSON
+          baselineResult = "text";
         }
       } catch {
         baselineResult = "fail";
       }
 
-      // Run governed
+      // Governed
       let governedResult = "fail";
-      let attempts = 1;
-      let repairs = 0;
-      let latency_ms = 0;
+      let gRes = null;
       try {
-        const gRes = await runGoverned(test.prompt, "auto", test.isCorrectionMode);
-        governedResult = gRes.validation.passed
-          ? gRes.evidence.safe_mode_applied
-            ? "safe_mode"
-            : "pass"
-          : "fail";
-        attempts = gRes.evidence.attempts;
-        repairs = gRes.evidence.repairs;
-        latency_ms = gRes.evidence.latency_ms;
-        allEvidence.current.push({ ...gRes.evidence, test_id: test.id });
+        gRes = await runGoverned(test.prompt, useGrounding, correctionMode, model);
+        governedResult = gRes.evidence.safe_mode_applied ? "safe_mode" : gRes.validation.passed ? "pass" : "fail";
       } catch {
         governedResult = "fail";
       }
@@ -257,9 +275,12 @@ export default function Home() {
         ...results[i],
         baselineResult,
         governedResult,
-        attempts,
-        repairs,
-        latency_ms,
+        attempts: gRes?.evidence.attempts,
+        repairs: gRes?.evidence.repairs,
+        latency_ms: gRes?.evidence.latency_ms,
+        governedOutput: gRes?.output,
+        validationErrors: gRes?.validation?.errors || [],
+        evidence: gRes?.evidence,
       };
       setTestResults([...results]);
     }
@@ -267,29 +288,43 @@ export default function Home() {
     setCurrentTestId(null);
     setIsTestRunning(false);
     toast.success("Test suite complete.");
-  }, []);
+  }, [model]);
 
   const handleDownloadEvidence = useCallback(() => {
     if (allEvidence.current.length === 0) {
       toast.error("No evidence to download.");
       return;
     }
-    const blob = new Blob([JSON.stringify(allEvidence.current, null, 2)], {
-      type: "application/json",
-    });
+    const blob = new Blob([JSON.stringify(allEvidence.current, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `governance-evidence-${Date.now()}.json`;
+    a.download = `lotus-evidence-${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }, []);
+
+  const handleDownloadCurrentEvidence = useCallback(() => {
+    if (!evidence) return;
+    const blob = new Blob([JSON.stringify(evidence, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `evidence-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [evidence]);
+
+  const handleViewTestEvidence = (testResult) => {
+    setDrawerData(testResult);
+    setDrawerOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       {/* Header */}
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-200">
               <span className="text-white text-xs font-bold">LG</span>
@@ -301,30 +336,36 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">
-              Model
-            </span>
-            <span className="text-xs font-mono text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">
-              {MODEL_NAME}
-            </span>
-          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        {/* Controls Section */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+        {/* Controls */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
           <PromptInput value={prompt} onChange={setPrompt} disabled={isRunning || isTestRunning} />
-          <div className="flex flex-col sm:flex-row sm:items-end gap-5 sm:justify-between">
-            <ModeControls
-              mode={mode}
-              onModeChange={setMode}
-              grounding={grounding}
-              onGroundingChange={setGrounding}
-              disabled={isRunning || isTestRunning}
-            />
+          <div className="flex flex-col sm:flex-row sm:items-end gap-5 sm:justify-between flex-wrap">
+            <div className="flex flex-wrap items-end gap-5">
+              <ModeControls
+                mode={mode}
+                onModeChange={setMode}
+                grounding={grounding}
+                onGroundingChange={setGrounding}
+                disabled={isRunning || isTestRunning}
+              />
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Model</Label>
+                <Select value={model} onValueChange={setModel} disabled={isRunning || isTestRunning}>
+                  <SelectTrigger className="w-[240px] bg-slate-100 rounded-lg">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="gemini-3-flash-preview">gemini-3-flash-preview</SelectItem>
+                    <SelectItem value="gemini-2.0-flash-exp">gemini-2.0-flash-exp</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
             <ActionButtons
               onRun={handleRun}
               onRunTestSuite={handleRunTestSuite}
@@ -343,6 +384,7 @@ export default function Home() {
             <RawJsonPanel data={rawJson} />
           </div>
           <div className="space-y-6">
+            <EvidencePanel evidence={evidence} onDownload={evidence ? handleDownloadCurrentEvidence : null} />
             <ValidationPanel validation={validation} evidence={evidence} />
             <HowItWorks />
           </div>
@@ -353,20 +395,12 @@ export default function Home() {
           results={testResults}
           isRunning={isTestRunning}
           currentTestId={currentTestId}
+          onViewEvidence={handleViewTestEvidence}
         />
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 mt-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-between">
-          <p className="text-xs text-slate-400">
-            Lotus Governed Runner — Runtime AI Governance Demo
-          </p>
-          <p className="text-xs text-slate-400">
-            Contract → Validate → Repair → Evidence
-          </p>
-        </div>
-      </footer>
+      {/* Test Evidence Drawer */}
+      <TestEvidenceDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} testData={drawerData} />
     </div>
   );
 }

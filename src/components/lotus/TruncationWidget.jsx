@@ -107,7 +107,7 @@ export default function TruncationWidget({ truncationRisk, metrics, mode }) {
   return (
     <div
       ref={widgetRef}
-      className={`fixed z-50 pointer-events-none transition-all ${isDragging ? "cursor-grabbing" : ""}`}
+      className="fixed z-40 pointer-events-none transition-all"
       style={positionStyle}
     >
       <div

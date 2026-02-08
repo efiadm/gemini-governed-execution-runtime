@@ -14,11 +14,28 @@ import { emitEvent, EventTypes } from "./eventBus";
 import { updateRunState, addAttempt, addArtifact } from "./runStore";
 
 async function callModel(prompt, grounded) {
-  const result = await base44.integrations.Core.InvokeLLM({
-    prompt,
-    add_context_from_internet: grounded,
-  });
-  return typeof result === "string" ? result : JSON.stringify(result);
+  try {
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt,
+      add_context_from_internet: grounded,
+    });
+    
+    // Handle non-JSON responses
+    if (typeof result === "string") {
+      // Check if it's HTML or other non-JSON
+      if (result.trim().startsWith("<") || result.includes("<!DOCTYPE")) {
+        throw new Error("NON_JSON_HTML_RESPONSE");
+      }
+      return result;
+    }
+    
+    return JSON.stringify(result);
+  } catch (err) {
+    if (err.message === "NON_JSON_HTML_RESPONSE") {
+      throw err;
+    }
+    throw new Error(`Model call failed: ${err.message}`);
+  }
 }
 
 export async function runBaseline(prompt, groundingSetting, model, onProgress) {
@@ -36,7 +53,20 @@ export async function runBaseline(prompt, groundingSetting, model, onProgress) {
   const fullPrompt = `${systemPrompt}\n\nUser: ${prompt}`;
   
   emitEvent(EventTypes.MODEL_CALLED, { attempt: 1, kind: "initial" });
-  const rawOutput = await callModel(fullPrompt, useGrounding);
+  
+  let rawOutput;
+  let responseType = "text";
+  try {
+    rawOutput = await callModel(fullPrompt, useGrounding);
+  } catch (err) {
+    if (err.message === "NON_JSON_HTML_RESPONSE") {
+      responseType = "non_json";
+      rawOutput = "HTML/Non-JSON response detected";
+    } else {
+      throw err;
+    }
+  }
+  
   const latency = Date.now() - t0;
   
   emitEvent(EventTypes.MODEL_RESULT, { rawLength: rawOutput.length, latency });
@@ -56,13 +86,14 @@ export async function runBaseline(prompt, groundingSetting, model, onProgress) {
     repairs: 0,
     validation_passed: null,
     safe_mode_applied: false,
+    response_type: responseType,
     attemptDetails: [{
       attempt: 1,
       kind: "initial",
-      ok: true,
+      ok: responseType === "text",
       model_ms: latency,
       local_ms: 0,
-      errors: [],
+      errors: responseType === "non_json" ? ["Non-JSON response received"] : [],
       raw_preview: rawOutput.substring(0, 240),
       raw_full: rawOutput,
     }],
@@ -106,7 +137,7 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress) {
   let totalLocalMs = 0;
 
   // Emit contract artifact
-  addArtifact({ type: "contract", content: "Governed JSON Schema", timestamp: Date.now() });
+  addArtifact({ type: "contract", content: "Governed JSON Schema", mode: "governed", timestamp: Date.now() });
   emitEvent(EventTypes.ARTIFACT_EMITTED, { type: "contract" });
 
   onProgress?.("contract");
@@ -209,7 +240,7 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress) {
   onProgress?.("evidence");
   const totalLatency = Date.now() - t0;
 
-  addArtifact({ type: "performance", billable_ms: totalModelMs, app_runtime_ms: totalLocalMs, timestamp: Date.now() });
+  addArtifact({ type: "performance", billable_ms: totalModelMs, app_runtime_ms: totalLocalMs, mode: "governed", timestamp: Date.now() });
   emitEvent(EventTypes.ARTIFACT_EMITTED, { type: "performance" });
   
   emitEvent(EventTypes.RUN_COMPLETED, { mode: "governed", success: true, safeModeApplied });
@@ -266,7 +297,7 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress) {
   let tokensSaved = 0;
 
   // Emit contract artifact (same as Governed)
-  addArtifact({ type: "contract", content: "Governed JSON Schema", timestamp: Date.now() });
+  addArtifact({ type: "contract", content: "Governed JSON Schema", mode: "hybrid", timestamp: Date.now() });
   emitEvent(EventTypes.ARTIFACT_EMITTED, { type: "contract" });
 
   onProgress?.("contract");
@@ -285,7 +316,7 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress) {
     contextHeader = `[Hybrid Context: ${artifactContext.summary}]`;
     systemPrompt = `${systemPrompt}\n\n${contextHeader}`;
     tokensSaved = estimateTokens(artifactContext.fullContext) - estimateTokens(contextHeader);
-    addArtifact({ type: "hybrid_context", header: contextHeader, tokens_saved: tokensSaved, timestamp: Date.now() });
+    addArtifact({ type: "hybrid_context", header: contextHeader, tokens_saved: tokensSaved, mode: "hybrid", timestamp: Date.now() });
     emitEvent(EventTypes.ARTIFACT_EMITTED, { type: "hybrid_context", tokensSaved });
   }
 

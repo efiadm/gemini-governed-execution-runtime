@@ -12,6 +12,7 @@ import PerformanceTab from "@/components/lotus/PerformanceTab";
 import ArtifactsTab from "@/components/lotus/ArtifactsTab";
 import TruncationWidget from "@/components/lotus/TruncationWidget";
 import ProgressStepper from "@/components/lotus/ProgressStepper";
+import SummaryTab from "@/components/lotus/SummaryTab";
 
 import { runBaseline, runGoverned, runHybrid } from "@/components/lotus/runtimeEngine";
 import { TEST_SUITE, runTestSuite } from "@/components/lotus/testSuite";
@@ -42,7 +43,8 @@ export default function Home() {
   const [testResults, setTestResults] = useState([]);
   const [currentTestId, setCurrentTestId] = useState(null);
   
-  const [activeTab, setActiveTab] = useState("evidence");
+  const [activeTab, setActiveTab] = useState("summary");
+  const [showTelemetry, setShowTelemetry] = useState(true);
   
   const baselineRef = useRef(null);
   const evidenceHistory = useRef([]);
@@ -230,10 +232,20 @@ export default function Home() {
                 <h1 className="text-lg font-bold text-slate-900">Lotus Governed Runner</h1>
                 <p className="text-xs text-slate-500">Contract → Validate → Repair → Evidence</p>
               </div>
-            </div>
-            <div className="text-xs text-slate-400">
-              {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-            </div>
+              </div>
+              <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowTelemetry(!showTelemetry)}
+                className="text-xs"
+              >
+                {showTelemetry ? "Hide" : "Show"} Telemetry
+              </Button>
+              <div className="text-xs text-slate-400">
+                {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+              </div>
+              </div>
           </div>
         </div>
       </header>
@@ -288,11 +300,11 @@ export default function Home() {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div className="border-b border-slate-200 px-6">
               <TabsList className="bg-transparent border-0 p-0 h-12">
+                <TabsTrigger value="summary" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
+                  Summary
+                </TabsTrigger>
                 <TabsTrigger value="evidence" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
                   Evidence
-                </TabsTrigger>
-                <TabsTrigger value="tests" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
-                  Tests
                 </TabsTrigger>
                 <TabsTrigger value="performance" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
                   Performance
@@ -300,21 +312,19 @@ export default function Home() {
                 <TabsTrigger value="artifacts" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
                   Artifacts
                 </TabsTrigger>
+                <TabsTrigger value="tests" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
+                  Tests
+                </TabsTrigger>
               </TabsList>
             </div>
 
             <div className="p-6">
+              <TabsContent value="summary" className="mt-0">
+                <SummaryTab />
+              </TabsContent>
+
               <TabsContent value="evidence" className="mt-0">
                 <EvidenceTab evidence={currentEvidence} />
-              </TabsContent>
-              
-              <TabsContent value="tests" className="mt-0">
-                <TestsTab
-                  results={testResults}
-                  isRunning={isTestRunning}
-                  currentTestId={currentTestId}
-                  onRunTestSuite={handleRunTestSuite}
-                />
               </TabsContent>
               
               <TabsContent value="performance" className="mt-0">
@@ -327,17 +337,28 @@ export default function Home() {
               <TabsContent value="artifacts" className="mt-0">
                 <ArtifactsTab />
               </TabsContent>
+              
+              <TabsContent value="tests" className="mt-0">
+                <TestsTab
+                  results={testResults}
+                  isRunning={isTestRunning}
+                  currentTestId={currentTestId}
+                  onRunTestSuite={handleRunTestSuite}
+                />
+              </TabsContent>
             </div>
           </Tabs>
         </div>
       </main>
 
       {/* Truncation Widget */}
-      <TruncationWidget
-        truncationRisk={truncationRisk}
-        metrics={allModeMetrics[mode]}
-        mode={mode}
-      />
+      {showTelemetry && (
+        <TruncationWidget
+          truncationRisk={truncationRisk}
+          metrics={allModeMetrics[mode]}
+          mode={mode}
+        />
+      )}
     </div>
   );
 }

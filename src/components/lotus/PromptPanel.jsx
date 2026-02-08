@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Play, Trash2, FlaskConical } from "lucide-react";
 import { MODELS_REGISTRY } from "./modelsRegistry";
+import { PRESET_PROMPTS, PRESET_CATEGORIES } from "./presets";
 
 export default function PromptPanel({
   prompt,
@@ -32,13 +33,20 @@ export default function PromptPanel({
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <Label className="text-xs font-semibold text-slate-500">Preset Prompts</Label>
-          <Select onValueChange={(v) => onPromptChange(presets[v].prompt)} disabled={disabled}>
+          <Select onValueChange={(v) => onPromptChange(PRESET_PROMPTS[v].prompt)} disabled={disabled}>
             <SelectTrigger className="text-sm">
               <SelectValue placeholder="Select preset..." />
             </SelectTrigger>
-            <SelectContent>
-              {Object.entries(presets).map(([key, preset]) => (
-                <SelectItem key={key} value={key}>{preset.name}</SelectItem>
+            <SelectContent className="max-h-[400px]">
+              {Object.entries(PRESET_CATEGORIES).map(([catKey, catLabel]) => (
+                <React.Fragment key={catKey}>
+                  <div className="px-2 py-1.5 text-xs font-semibold text-slate-600 bg-slate-50">{catLabel}</div>
+                  {Object.entries(PRESET_PROMPTS)
+                    .filter(([_, preset]) => preset.category === catKey)
+                    .map(([key, preset]) => (
+                      <SelectItem key={key} value={key} className="pl-6">{preset.name}</SelectItem>
+                    ))}
+                </React.Fragment>
               ))}
             </SelectContent>
           </Select>

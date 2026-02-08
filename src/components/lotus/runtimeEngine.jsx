@@ -234,7 +234,7 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress) {
     safeModeApplied = true;
     validation = { passed: true, errors: [] };
     totalLocalMs += Date.now() - localStart;
-    addArtifact({ type: "safe_mode", reason: "Contract validation failed after repairs", timestamp: Date.now() });
+    addArtifact({ type: "safe_mode", reason: "Contract validation failed after repairs", mode: "governed", timestamp: Date.now() });
   }
 
   onProgress?.("evidence");
@@ -411,13 +411,13 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress) {
     safeModeApplied = true;
     validation = { passed: true, errors: [] };
     totalLocalMs += Date.now() - localStart;
-    addArtifact({ type: "safe_mode", reason: "Contract validation failed after repairs", timestamp: Date.now() });
+    addArtifact({ type: "safe_mode", reason: "Contract validation failed after Hybrid repairs", mode: "hybrid", timestamp: Date.now() });
   }
 
   onProgress?.("evidence");
   const totalLatency = Date.now() - t0;
 
-  addArtifact({ type: "performance", billable_ms: totalModelMs, app_runtime_ms: totalLocalMs, timestamp: Date.now() });
+  addArtifact({ type: "performance", billable_ms: totalModelMs, app_runtime_ms: totalLocalMs, mode: "hybrid", timestamp: Date.now() });
   emitEvent(EventTypes.ARTIFACT_EMITTED, { type: "performance" });
   
   emitEvent(EventTypes.RUN_COMPLETED, { mode: "hybrid", success: true, safeModeApplied });

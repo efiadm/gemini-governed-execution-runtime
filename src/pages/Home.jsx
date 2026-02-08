@@ -118,7 +118,7 @@ export default function Home() {
         model,
         prompt_text: prompt,
         rendered_output: result.output,
-        parsed_output: typeof result.output === "object" ? result.output : null,
+        parsed_output: (typeof result.output === "object" && result.output !== null) ? result.output : null,
         raw_output: result.rawOutput,
         validation: {
           passed: result.evidence?.validation_passed ?? (mode === "baseline" ? null : false),
@@ -127,9 +127,8 @@ export default function Home() {
           errors: result.evidence?.validation_summary?.failures || [],
         },
         performance: {
-          billable: metrics.billable,
-          app_runtime: metrics.local,
-          total: metrics.total,
+          baseline: baselineRef.current || {},
+          [mode]: metrics,
         },
       });
 

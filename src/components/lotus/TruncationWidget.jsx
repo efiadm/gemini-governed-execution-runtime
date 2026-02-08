@@ -111,8 +111,8 @@ export default function TruncationWidget({ truncationRisk, metrics, mode }) {
       style={positionStyle}
     >
       <div
-        className={`bg-slate-900 text-white rounded-xl shadow-2xl pointer-events-auto ${
-          isExpanded ? "w-64 p-4" : "w-auto px-4 py-2"
+        className={`bg-slate-900 text-white rounded-xl shadow-2xl pointer-events-auto border border-slate-700 ${
+          isExpanded ? "w-72 p-4" : "w-auto px-4 py-2"
         } ${isDragging ? "shadow-2xl scale-105" : ""}`}
         onMouseDown={handleMouseDown}
         style={{ cursor: isDragging ? "grabbing" : "grab" }}

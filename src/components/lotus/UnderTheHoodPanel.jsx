@@ -68,45 +68,41 @@ export default function UnderTheHoodPanel() {
 
       {/* Compact Metric Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-slate-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-semibold text-slate-500 uppercase flex items-center gap-2">
-              <Clock className="w-3 h-3" />
-              Latency
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-lg font-bold text-slate-900">
-              {perf.total_latency_ms ? `${perf.total_latency_ms}ms` : mode === "baseline" ? "UNINSTRUMENTED" : "UNAVAILABLE"}
-            </p>
-            {perf.total_latency_ms && (
+        {perf.total_latency_ms && (
+          <Card className="border-slate-200">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-slate-500 uppercase flex items-center gap-2">
+                <Clock className="w-3 h-3" />
+                Latency
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-lg font-bold text-slate-900">{perf.total_latency_ms}ms</p>
               <div className="text-[10px] text-slate-500 space-y-0.5 mt-1">
                 <div>Model (billable): {perf.total_model_latency_ms || "—"}ms</div>
                 <div>Runtime-local: {perf.total_local_latency_ms || "—"}ms</div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
-        <Card className="border-slate-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-semibold text-slate-500 uppercase flex items-center gap-2">
-              <Zap className="w-3 h-3" />
-              Tokens
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-lg font-bold text-slate-900">
-              {perf.total_model_tokens ? perf.total_model_tokens : mode === "baseline" ? "UNINSTRUMENTED" : "UNAVAILABLE"}
-            </p>
-            {perf.total_model_tokens && (
+        {perf.total_model_tokens && (
+          <Card className="border-slate-200">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-slate-500 uppercase flex items-center gap-2">
+                <Zap className="w-3 h-3" />
+                Tokens
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-lg font-bold text-slate-900">{perf.total_model_tokens}</p>
               <div className="text-[10px] text-slate-500 space-y-0.5 mt-1">
                 <div>In: {perf.prompt_tokens || "—"}</div>
                 <div>Out: {perf.completion_tokens || "—"}</div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="border-slate-200">
           <CardHeader className="pb-2">

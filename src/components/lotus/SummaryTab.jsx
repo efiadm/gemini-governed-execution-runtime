@@ -154,47 +154,42 @@ export default function SummaryTab() {
           </CardContent>
         </Card>
 
-        {hasBaseline || mode === "baseline" ? (
+        {mode !== "baseline" && validation.repairs > 0 && hasBaseline && (
           <Card className="border-slate-200">
             <CardHeader className="pb-3">
-              <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Performance Δ</CardTitle>
+              <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Conditional Overhead</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {mode !== "baseline" && hasBaseline ? (
-                <>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-600">Δ Tokens:</span>
-                    <div className="flex items-center gap-1">
-                      {getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) > 0 ? (
-                        <ArrowUp className="w-3 h-3 text-red-600" />
-                      ) : (
-                        <ArrowDown className="w-3 h-3 text-green-600" />
-                      )}
-                      <span className={`font-mono ${getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                        {Math.abs(getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) || 0)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-600">Δ Latency:</span>
-                    <div className="flex items-center gap-1">
-                      {getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) > 0 ? (
-                        <ArrowUp className="w-3 h-3 text-red-600" />
-                      ) : (
-                        <ArrowDown className="w-3 h-3 text-green-600" />
-                      )}
-                      <span className={`font-mono ${getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                        {Math.abs(getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) || 0)}ms
-                      </span>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <p className="text-xs text-slate-400 italic">Baseline comparison unavailable — run the same prompt in Baseline mode to enable.</p>
-              )}
+              <p className="text-[10px] text-slate-500 mb-3">Overhead incurs only when validation fails and recovery path activates.</p>
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-600">Δ Tokens:</span>
+                <div className="flex items-center gap-1">
+                  {getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) > 0 ? (
+                    <ArrowUp className="w-3 h-3 text-orange-600" />
+                  ) : (
+                    <ArrowDown className="w-3 h-3 text-blue-600" />
+                  )}
+                  <span className={`font-mono ${getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) > 0 ? 'text-orange-600' : 'text-blue-600'}`}>
+                    {Math.abs(getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) || 0)}
+                  </span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-600">Δ Latency:</span>
+                <div className="flex items-center gap-1">
+                  {getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) > 0 ? (
+                    <ArrowUp className="w-3 h-3 text-orange-600" />
+                  ) : (
+                    <ArrowDown className="w-3 h-3 text-blue-600" />
+                  )}
+                  <span className={`font-mono ${getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) > 0 ? 'text-orange-600' : 'text-blue-600'}`}>
+                    {Math.abs(getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) || 0)}ms
+                  </span>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        ) : null}
+        )}
       </div>
 
       {runState.artifacts && runState.artifacts.length > 0 && (

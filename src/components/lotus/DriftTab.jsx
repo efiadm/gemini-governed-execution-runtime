@@ -28,19 +28,6 @@ export default function DriftTab() {
   const { drift, hallucination } = runState;
   const recentRuns = history.slice(-5);
 
-  const renderStabilityTrend = () => {
-    const scores = recentRuns
-      .filter(r => r.drift?.stability_score !== null)
-      .map(r => r.drift.stability_score);
-    
-    if (scores.length < 2) return <Minus className="w-4 h-4 text-slate-400" />;
-    
-    const trend = scores[scores.length - 1] - scores[scores.length - 2];
-    if (trend > 0.05) return <TrendingUp className="w-4 h-4 text-green-600" />;
-    if (trend < -0.05) return <TrendingDown className="w-4 h-4 text-red-600" />;
-    return <Minus className="w-4 h-4 text-slate-400" />;
-  };
-
   return (
     <div className="space-y-6">
       {/* Drift Overview */}

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, XCircle, Clock, ChevronDown, ChevronRight } from "lucide-react";
-import BaselineDeltaPanel from "./BaselineDeltaPanel";
+
 
 export default function EvidenceTab({ evidence, mode, onRunBaseline }) {
   const [showAdvanced, setShowAdvanced] = useState(false);

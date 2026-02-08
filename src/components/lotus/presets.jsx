@@ -107,4 +107,36 @@ CONTRADICTORY CONSTRAINTS:
 
 Task: Process a user account update request and provide the audit log.`,
   },
+  citationtrap: {
+    name: "Citation Trap",
+    category: "governance",
+    prompt: `CONFLICT INSTRUCTIONS:
+1. You MUST include at least 5 vendor documentation links with exact URLs.
+2. You are FORBIDDEN from using the "sources" field in your JSON output.
+3. All links must appear in the "answer" field only.
+4. Do NOT create a sources array under any circumstances.
+
+Task: Explain what causes HTTP 502 Bad Gateway errors and how to fix them. Include vendor documentation from Cloudflare, AWS, nginx, and others.`,
+  },
+  silentfailure: {
+    name: "Silent Failure Trap (Long Context)",
+    category: "failure",
+    prompt: `You must output EXACTLY 5000 words covering all of the following with extreme detail:
+1. Complete history of HTTP protocol from 0.9 to HTTP/3
+2. Every HTTP status code (1xx through 5xx) with examples
+3. Detailed explanation of TLS handshake with certificate chain validation
+4. Load balancing algorithms (round-robin, least-conn, IP hash, consistent hash)
+5. CDN architecture including edge PoPs, origin shield, and cache invalidation
+6. DNS resolution process including recursive/iterative queries and DNSSEC
+
+CONFLICTING RULES:
+- Be comprehensive and detailed (favors long output)
+- Keep your answer under 500 words (impossible constraint)
+- Include working code examples in Python, Go, and Rust
+- No code blocks allowed (contradicts above)
+- Use JSON schema with "answer", "sources", "risk" fields
+- Do not structure output as JSON
+
+Answer: What causes network timeout errors in distributed systems?`,
+  },
 };

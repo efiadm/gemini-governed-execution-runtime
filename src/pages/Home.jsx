@@ -11,6 +11,7 @@ import EvidenceTab from "@/components/lotus/EvidenceTab";
 import TestsTab from "@/components/lotus/TestsTab";
 import PerformanceTab from "@/components/lotus/PerformanceTab";
 import ArtifactsTab from "@/components/lotus/ArtifactsTab";
+import DriftTab from "@/components/lotus/DriftTab";
 import TruncationWidget from "@/components/lotus/TruncationWidget";
 import ProgressStepper from "@/components/lotus/ProgressStepper";
 import SummaryTab from "@/components/lotus/SummaryTab";
@@ -21,7 +22,10 @@ import { calculateMetrics, calculateTruncationRisk } from "@/components/lotus/me
 import { generateRequestId } from "@/components/lotus/utils";
 import { getStoredModel, setStoredModel } from "@/components/lotus/modelsRegistry";
 import { PRESET_PROMPTS } from "@/components/lotus/presets";
-import { updateRunState, resetRunState, getRunState } from "@/components/lotus/runStore";
+import { updateRunState, resetRunState, getRunState, addToRunHistory } from "@/components/lotus/runStore";
+import { computeDriftTelemetry } from "@/components/lotus/driftEngine";
+import { computeHallucinationTelemetry } from "@/components/lotus/hallucinationDetector";
+import { hashPrompt } from "@/components/lotus/utils";
 
 
 
@@ -109,16 +113,23 @@ export default function Home() {
         evidence: result.evidence,
       });
 
-      // Update global run store
-      updateRunState({
+      // Build normalized RunRecord
+      const parsedOutputText = typeof result.rawOutput === "string" ? result.rawOutput : JSON.stringify(result.rawOutput);
+      const governedJson = (typeof result.output === "object" && result.output !== null) ? result.output : null;
+      const promptHash = hashPrompt(prompt);
+
+      const runRecord = {
         run_id: requestId,
         timestamp: new Date().toISOString(),
         mode,
         grounding,
         model,
         prompt_text: prompt,
+        prompt_hash: promptHash,
+        parsedOutputText,
+        governedJson,
         rendered_output: result.output,
-        parsed_output: (typeof result.output === "object" && result.output !== null) ? result.output : null,
+        parsed_output: governedJson,
         raw_output: result.rawOutput,
         validation: {
           passed: result.evidence?.validation_passed ?? (mode === "baseline" ? null : false),
@@ -130,6 +141,25 @@ export default function Home() {
           baseline: baselineRef.current || {},
           [mode]: metrics,
         },
+        evidence: result.evidence,
+        artifacts: getRunState().artifacts || [],
+      };
+
+      // Compute drift and hallucination telemetry
+      const drift = computeDriftTelemetry(runRecord, evidenceHistory.current.map(h => h.evidence));
+      const hallucination = computeHallucinationTelemetry(runRecord);
+
+      runRecord.drift = drift;
+      runRecord.hallucination = hallucination;
+
+      // Add to history
+      addToRunHistory(runRecord);
+
+      // Update global run store
+      updateRunState({
+        ...runRecord,
+        drift,
+        hallucination,
       });
 
       await base44.entities.GovernanceRun.create({
@@ -309,6 +339,9 @@ export default function Home() {
                 <TabsTrigger value="performance" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
                   Performance
                 </TabsTrigger>
+                <TabsTrigger value="drift" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
+                  Drift
+                </TabsTrigger>
                 <TabsTrigger value="artifacts" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
                   Artifacts
                 </TabsTrigger>
@@ -332,6 +365,10 @@ export default function Home() {
                   allModeMetrics={allModeMetrics}
                   baselineMetrics={baselineRef.current}
                 />
+              </TabsContent>
+              
+              <TabsContent value="drift" className="mt-0">
+                <DriftTab />
               </TabsContent>
               
               <TabsContent value="artifacts" className="mt-0">

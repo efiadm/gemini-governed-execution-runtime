@@ -6,8 +6,11 @@ let currentRunState = {
   grounding: null,
   model: null,
   prompt_text: null,
+  prompt_hash: null,
   rendered_output: null,
   parsed_output: null,
+  parsedOutputText: null,
+  governedJson: null,
   validation: {
     passed: null,
     attempts: 0,
@@ -23,7 +26,12 @@ let currentRunState = {
   tests: [],
   attempt_history: [],
   raw_output: null,
+  drift: null,
+  hallucination: null,
 };
+
+// Store last N=25 RunRecords in memory
+let runHistory = [];
 
 const listeners = [];
 
@@ -44,8 +52,11 @@ export function resetRunState() {
     grounding: null,
     model: null,
     prompt_text: null,
+    prompt_hash: null,
     rendered_output: null,
     parsed_output: null,
+    parsedOutputText: null,
+    governedJson: null,
     validation: {
       passed: null,
       attempts: 0,
@@ -61,6 +72,8 @@ export function resetRunState() {
     tests: [],
     attempt_history: [],
     raw_output: null,
+    drift: null,
+    hallucination: null,
   };
   notifyListeners();
 }
@@ -90,4 +103,15 @@ export function addArtifact(artifact) {
 export function setTestResults(results) {
   currentRunState.tests = results;
   notifyListeners();
+}
+
+export function getRunHistory() {
+  return [...runHistory];
+}
+
+export function addToRunHistory(record) {
+  runHistory.push(record);
+  if (runHistory.length > 25) {
+    runHistory.shift();
+  }
 }

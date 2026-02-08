@@ -10,6 +10,8 @@ import {
 } from "./governanceContract";
 import { getArtifactContext, shouldInjectContext } from "./artifactStore";
 import { generateRequestId, estimateTokens, hashPrompt } from "./utils";
+import { emitEvent, EventTypes } from "./eventBus";
+import { updateRunState, addAttempt, addArtifact } from "./runStore";
 
 async function callModel(prompt, grounded) {
   const result = await base44.integrations.Core.InvokeLLM({
@@ -21,6 +23,10 @@ async function callModel(prompt, grounded) {
 
 export async function runBaseline(prompt, groundingSetting, model, onProgress) {
   const t0 = Date.now();
+  const requestId = generateRequestId();
+  
+  emitEvent(EventTypes.RUN_STARTED, { mode: "baseline", requestId, prompt });
+  
   onProgress?.("baseline_call");
   
   const useGrounding = shouldUseGrounding(groundingSetting, prompt);
@@ -29,37 +35,56 @@ export async function runBaseline(prompt, groundingSetting, model, onProgress) {
   const systemPrompt = "You are a helpful AI assistant. Answer the user's question clearly and concisely.";
   const fullPrompt = `${systemPrompt}\n\nUser: ${prompt}`;
   
+  emitEvent(EventTypes.MODEL_CALLED, { attempt: 1, kind: "initial" });
   const rawOutput = await callModel(fullPrompt, useGrounding);
   const latency = Date.now() - t0;
+  
+  emitEvent(EventTypes.MODEL_RESULT, { rawLength: rawOutput.length, latency });
+
+  const evidence = {
+    request_id: requestId,
+    timestamp: new Date().toISOString(),
+    mode: "baseline",
+    model,
+    grounding: useGrounding ? "on" : "off",
+    prompt_hash: hashPrompt(prompt),
+    prompt_preview: prompt.substring(0, 100),
+    latency_ms: latency,
+    model_latency_ms: latency,
+    local_latency_ms: 0,
+    attempts: 1,
+    repairs: 0,
+    validation_passed: null,
+    safe_mode_applied: false,
+    attemptDetails: [{
+      attempt: 1,
+      kind: "initial",
+      ok: true,
+      model_ms: latency,
+      local_ms: 0,
+      errors: [],
+      raw_preview: rawOutput.substring(0, 240),
+      raw_full: rawOutput,
+    }],
+  };
+
+  addAttempt({
+    attempt: 1,
+    kind: "initial",
+    ok: true,
+    model_ms: latency,
+    local_ms: 0,
+    errors: [],
+    raw_preview: rawOutput.substring(0, 240),
+    raw_full: rawOutput,
+  });
+
+  emitEvent(EventTypes.RUN_COMPLETED, { mode: "baseline", success: true });
 
   return {
     output: rawOutput,
     rawOutput,
-    evidence: {
-      request_id: generateRequestId(),
-      timestamp: new Date().toISOString(),
-      mode: "baseline",
-      model,
-      grounding: useGrounding ? "on" : "off",
-      prompt_hash: hashPrompt(prompt),
-      prompt_preview: prompt.substring(0, 100),
-      latency_ms: latency,
-      model_latency_ms: latency,
-      local_latency_ms: 0,
-      attempts: 1,
-      repairs: 0,
-      validation_passed: null,
-      safe_mode_applied: false,
-      attemptDetails: [{
-        attempt: 1,
-        kind: "initial",
-        ok: true,
-        model_ms: latency,
-        local_ms: 0,
-        errors: [],
-        raw_preview: rawOutput.substring(0, 240),
-      }],
-    },
+    evidence,
   };
 }
 
@@ -68,6 +93,8 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress) {
   const requestId = generateRequestId();
   const useGrounding = shouldUseGrounding(groundingSetting, prompt);
   const correctionMode = detectCorrectionMode(prompt);
+  
+  emitEvent(EventTypes.RUN_STARTED, { mode: "governed", requestId, prompt });
   
   const attemptDetails = [];
   let parsedOutput = null;
@@ -78,6 +105,10 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress) {
   let totalModelMs = 0;
   let totalLocalMs = 0;
 
+  // Emit contract artifact
+  addArtifact({ type: "contract", content: "Governed JSON Schema", timestamp: Date.now() });
+  emitEvent(EventTypes.ARTIFACT_EMITTED, { type: "contract" });
+
   onProgress?.("contract");
   const systemPrompt = buildGovernedSystemPrompt(useGrounding, correctionMode);
 
@@ -85,22 +116,28 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress) {
   onProgress?.("validate");
   let currentPrompt = `${systemPrompt}\n\nUser prompt: ${prompt}`;
   
+  emitEvent(EventTypes.MODEL_CALLED, { attempt: 1, kind: "initial" });
   let attemptStart = Date.now();
   rawOutput = await callModel(currentPrompt, useGrounding);
   let modelMs = Date.now() - attemptStart;
   totalModelMs += modelMs;
+  emitEvent(EventTypes.MODEL_RESULT, { rawLength: rawOutput.length, modelMs });
 
+  emitEvent(EventTypes.LOCAL_STEP, { step: "validation", attempt: 1 });
   let localStart = Date.now();
   try {
     parsedOutput = tryParseJson(rawOutput);
     validation = validateGovernedOutput(parsedOutput, { grounded: useGrounding, correctionMode, hadRepairs: false });
   } catch (e) {
+    parsedOutput = null;
     validation = { passed: false, errors: [`JSON parse failed: ${e.message}`] };
   }
   let localMs = Date.now() - localStart;
   totalLocalMs += localMs;
+  
+  emitEvent(EventTypes.VALIDATION_RESULT, { attempt: 1, passed: validation.passed, errors: validation.errors });
 
-  attemptDetails.push({
+  const att1 = {
     attempt: 1,
     kind: "initial",
     ok: validation.passed,
@@ -108,32 +145,43 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress) {
     local_ms: localMs,
     errors: validation.errors,
     raw_preview: rawOutput.substring(0, 240),
-  });
+    raw_full: rawOutput,
+  };
+  attemptDetails.push(att1);
+  addAttempt(att1);
 
   // Repair loop (max 2 repairs)
   while (!validation.passed && repairs < 2) {
     onProgress?.("repair");
     repairs++;
     
+    emitEvent(EventTypes.REPAIR_ATTEMPT, { repair: repairs });
+    
     const repairPrompt = buildRepairPrompt(validation.errors, rawOutput);
     currentPrompt = `${systemPrompt}\n\n${repairPrompt}`;
 
+    emitEvent(EventTypes.MODEL_CALLED, { attempt: 1 + repairs, kind: "repair" });
     attemptStart = Date.now();
     rawOutput = await callModel(currentPrompt, useGrounding);
     modelMs = Date.now() - attemptStart;
     totalModelMs += modelMs;
+    emitEvent(EventTypes.MODEL_RESULT, { rawLength: rawOutput.length, modelMs });
 
+    emitEvent(EventTypes.LOCAL_STEP, { step: "validation", attempt: 1 + repairs });
     localStart = Date.now();
     try {
       parsedOutput = tryParseJson(rawOutput);
       validation = validateGovernedOutput(parsedOutput, { grounded: useGrounding, correctionMode, hadRepairs: true });
     } catch (e) {
+      parsedOutput = null;
       validation = { passed: false, errors: [`JSON parse failed on repair ${repairs}: ${e.message}`] };
     }
     localMs = Date.now() - localStart;
     totalLocalMs += localMs;
+    
+    emitEvent(EventTypes.VALIDATION_RESULT, { attempt: 1 + repairs, passed: validation.passed, errors: validation.errors });
 
-    attemptDetails.push({
+    const attR = {
       attempt: 1 + repairs,
       kind: "repair",
       ok: validation.passed,
@@ -141,20 +189,30 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress) {
       local_ms: localMs,
       errors: validation.errors,
       raw_preview: rawOutput.substring(0, 240),
-    });
+      raw_full: rawOutput,
+    };
+    attemptDetails.push(attR);
+    addAttempt(attR);
   }
 
   // Safe mode fallback
   if (!validation.passed) {
+    emitEvent(EventTypes.LOCAL_STEP, { step: "safe_mode" });
     localStart = Date.now();
     parsedOutput = generateSafeModeOutput(useGrounding, correctionMode);
     safeModeApplied = true;
     validation = { passed: true, errors: [] };
     totalLocalMs += Date.now() - localStart;
+    addArtifact({ type: "safe_mode", reason: "Contract validation failed after repairs", timestamp: Date.now() });
   }
 
   onProgress?.("evidence");
   const totalLatency = Date.now() - t0;
+
+  addArtifact({ type: "performance", billable_ms: totalModelMs, app_runtime_ms: totalLocalMs, timestamp: Date.now() });
+  emitEvent(EventTypes.ARTIFACT_EMITTED, { type: "performance" });
+  
+  emitEvent(EventTypes.RUN_COMPLETED, { mode: "governed", success: true, safeModeApplied });
 
   return {
     output: parsedOutput,
@@ -193,6 +251,8 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress) {
   const useGrounding = shouldUseGrounding(groundingSetting, prompt);
   const correctionMode = detectCorrectionMode(prompt);
   
+  emitEvent(EventTypes.RUN_STARTED, { mode: "hybrid", requestId, prompt });
+  
   const attemptDetails = [];
   let parsedOutput = null;
   let rawOutput = "";
@@ -205,9 +265,14 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress) {
   let contextHeader = "";
   let tokensSaved = 0;
 
+  // Emit contract artifact (same as Governed)
+  addArtifact({ type: "contract", content: "Governed JSON Schema", timestamp: Date.now() });
+  emitEvent(EventTypes.ARTIFACT_EMITTED, { type: "contract" });
+
   onProgress?.("contract");
   
   // Hybrid: check artifact store for context
+  emitEvent(EventTypes.LOCAL_STEP, { step: "artifact_context_check" });
   let localStart = Date.now();
   const artifactContext = await getArtifactContext(prompt);
   const shouldInject = shouldInjectContext(artifactContext, prompt);
@@ -220,28 +285,36 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress) {
     contextHeader = `[Hybrid Context: ${artifactContext.summary}]`;
     systemPrompt = `${systemPrompt}\n\n${contextHeader}`;
     tokensSaved = estimateTokens(artifactContext.fullContext) - estimateTokens(contextHeader);
+    addArtifact({ type: "hybrid_context", header: contextHeader, tokens_saved: tokensSaved, timestamp: Date.now() });
+    emitEvent(EventTypes.ARTIFACT_EMITTED, { type: "hybrid_context", tokensSaved });
   }
 
   // Attempt 1: Initial
   onProgress?.("validate");
   let currentPrompt = `${systemPrompt}\n\nUser prompt: ${prompt}`;
   
+  emitEvent(EventTypes.MODEL_CALLED, { attempt: 1, kind: "initial" });
   let attemptStart = Date.now();
   rawOutput = await callModel(currentPrompt, useGrounding);
   let modelMs = Date.now() - attemptStart;
   totalModelMs += modelMs;
+  emitEvent(EventTypes.MODEL_RESULT, { rawLength: rawOutput.length, modelMs });
 
+  emitEvent(EventTypes.LOCAL_STEP, { step: "validation", attempt: 1 });
   localStart = Date.now();
   try {
     parsedOutput = tryParseJson(rawOutput);
     validation = validateGovernedOutput(parsedOutput, { grounded: useGrounding, correctionMode, hadRepairs: false });
   } catch (e) {
+    parsedOutput = null;
     validation = { passed: false, errors: [`JSON parse failed: ${e.message}`] };
   }
   let localMs = Date.now() - localStart;
   totalLocalMs += localMs;
+  
+  emitEvent(EventTypes.VALIDATION_RESULT, { attempt: 1, passed: validation.passed, errors: validation.errors });
 
-  attemptDetails.push({
+  const att1 = {
     attempt: 1,
     kind: "initial",
     ok: validation.passed,
@@ -249,32 +322,43 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress) {
     local_ms: localMs,
     errors: validation.errors,
     raw_preview: rawOutput.substring(0, 240),
-  });
+    raw_full: rawOutput,
+  };
+  attemptDetails.push(att1);
+  addAttempt(att1);
 
   // Hybrid: Only 1 repair attempt (faster)
   if (!validation.passed && repairs < 1) {
     onProgress?.("repair");
     repairs++;
     
+    emitEvent(EventTypes.REPAIR_ATTEMPT, { repair: repairs });
+    
     const repairPrompt = buildRepairPrompt(validation.errors, rawOutput);
     currentPrompt = `${systemPrompt}\n\n${repairPrompt}`;
 
+    emitEvent(EventTypes.MODEL_CALLED, { attempt: 2, kind: "repair" });
     attemptStart = Date.now();
     rawOutput = await callModel(currentPrompt, useGrounding);
     modelMs = Date.now() - attemptStart;
     totalModelMs += modelMs;
+    emitEvent(EventTypes.MODEL_RESULT, { rawLength: rawOutput.length, modelMs });
 
+    emitEvent(EventTypes.LOCAL_STEP, { step: "validation", attempt: 2 });
     localStart = Date.now();
     try {
       parsedOutput = tryParseJson(rawOutput);
       validation = validateGovernedOutput(parsedOutput, { grounded: useGrounding, correctionMode, hadRepairs: true });
     } catch (e) {
+      parsedOutput = null;
       validation = { passed: false, errors: [`JSON parse failed on repair: ${e.message}`] };
     }
     localMs = Date.now() - localStart;
     totalLocalMs += localMs;
+    
+    emitEvent(EventTypes.VALIDATION_RESULT, { attempt: 2, passed: validation.passed, errors: validation.errors });
 
-    attemptDetails.push({
+    const attR = {
       attempt: 2,
       kind: "repair",
       ok: validation.passed,
@@ -282,20 +366,30 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress) {
       local_ms: localMs,
       errors: validation.errors,
       raw_preview: rawOutput.substring(0, 240),
-    });
+      raw_full: rawOutput,
+    };
+    attemptDetails.push(attR);
+    addAttempt(attR);
   }
 
   // Safe mode fallback
   if (!validation.passed) {
+    emitEvent(EventTypes.LOCAL_STEP, { step: "safe_mode" });
     localStart = Date.now();
     parsedOutput = generateSafeModeOutput(useGrounding, correctionMode);
     safeModeApplied = true;
     validation = { passed: true, errors: [] };
     totalLocalMs += Date.now() - localStart;
+    addArtifact({ type: "safe_mode", reason: "Contract validation failed after repairs", timestamp: Date.now() });
   }
 
   onProgress?.("evidence");
   const totalLatency = Date.now() - t0;
+
+  addArtifact({ type: "performance", billable_ms: totalModelMs, app_runtime_ms: totalLocalMs, timestamp: Date.now() });
+  emitEvent(EventTypes.ARTIFACT_EMITTED, { type: "performance" });
+  
+  emitEvent(EventTypes.RUN_COMPLETED, { mode: "hybrid", success: true, safeModeApplied });
 
   return {
     output: parsedOutput,

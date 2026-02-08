@@ -65,7 +65,7 @@ export default function EvidenceTab({ evidence }) {
       {evidence.attemptDetails && evidence.attemptDetails.length > 0 && (
         <Card className="border-slate-200">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-slate-700">Attempts</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-700">Attempt History</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -83,8 +83,8 @@ export default function EvidenceTab({ evidence }) {
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-xs text-slate-500">
-                      <span>Model: {att.model_ms}ms</span>
-                      <span>Local: {att.local_ms}ms</span>
+                      <span title="Billable model time">Model: {att.model_ms}ms</span>
+                      <span title="App runtime (non-billable)">App: {att.local_ms}ms</span>
                     </div>
                   </div>
                   {att.errors && att.errors.length > 0 && (
@@ -95,11 +95,23 @@ export default function EvidenceTab({ evidence }) {
                     </div>
                   )}
                   <details className="text-xs">
-                    <summary className="text-slate-600 cursor-pointer hover:text-slate-800">
-                      Raw preview
+                    <summary className="text-slate-600 cursor-pointer hover:text-slate-800 flex items-center justify-between">
+                      <span>Raw preview</span>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const json = JSON.stringify(att, null, 2);
+                          navigator.clipboard.writeText(json);
+                          import("sonner").then(({ toast }) => toast.success("Attempt JSON copied"));
+                        }}
+                        className="text-blue-600 hover:underline"
+                      >
+                        Copy Attempt JSON
+                      </button>
                     </summary>
-                    <pre className="bg-slate-900 text-slate-100 p-2 rounded mt-2 text-[10px] overflow-auto">
-                      {att.raw_preview}
+                    <pre className="bg-slate-900 text-slate-100 p-2 rounded mt-2 text-[10px] overflow-auto max-h-[200px]">
+                      {att.raw_full || att.raw_preview}
                     </pre>
                   </details>
                 </div>

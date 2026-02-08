@@ -32,16 +32,14 @@ export default function PromptPanel({
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <Label className="text-xs font-semibold text-slate-500">Preset Prompts</Label>
-          <Select onValueChange={(v) => onPromptChange(presets[v])} disabled={disabled}>
+          <Select onValueChange={(v) => onPromptChange(presets[v].prompt)} disabled={disabled}>
             <SelectTrigger className="text-sm">
               <SelectValue placeholder="Select preset..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="adversary">Governance Adversary</SelectItem>
-              <SelectItem value="factual">Factual w/ Sources</SelectItem>
-              <SelectItem value="correction">Correction Mode</SelectItem>
-              <SelectItem value="narration">Status Narration Trap</SelectItem>
-              <SelectItem value="truncation">Truncation Stress</SelectItem>
+              {Object.entries(presets).map(([key, preset]) => (
+                <SelectItem key={key} value={key}>{preset.name}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

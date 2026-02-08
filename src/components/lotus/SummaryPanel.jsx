@@ -57,7 +57,8 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
               <span className="text-xs text-slate-500 font-medium">Latency</span>
             </div>
             <p className="text-lg font-bold text-slate-900">{evidence.latency_ms}ms</p>
-            <p className="text-xs text-slate-500">Model: {evidence.model_latency_ms}ms</p>
+            <p className="text-xs text-slate-500" title="Billable model time">Model: {evidence.model_latency_ms}ms</p>
+            <p className="text-xs text-slate-400" title="App runtime (non-billable)">App: {evidence.local_latency_ms}ms</p>
           </div>
 
           <div className="bg-slate-50 rounded-lg p-3">

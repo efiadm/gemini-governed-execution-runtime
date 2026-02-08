@@ -91,16 +91,18 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <PipelineStatus 
-            stage={evidence.safe_mode_applied ? "governance" : "output"} 
-            safeModeApplied={evidence.safe_mode_applied}
-          />
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <PipelineStatus 
+              stage={evidence.safe_mode_applied ? "governance" : "output"} 
+              safeModeApplied={evidence.safe_mode_applied}
+            />
+          </div>
           <Badge className={`${
             evidence.validation_passed ? "bg-green-600" :
             evidence.safe_mode_applied ? "bg-amber-600" :
             "bg-red-600"
-          } text-white text-[10px] px-2 py-0.5`}>
+          } text-white text-xs px-2 py-1 whitespace-nowrap`}>
             {evidence.validation_passed ? "✓ Contract Satisfied" : evidence.safe_mode_applied ? "⚠ Withheld" : "✗ Failed"}
           </Badge>
         </div>

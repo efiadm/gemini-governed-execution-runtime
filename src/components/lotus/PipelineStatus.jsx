@@ -23,23 +23,31 @@ export default function PipelineStatus({ stage, safeModeApplied }) {
 
   return (
     <div>
-      <div className="flex items-center gap-1.5 text-[10px]">
+      <div className="flex flex-wrap items-center gap-2 text-xs">
         {stages.map((s, idx) => {
           const status = getStageStatus(s.key);
           return (
             <React.Fragment key={s.key}>
-              <div title={s.tooltip}>
-                {status === "complete" && <CheckCircle2 className="w-2.5 h-2.5 text-green-600" />}
-                {status === "active" && <Circle className="w-2.5 h-2.5 text-blue-600" />}
-                {status === "withheld" && <XCircle className="w-2.5 h-2.5 text-amber-600" />}
-                {status === "pending" && <Circle className="w-2.5 h-2.5 text-slate-300" />}
+              <div className="flex items-center gap-1.5" title={s.tooltip}>
+                {status === "complete" && <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />}
+                {status === "active" && <Circle className="w-3.5 h-3.5 text-blue-600" />}
+                {status === "withheld" && <XCircle className="w-3.5 h-3.5 text-amber-600" />}
+                {status === "pending" && <Circle className="w-3.5 h-3.5 text-slate-300" />}
+                <span className={`font-medium whitespace-nowrap ${
+                  status === "complete" ? "text-green-700" :
+                  status === "active" ? "text-blue-700" :
+                  status === "withheld" ? "text-amber-700" :
+                  "text-slate-400"
+                }`}>
+                  {s.label}
+                </span>
               </div>
               {idx < stages.length - 1 && <span className="text-slate-400">→</span>}
             </React.Fragment>
           );
         })}
       </div>
-      <p className="text-[9px] text-slate-400 mt-0.5">Knowledge → Governance → Experience → Understanding → Reliable Output</p>
+      <p className="text-[9px] text-slate-400 mt-1">Knowledge → Governance → Experience → Understanding → Reliable Output</p>
     </div>
   );
 }

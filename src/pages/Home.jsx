@@ -334,7 +334,7 @@ export default function Home() {
           />
 
           {/* Right: Summary Panel + Baseline Delta */}
-          <div className="space-y-4">
+          <div className="space-y-4 relative">
             <SummaryPanel
               evidence={currentEvidence}
               metrics={allModeMetrics[mode]}

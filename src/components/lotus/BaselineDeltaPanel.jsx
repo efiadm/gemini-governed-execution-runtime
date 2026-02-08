@@ -29,7 +29,7 @@ export default function BaselineDeltaPanel({ onRunBaseline }) {
 
   if (!baselineAvailable || !baselineSnap) {
     return (
-      <Card className="border-amber-200 bg-amber-50">
+      <Card className="border-amber-200 bg-amber-50 relative z-0">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold text-amber-800">Performance Δ vs Baseline</CardTitle>
         </CardHeader>
@@ -60,7 +60,7 @@ export default function BaselineDeltaPanel({ onRunBaseline }) {
   const latencyDelta = getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms);
 
   return (
-    <Card className="border-slate-200">
+    <Card className="border-slate-200 relative z-0">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-semibold text-slate-700">Performance Δ vs Baseline</CardTitle>
       </CardHeader>

@@ -26,7 +26,7 @@ export default function PromptPanel({
   const disabled = isRunning || isTestRunning;
 
   return (
-    <Card className="border-slate-200 shadow-sm h-full">
+    <Card className="border-slate-200 shadow-sm h-full relative z-10">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-semibold text-slate-700">Prompt Input</CardTitle>
       </CardHeader>

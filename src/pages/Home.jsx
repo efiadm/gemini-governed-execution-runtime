@@ -257,10 +257,10 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center shadow-lg">
-                <span className="text-white text-sm font-bold">LG</span>
+                <span className="text-white text-sm font-bold">TG</span>
               </div>
               <div>
-                <h1 className="text-lg font-bold text-slate-900">Lotus Governed Runner</h1>
+                <h1 className="text-lg font-bold text-slate-900">Trident Governed Runner</h1>
                 <p className="text-xs text-slate-500">Contract → Validate → Repair → Evidence</p>
               </div>
               </div>

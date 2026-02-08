@@ -60,7 +60,12 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-slate-800">Performance Metrics</h3>
+        <div>
+          <h3 className="text-sm font-semibold text-slate-800">Performance Metrics</h3>
+          <p className="text-xs text-slate-500 mt-1">
+            <strong>Billable:</strong> Model API calls (tokens × time). <strong>App Runtime:</strong> Non-billable logic (validation, parsing, metrics).
+          </p>
+        </div>
         <Button
           variant="outline"
           size="sm"
@@ -84,7 +89,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
             </TableHeader>
             <TableBody>
               <MetricRow label="End-to-End Latency" getValue={(m) => m?.total?.total_latency_ms} unit="ms" showDelta />
-              <MetricRow label="Model Latency" getValue={(m) => m?.total?.model_latency_ms} unit="ms" isBillable showDelta />
+              <MetricRow label="Model Latency (billable)" getValue={(m) => m?.total?.model_latency_ms} unit="ms" isBillable showDelta />
               {!showOnlyBillable && <MetricRow label="App Runtime (non-billable)" getValue={(m) => m?.local?.total_local_ms} unit="ms" />}
               <MetricRow label="Prompt Tokens" getValue={(m) => m?.billable?.prompt_tokens_in} isBillable showDelta />
               <MetricRow label="Completion Tokens" getValue={(m) => m?.billable?.completion_tokens_out} isBillable showDelta />
@@ -122,7 +127,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
                 <TableCell colSpan={4} className="text-xs font-bold text-slate-800">
                   App Runtime (non-billable)
                   <span className="ml-2 text-[10px] text-slate-500 font-normal">
-                    Computed inside app runtime, not additional model tokens
+                    Browser/runtime logic: validation, parsing, evidence assembly — not billable model time
                   </span>
                 </TableCell>
               </TableRow>

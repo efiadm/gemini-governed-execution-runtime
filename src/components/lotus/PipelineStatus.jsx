@@ -19,9 +19,9 @@ export default function PipelineStatus({ stage, safeModeApplied, validationPasse
       return "complete";
     }
     
-    // If safe mode applied, understanding and output are withheld
+    // If safe mode applied, mark final stages as contained (green), not failed
     if (safeModeApplied && (stageKey === "understanding" || stageKey === "output")) {
-      return "withheld";
+      return "contained";
     }
     
     if (stageIndex < currentIndex) return "complete";
@@ -39,12 +39,12 @@ export default function PipelineStatus({ stage, safeModeApplied, validationPasse
               <div className="flex items-center gap-1.5 flex-wrap" title={s.tooltip}>
                 {status === "complete" && <CheckCircle2 className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />}
                 {status === "active" && <Circle className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />}
-                {status === "withheld" && <XCircle className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />}
+                {status === "contained" && <CheckCircle2 className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />}
                 {status === "pending" && <Circle className="w-3.5 h-3.5 text-slate-300 flex-shrink-0" />}
                 <span className={`font-medium ${
                   status === "complete" ? "text-green-700" :
                   status === "active" ? "text-blue-700" :
-                  status === "withheld" ? "text-amber-700" :
+                  status === "contained" ? "text-green-700" :
                   "text-slate-400"
                 }`}>
                   {s.label}

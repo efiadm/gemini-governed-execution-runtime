@@ -16,7 +16,7 @@ import UnderTheHoodPanel from "@/components/lotus/UnderTheHoodPanel";
 import TruncationWidget from "@/components/lotus/TruncationWidget";
 import ProgressStepper from "@/components/lotus/ProgressStepper";
 import SummaryTab from "@/components/lotus/SummaryTab";
-import BaselineDeltaPanel from "@/components/lotus/BaselineDeltaPanel";
+
 import SettingsPanel from "@/components/lotus/SettingsPanel";
 
 import { runBaseline, runGoverned, runHybrid } from "@/components/lotus/runtimeEngine";
@@ -205,10 +205,7 @@ export default function Home() {
     }
   }, [prompt, mode, grounding, model]);
 
-  const handleRunBaselineForDelta = useCallback(async () => {
-    await handleRun("baseline");
-    toast.success("Baseline run completed for Δ comparison");
-  }, [handleRun]);
+
 
   const handleRunTestSuite = useCallback(async () => {
     setIsTestRunning(true);
@@ -333,18 +330,13 @@ export default function Home() {
             isRunning={isRunning}
           />
 
-          {/* Right: Summary Panel + Baseline Delta */}
-          <div className="space-y-4 relative">
-            <SummaryPanel
-              evidence={currentEvidence}
-              metrics={allModeMetrics[mode]}
-              mode={mode}
-              onDownload={handleDownloadEvidence}
-            />
-            {mode !== "baseline" && (
-              <BaselineDeltaPanel onRunBaseline={handleRunBaselineForDelta} />
-            )}
-          </div>
+          {/* Right: Summary Panel */}
+          <SummaryPanel
+            evidence={currentEvidence}
+            metrics={allModeMetrics[mode]}
+            mode={mode}
+            onDownload={handleDownloadEvidence}
+          />
         </div>
 
         {/* Bottom Dock: Tabs */}
@@ -387,7 +379,7 @@ export default function Home() {
                 </TabsContent>
 
                 <TabsContent value="evidence" className="mt-0">
-                  <EvidenceTab evidence={currentEvidence} />
+                  <EvidenceTab evidence={currentEvidence} mode={mode} onRunBaseline={() => handleRun("baseline")} />
                 </TabsContent>
                 
                 <TabsContent value="performance" className="mt-0">

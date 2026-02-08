@@ -8,28 +8,7 @@ export default function EvidenceTab({ evidence, mode, onRunBaseline }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   if (!evidence) {
     return (
-      <>
-        <p className="text-sm text-slate-400 italic">No evidence data. Run a prompt to see details.</p>
-        
-        <Card className="border-slate-200 bg-slate-50 mt-4">
-          <CardHeader className="pb-2">
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 w-full"
-            >
-              {showAdvanced ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-              Advanced Diagnostics
-            </button>
-          </CardHeader>
-          {showAdvanced && (
-            <CardContent>
-              <p className="text-xs text-slate-500 italic">
-                Baseline comparison metrics. Requires a baseline run for the same prompt/model/grounding.
-              </p>
-            </CardContent>
-          )}
-        </Card>
-      </>
+      <p className="text-sm text-slate-400 italic">No evidence data. Run a prompt to see details.</p>
     );
   }
 
@@ -181,30 +160,7 @@ export default function EvidenceTab({ evidence, mode, onRunBaseline }) {
         </Card>
       )}
 
-      <Card className="border-slate-200 bg-slate-50 mt-4">
-        <CardHeader className="pb-2">
-          <button
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 w-full"
-          >
-            {showAdvanced ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-            Advanced Diagnostics
-          </button>
-        </CardHeader>
-        {showAdvanced && (
-          <CardContent>
-            <p className="text-xs text-slate-500 mb-4 italic">
-              Baseline comparison metrics. Requires a baseline run for the same prompt/model/grounding.
-            </p>
-            {mode !== "baseline" && onRunBaseline && (
-              <BaselineDeltaPanel onRunBaseline={onRunBaseline} />
-            )}
-            {mode === "baseline" && (
-              <p className="text-xs text-slate-400 italic">Not available in baseline mode.</p>
-            )}
-          </CardContent>
-        )}
-      </Card>
+
     </div>
   );
 }

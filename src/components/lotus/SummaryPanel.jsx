@@ -112,7 +112,7 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
             <p className="text-[10px] text-slate-500">💵 {evidence.repairs} {evidence.local_repairs > 0 ? `⚙️ ${evidence.local_repairs}` : ''}</p>
           </div>
 
-          <BaselineDeltaCard metrics={metrics} mode={mode} />
+          {evidence.repairs > 0 && <BaselineDeltaCard metrics={metrics} mode={mode} repairs={evidence.repairs} />}
         </div>
 
         <div className="pt-2 border-t border-slate-200 space-y-0.5 text-[10px]">

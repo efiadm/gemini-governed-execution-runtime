@@ -50,19 +50,17 @@ export default function DriftTab() {
             <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Stability Score</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold text-slate-900">
-                  {drift.stability_score !== null ? (drift.stability_score * 100).toFixed(1) + "%" : "N/A"}
-                </p>
-                <p className="text-xs text-slate-500 mt-1">
-                  {drift.stability_score !== null
-                    ? "vs. previous run"
-                    : "Run same prompt again"}
-                </p>
+            {drift.stability_score !== null ? (
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-2xl font-bold text-slate-900">{(drift.stability_score * 100).toFixed(1)}%</p>
+                  <p className="text-xs text-slate-500 mt-1">vs. previous run</p>
+                </div>
+                {renderStabilityTrend()}
               </div>
-              {renderStabilityTrend()}
-            </div>
+            ) : (
+              <p className="text-xs text-slate-400 italic">Requires repeat execution — run the same prompt at least twice to enable.</p>
+            )}
           </CardContent>
         </Card>
 
@@ -71,12 +69,16 @@ export default function DriftTab() {
             <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Structure Quality</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-slate-900">
-              {drift.structure_drift !== null ? drift.structure_drift + "%" : "N/A"}
-            </p>
-            <p className="text-xs text-slate-500 mt-1">
-              {runState.mode === "baseline" ? "Baseline (unstructured)" : "Contract compliance"}
-            </p>
+            {drift.structure_drift !== null ? (
+              <>
+                <p className="text-2xl font-bold text-slate-900">{drift.structure_drift}%</p>
+                <p className="text-xs text-slate-500 mt-1">
+                  {runState.mode === "baseline" ? "Baseline (unstructured)" : "Contract compliance"}
+                </p>
+              </>
+            ) : (
+              <p className="text-xs text-slate-400 italic">Not applicable — baseline mode has no contract.</p>
+            )}
           </CardContent>
         </Card>
 

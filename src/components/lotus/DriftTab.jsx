@@ -44,26 +44,7 @@ export default function DriftTab() {
   return (
     <div className="space-y-6">
       {/* Drift Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-slate-200">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Stability Score</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {drift.stability_score !== null ? (
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-2xl font-bold text-slate-900">{(drift.stability_score * 100).toFixed(1)}%</p>
-                  <p className="text-xs text-slate-500 mt-1">vs. previous run</p>
-                </div>
-                {renderStabilityTrend()}
-              </div>
-            ) : (
-              <p className="text-xs text-slate-400 italic">Not applicable in baseline mode (no governance layer).</p>
-            )}
-          </CardContent>
-        </Card>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="border-slate-200">
           <CardHeader className="pb-3">
             <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Structure Quality</CardTitle>
@@ -239,7 +220,6 @@ export default function DriftTab() {
                     <TableHead className="text-xs">Mode</TableHead>
                     <TableHead className="text-xs">Grounding</TableHead>
                     <TableHead className="text-xs">Model</TableHead>
-                    <TableHead className="text-xs">Stability</TableHead>
                     <TableHead className="text-xs">Structure</TableHead>
                     <TableHead className="text-xs">Authority Flags</TableHead>
                     <TableHead className="text-xs">Hallucination Pattern Recognition</TableHead>
@@ -256,11 +236,6 @@ export default function DriftTab() {
                       </TableCell>
                       <TableCell className="text-xs">
                         <span className="text-[10px] text-slate-600">{run.model || "—"}</span>
-                      </TableCell>
-                      <TableCell className="text-xs font-mono">
-                        {run.drift?.stability_score !== null 
-                          ? (run.drift.stability_score * 100).toFixed(1) + "%" 
-                          : "—"}
                       </TableCell>
                       <TableCell className="text-xs font-mono">
                         {run.drift?.structure_drift !== null ? run.drift.structure_drift + "%" : "—"}

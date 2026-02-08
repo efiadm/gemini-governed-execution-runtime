@@ -172,27 +172,29 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
 
       <PlaneTable
         title="🔍 Plane B: Diagnostics (Runtime-Local)"
-        subtitle="⚙️ Non-Billable — Browser-side validation, parsing, evidence assembly"
+        subtitle="⚙️ Non-Billable — Browser-side validation, parsing, evidence assembly. Activates in governed/hybrid modes."
         rows={diagnosticsRows}
         bgColor="bg-blue-50"
       />
 
       <PlaneTable
         title="🔧 Plane C: Repairs (Recovery Calls)"
-        subtitle="💵 Billable — Extra model calls + tokens to fix validation failures"
+        subtitle="💵 Billable — Extra model calls + tokens only when validation fails. Not triggered on successful first attempt."
         rows={repairRows}
         bgColor="bg-amber-50"
       />
 
-      <Card className="border-slate-300 bg-slate-50">
+      <Card className="border-blue-200 bg-blue-50">
         <CardContent className="py-4">
-          <h3 className="text-sm font-bold text-slate-800 mb-3">Tradeoff Analysis</h3>
+          <h3 className="text-sm font-bold text-slate-800 mb-3">Conditional Activation Model</h3>
+          <p className="text-xs text-slate-700 mb-3">
+            <strong>Plane C (Repairs) activates only on validation failure.</strong> When validation passes on first attempt, governed and hybrid modes incur Plane A + Plane B costs only — comparable to baseline with added contract guarantees and auditability.
+          </p>
           <ul className="space-y-2 text-xs text-slate-700">
-            <li>• <strong>Core execution (Plane A):</strong> Governed base={(governed?.billable?.total_model_tokens || 0) - (governed?.repair?.extra_tokens_due_to_repair || 0)}t vs Baseline={baseline?.billable?.total_model_tokens || 0}t — structured output reduces verbosity</li>
-            <li>• <strong>Reliability overhead (Plane B):</strong> {governed?.local?.total_local_ms || 0}ms validation — optional, non-billable, enables audit compliance</li>
-            <li>• <strong>Conditional repairs (Plane C):</strong> {governed?.repair?.extra_model_calls_due_to_repair || 0} recovery calls when validation fails — billable but contained</li>
-            <li>• <strong>Experience accumulation:</strong> Hybrid saves {hybrid?.hybrid_tokens_saved || 0}t via artifact context — system learns from governed outcomes</li>
-            <li>• <strong>Safe Mode containment:</strong> When contract unsatisfiable, output withheld — correct governance outcome, not system failure</li>
+            <li>• <strong>Best case (validation passes):</strong> Plane A (base execution) + Plane B (runtime validation) — no repairs triggered</li>
+            <li>• <strong>Recovery case (validation fails):</strong> Plane C activates — extra model calls until contract satisfied or safe mode applied</li>
+            <li>• <strong>Safe Mode containment:</strong> When contract remains unsatisfiable after repairs, output is withheld — correct governance outcome</li>
+            <li>• <strong>Experience accumulation (Hybrid):</strong> Context injection from artifact store reduces token usage in repeat scenarios</li>
           </ul>
         </CardContent>
       </Card>

@@ -14,31 +14,34 @@ export default function PipelineStatus({ stage, safeModeApplied, validationPasse
     const stageIndex = stages.findIndex(s => s.key === stageKey);
     const currentIndex = stages.findIndex(s => s.key === stage);
     
-    // If validation passed and we're at output stage, mark all stages as complete
+    // Mark all stages up to current as complete if validation passed at output
     if (validationPassed && stage === "output") {
       return "complete";
     }
     
+    // If safe mode applied, understanding and output are withheld
+    if (safeModeApplied && (stageKey === "understanding" || stageKey === "output")) {
+      return "withheld";
+    }
+    
     if (stageIndex < currentIndex) return "complete";
     if (stageIndex === currentIndex) return "active";
-    if (safeModeApplied && stageKey === "understanding") return "withheld";
-    if (safeModeApplied && stageKey === "output") return "withheld";
     return "pending";
   };
 
   return (
-    <div>
-      <div className="flex flex-wrap items-center gap-2 text-xs">
+    <div className="w-full">
+      <div className="flex flex-wrap items-center gap-1.5 text-xs">
         {stages.map((s, idx) => {
           const status = getStageStatus(s.key);
           return (
             <React.Fragment key={s.key}>
-              <div className="flex items-center gap-1.5" title={s.tooltip}>
-                {status === "complete" && <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />}
-                {status === "active" && <Circle className="w-3.5 h-3.5 text-blue-600" />}
-                {status === "withheld" && <XCircle className="w-3.5 h-3.5 text-amber-600" />}
-                {status === "pending" && <Circle className="w-3.5 h-3.5 text-slate-300" />}
-                <span className={`font-medium whitespace-nowrap ${
+              <div className="flex items-center gap-1.5 flex-wrap" title={s.tooltip}>
+                {status === "complete" && <CheckCircle2 className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />}
+                {status === "active" && <Circle className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />}
+                {status === "withheld" && <XCircle className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />}
+                {status === "pending" && <Circle className="w-3.5 h-3.5 text-slate-300 flex-shrink-0" />}
+                <span className={`font-medium ${
                   status === "complete" ? "text-green-700" :
                   status === "active" ? "text-blue-700" :
                   status === "withheld" ? "text-amber-700" :
@@ -47,12 +50,12 @@ export default function PipelineStatus({ stage, safeModeApplied, validationPasse
                   {s.label}
                 </span>
               </div>
-              {idx < stages.length - 1 && <span className="text-slate-400">→</span>}
+              {idx < stages.length - 1 && <span className="text-slate-400 flex-shrink-0">→</span>}
             </React.Fragment>
           );
         })}
       </div>
-      <p className="text-[9px] text-slate-500 mt-1 font-medium">Execution Stages: Knowledge → Governance → Experience → Understanding → Reliable Output</p>
+      <p className="text-[9px] text-slate-500 mt-1.5 font-medium">Pipeline: Knowledge → Governance → Experience → Understanding → Reliable Output</p>
     </div>
   );
 }

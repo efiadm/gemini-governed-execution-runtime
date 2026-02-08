@@ -89,7 +89,7 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
             evidence.safe_mode_applied ? "bg-green-600" :
             "bg-red-600"
           } text-white text-xs px-2 py-1 whitespace-nowrap`}>
-            {evidence.validation_passed ? "✓ Contract Satisfied" : evidence.safe_mode_applied ? "✓ Contained (Fail-Safe)" : "✗ Failed"}
+            {evidence.validation_passed ? "✓ Contract Satisfied" : evidence.safe_mode_applied ? "✓ Model-Limited Execution" : "✗ Failed"}
           </Badge>
         </div>
 

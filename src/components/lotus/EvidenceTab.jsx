@@ -130,7 +130,7 @@ export default function EvidenceTab({ evidence, mode, onRunBaseline }) {
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-semibold text-slate-700">Validation Summary</CardTitle>
         {evidence.safe_mode_applied && (
-          <p className="text-xs text-green-700 mt-2">Contract not satisfied within repair cap; output contained to prevent drift.</p>
+          <p className="text-xs text-green-700 mt-2">Model could not satisfy contract within repair cap. Output integrity preserved through model-limited execution.</p>
         )}
       </CardHeader>
       <CardContent className="space-y-3">

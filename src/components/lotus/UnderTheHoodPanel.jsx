@@ -177,9 +177,9 @@ export default function UnderTheHoodPanel() {
                 </Badge>
               </div>
               <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                <span className="text-slate-600">Safe Mode:</span>
+                <span className="text-slate-600">Model-Limited Execution:</span>
                   <Badge variant={evidence?.safe_mode_applied ? "default" : "outline"}>
-                    {evidence?.safe_mode_applied ? "Contained" : "No"}
+                    {evidence?.safe_mode_applied ? "Active" : "No"}
                   </Badge>
               </div>
               <div className="flex items-center justify-between p-2 bg-slate-50 rounded">

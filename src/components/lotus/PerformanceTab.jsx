@@ -27,8 +27,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
     return (tokens / 1000) * COST_PER_1K_TOKENS;
   };
 
-  const calculateEfficiencyScore = (mode) => {
-    const m = allModeMetrics[mode];
+  const calculateEfficiencyScore = (m) => {
     if (!m || !m.billable?.total_model_tokens || !m.total?.model_latency_ms) return null;
     // Tokens per second
     return ((m.billable.total_model_tokens / m.total.model_latency_ms) * 1000).toFixed(0);
@@ -119,7 +118,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
         const extra = m?.repair?.extra_tokens_due_to_repair || 0;
         return `$${calculateCost(Math.max(0, total - extra)).toFixed(4)}`;
       }} isBillable />
-      <MetricRow label="Efficiency (tok/sec)" getValue={(m) => calculateEfficiencyScore(m.mode)} />
+      <MetricRow label="Efficiency (tok/sec)" getValue={(m) => calculateEfficiencyScore(m)} />
     </>
   );
 

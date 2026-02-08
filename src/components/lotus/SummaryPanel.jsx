@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, XCircle, Clock, Zap, Download, FileJson, TrendingUp, TrendingDown, Shield } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Zap, Download, FileJson, TrendingUp, TrendingDown } from "lucide-react";
 import { downloadEvidenceFile } from "./auditExporter";
-import { getBaselineSnapshot, hasBaselineSnapshot, getRunState } from "./runStore";
+import { getBaselineSnapshot, getRunState } from "./runStore";
 import PipelineStatus from "./PipelineStatus";
 
 function BaselineDeltaCard({ metrics, mode }) {

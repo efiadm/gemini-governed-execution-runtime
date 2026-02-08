@@ -154,7 +154,7 @@ export default function DriftTab() {
           "border-green-300 bg-green-50"
         }`}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-slate-800">Hallucination Risk</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-800">Hallucination Pattern Recognition</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3">

@@ -1,7 +1,7 @@
 import React from "react";
 import { CheckCircle2, Circle, XCircle } from "lucide-react";
 
-export default function PipelineStatus({ stage, safeModeApplied }) {
+export default function PipelineStatus({ stage, safeModeApplied, validationPassed }) {
   const stages = [
     { key: "knowledge", label: "Knowledge", tooltip: "Raw Gemini 3 inference completed." },
     { key: "governance", label: "Governance", tooltip: "Output evaluated against explicit constraints and contracts." },
@@ -13,6 +13,11 @@ export default function PipelineStatus({ stage, safeModeApplied }) {
   const getStageStatus = (stageKey) => {
     const stageIndex = stages.findIndex(s => s.key === stageKey);
     const currentIndex = stages.findIndex(s => s.key === stage);
+    
+    // If validation passed and we're at output stage, mark all stages as complete
+    if (validationPassed && stage === "output") {
+      return "complete";
+    }
     
     if (stageIndex < currentIndex) return "complete";
     if (stageIndex === currentIndex) return "active";

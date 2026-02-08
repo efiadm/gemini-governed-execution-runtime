@@ -96,6 +96,7 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
             <PipelineStatus 
               stage={evidence.safe_mode_applied ? "governance" : "output"} 
               safeModeApplied={evidence.safe_mode_applied}
+              validationPassed={evidence.validation_passed}
             />
           </div>
           <Badge className={`${

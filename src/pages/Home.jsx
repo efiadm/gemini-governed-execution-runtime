@@ -301,7 +301,7 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-[1800px] mx-auto px-6 py-6 pb-24">
+      <main className="max-w-[1800px] mx-auto px-6 py-6">
         {/* Progress Stepper */}
         {progressStep && (
           <div className="mb-6">
@@ -310,7 +310,7 @@ export default function Home() {
         )}
 
         {/* 3-Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 max-h-[calc(100vh-300px)] overflow-visible">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* Left: Prompt Panel */}
           <PromptPanel
             prompt={prompt}
@@ -337,7 +337,7 @@ export default function Home() {
           />
 
           {/* Right: Summary Panel + Baseline Delta + Settings */}
-          <div className="space-y-4 overflow-y-auto max-h-[calc(100vh-300px)]">
+          <div className="space-y-4">
             <SummaryPanel
               evidence={currentEvidence}
               metrics={allModeMetrics[mode]}

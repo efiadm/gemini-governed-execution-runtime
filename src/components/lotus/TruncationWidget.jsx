@@ -108,7 +108,7 @@ export default function TruncationWidget({ truncationRisk, metrics, mode }) {
   return (
     <div
       ref={widgetRef}
-      className="fixed z-[100] pointer-events-none transition-all"
+      className="fixed z-40 pointer-events-none transition-all"
       style={positionStyle}
     >
       <div

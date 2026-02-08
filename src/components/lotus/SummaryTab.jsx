@@ -78,7 +78,7 @@ export default function SummaryTab() {
             <div className="text-slate-600 py-2">Repairs</div>
             {lanes.map(lane => (
               <div key={lane} className="text-center font-mono py-2">
-                {validation[lane]?.repairs || 0}
+                {validation?.repairs || 0}
               </div>
             ))}
           </div>

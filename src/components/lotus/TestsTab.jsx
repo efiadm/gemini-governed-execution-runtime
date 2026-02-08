@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, XCircle, FlaskConical, Eye, Loader2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function TestsTab({ results, isRunning, currentTestId, onRunTestSuite }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -104,25 +105,125 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
       )}
 
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+        <SheetContent className="w-full sm:max-w-3xl overflow-y-auto">
           {selectedTest && (
             <>
               <SheetHeader>
-                <SheetTitle>{selectedTest.name}</SheetTitle>
+                <SheetTitle className="text-base">{selectedTest.name}</SheetTitle>
               </SheetHeader>
-              <div className="mt-6 space-y-4">
-                <div>
-                  <h4 className="text-xs font-semibold text-slate-700 mb-2">Prompt</h4>
-                  <p className="text-xs text-slate-600 bg-slate-50 p-3 rounded">{selectedTest.prompt}</p>
-                </div>
-                {selectedTest.governedOutput && (
-                  <div>
-                    <h4 className="text-xs font-semibold text-slate-700 mb-2">Governed Output</h4>
-                    <pre className="text-xs bg-slate-900 text-slate-100 p-3 rounded overflow-auto max-h-[300px]">
-                      {JSON.stringify(selectedTest.governedOutput, null, 2)}
+              <div className="mt-6">
+                <Tabs defaultValue="overview">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="attempts">Attempts</TabsTrigger>
+                    <TabsTrigger value="raw">Raw Output</TabsTrigger>
+                    <TabsTrigger value="validation">Validation</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="overview" className="space-y-4 mt-4">
+                    <div>
+                      <h4 className="text-sm font-semibold text-slate-700 mb-2">Prompt</h4>
+                      <p className="text-xs text-slate-600 bg-slate-50 p-3 rounded border border-slate-200">
+                        {selectedTest.prompt}
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3 text-xs">
+                      <div className="bg-slate-50 rounded p-3 border border-slate-200">
+                        <p className="text-slate-500 mb-1">Attempts</p>
+                        <p className="text-lg font-bold text-slate-900">{selectedTest.attempts || 0}</p>
+                      </div>
+                      <div className="bg-slate-50 rounded p-3 border border-slate-200">
+                        <p className="text-slate-500 mb-1">Repairs</p>
+                        <p className="text-lg font-bold text-slate-900">{selectedTest.repairs || 0}</p>
+                      </div>
+                      <div className="bg-slate-50 rounded p-3 border border-slate-200">
+                        <p className="text-slate-500 mb-1">Latency</p>
+                        <p className="text-lg font-bold text-slate-900">{selectedTest.latency_ms || 0}ms</p>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="attempts" className="mt-4">
+                    {selectedTest.governedEvidence?.attemptDetails && selectedTest.governedEvidence.attemptDetails.length > 0 ? (
+                      <div className="space-y-3">
+                        {selectedTest.governedEvidence.attemptDetails.map((att, i) => (
+                          <div key={i} className="border border-slate-200 rounded-lg p-3 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                {att.ok ? (
+                                  <CheckCircle2 className="w-4 h-4 text-green-600" />
+                                ) : (
+                                  <XCircle className="w-4 h-4 text-red-500" />
+                                )}
+                                <span className="text-xs font-medium text-slate-700">
+                                  Attempt {att.attempt} ({att.kind})
+                                </span>
+                              </div>
+                              <div className="flex gap-2 text-xs text-slate-500">
+                                <span>Model: {att.model_ms}ms</span>
+                                <span>App: {att.local_ms}ms</span>
+                              </div>
+                            </div>
+                            {att.errors?.length > 0 && (
+                              <div className="text-xs text-red-700 bg-red-50 p-2 rounded">
+                                {att.errors.join(", ")}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-slate-400 italic">No attempt details available</p>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="raw" className="mt-4">
+                    <pre className="text-xs bg-slate-900 text-slate-100 p-4 rounded overflow-auto max-h-[500px]">
+                      {JSON.stringify(selectedTest.governedOutput || {}, null, 2)}
                     </pre>
-                  </div>
-                )}
+                  </TabsContent>
+
+                  <TabsContent value="validation" className="mt-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        {selectedTest.governedResult === "pass" ? (
+                          <CheckCircle2 className="w-5 h-5 text-green-600" />
+                        ) : (
+                          <XCircle className="w-5 h-5 text-red-500" />
+                        )}
+                        <span className="text-sm font-medium">
+                          {selectedTest.governedResult === "pass" ? "Validation Passed" : "Validation Failed"}
+                        </span>
+                      </div>
+                      {selectedTest.governedEvidence?.validation_summary && (
+                        <div className="grid grid-cols-3 gap-3 text-xs">
+                          <div className="bg-slate-50 rounded p-2 text-center border border-slate-200">
+                            <p className="text-slate-500">Total</p>
+                            <p className="text-lg font-bold">{selectedTest.governedEvidence.validation_summary.total_checks || 0}</p>
+                          </div>
+                          <div className="bg-green-50 rounded p-2 text-center border border-green-200">
+                            <p className="text-green-600">Passed</p>
+                            <p className="text-lg font-bold">{selectedTest.governedEvidence.validation_summary.passed_checks || 0}</p>
+                          </div>
+                          <div className="bg-red-50 rounded p-2 text-center border border-red-200">
+                            <p className="text-red-600">Failed</p>
+                            <p className="text-lg font-bold">{selectedTest.governedEvidence.validation_summary.failed_checks || 0}</p>
+                          </div>
+                        </div>
+                      )}
+                      {selectedTest.governedEvidence?.validation_summary?.failures?.length > 0 && (
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-slate-700">Failures:</p>
+                          {selectedTest.governedEvidence.validation_summary.failures.map((f, i) => (
+                            <p key={i} className="text-xs text-red-700 bg-red-50 p-2 rounded border border-red-200">
+                              {f}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </div>
             </>
           )}

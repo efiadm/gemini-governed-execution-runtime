@@ -101,6 +101,19 @@ export async function runBaseline(prompt, groundingSetting, model, onProgress) {
     }],
   };
 
+  // Store minimal baseline_metrics artifact (execution only, no governance data)
+  addArtifact({
+    type: "baseline_metrics",
+    mode: "baseline",
+    timestamp: Date.now(),
+    request_id: requestId,
+    model_latency_ms: latency,
+    prompt_tokens: estimateTokens(prompt),
+    completion_tokens: estimateTokens(rawOutput),
+    total_tokens: estimateTokens(prompt) + estimateTokens(rawOutput),
+    output_hash: hashPrompt(rawOutput),
+  });
+
   addAttempt({
     attempt: 1,
     kind: "initial",
@@ -254,15 +267,15 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress, s
     addAttempt(attR);
   }
 
-  // Safe mode fallback
+  // Safe mode fallback (fail-safe containment)
   if (!validation.passed) {
     emitEvent(EventTypes.LOCAL_STEP, { step: "safe_mode" });
     localStart = Date.now();
     parsedOutput = generateSafeModeOutput(useGrounding, correctionMode);
     safeModeApplied = true;
-    validation = { passed: true, errors: [] };
+    validation = { passed: false, errors: ["Contract not satisfied within repair cap; output contained."] };
     totalLocalMs += Date.now() - localStart;
-    addArtifact({ type: "safe_mode", reason: "Contract validation failed after repairs", mode: "governed", timestamp: Date.now() });
+    addArtifact({ type: "safe_mode", reason: "Contract validation failed after repairs; fail-safe containment applied", mode: "governed", timestamp: Date.now() });
   }
 
   onProgress?.("evidence");
@@ -292,17 +305,18 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress, s
       attempts: attemptDetails.length,
       repairs,
       local_repairs: localRepairs,
-      validation_passed: !safeModeApplied,
+      validation_passed: validation.passed && !safeModeApplied,
       safe_mode_applied: safeModeApplied,
+      safe_mode_status: safeModeApplied ? "Contained (Fail-Safe)" : null,
       correction_mode: correctionMode,
       repair_cap: repairCap,
       execution_only: true,
       attemptDetails,
       validation_summary: {
-        total_checks: validation.errors.length + (validation.passed ? 10 : 0),
-        passed_checks: validation.passed ? 10 : 0,
-        failed_checks: validation.errors.length,
-        failures: validation.errors,
+        total_checks: Math.max(1, validation.errors.length + (validation.passed ? 5 : 0)),
+        passed_checks: validation.passed && !safeModeApplied ? 5 : 0,
+        failed_checks: safeModeApplied ? 1 : validation.errors.length,
+        failures: safeModeApplied ? ["Contract not satisfied within repair cap; output contained."] : validation.errors,
       },
     },
   };

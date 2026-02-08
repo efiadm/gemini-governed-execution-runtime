@@ -95,10 +95,10 @@ export default function BaselineDeltaPanel({ onRunBaseline }) {
 
         <div className="pt-2 border-t border-slate-200">
           <div className="text-[10px] text-slate-500">
-            Baseline: {baselinePerf.total_model_tokens}t / {baselinePerf.total_latency_ms}ms
+            Baseline: {baselineMetrics.total_tokens}t / {baselineMetrics.model_latency_ms}ms
           </div>
           <div className="text-[10px] text-slate-500">
-            Current: {currentPerf.total_model_tokens}t / {currentPerf.total_latency_ms}ms
+            Current: {currentPerf.billable?.total_model_tokens}t / {currentPerf.total?.model_latency_ms}ms
           </div>
         </div>
       </CardContent>

@@ -30,10 +30,11 @@ function BaselineDeltaCard({ metrics, mode }) {
   }
 
   const baselineSnap = getBaselineSnapshot(runState.prompt_hash, runState.model, runState.grounding);
-  if (!baselineSnap) return null;
+  if (!baselineSnap?.execution_metrics) return null;
 
-  const tokenDelta = (metrics.billable?.total_model_tokens || 0) - (baselineSnap.performance.total_model_tokens || 0);
-  const latencyDelta = (metrics.total?.total_latency_ms || 0) - (baselineSnap.performance.total_latency_ms || 0);
+  const baselineMetrics = baselineSnap.execution_metrics;
+  const tokenDelta = (metrics.billable?.total_model_tokens || 0) - (baselineMetrics.total_tokens || 0);
+  const latencyDelta = (metrics.total?.model_latency_ms || 0) - (baselineMetrics.model_latency_ms || 0);
 
   return (
     <div className={`rounded-lg p-2 ${tokenDelta > 0 ? 'bg-red-50' : tokenDelta < 0 ? 'bg-green-50' : 'bg-slate-50'}`}>

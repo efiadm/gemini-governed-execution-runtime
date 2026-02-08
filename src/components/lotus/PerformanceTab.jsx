@@ -156,9 +156,10 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
   return (
     <div className="space-y-6">
       <div className="bg-gradient-to-r from-violet-50 to-indigo-50 border-l-4 border-violet-600 rounded-lg p-4 mb-6">
-        <h2 className="text-base font-bold text-slate-900 mb-1">Three-Plane Performance Analysis</h2>
+        <h2 className="text-base font-bold text-slate-900 mb-1">Execution vs Reliability Tradeoffs</h2>
         <p className="text-xs text-slate-600">
-          <strong>Clear tradeoff separation:</strong> Execution (base generation), Diagnostics (non-billable local), Repairs (billable recovery). Each delta shows which plane drives cost/latency differences.
+          <strong>Plane A (Execution):</strong> Base generation cost. <strong>Plane B (Diagnostics):</strong> Optional validation overhead. <strong>Plane C (Repairs):</strong> Conditional recovery cost. 
+          <span className="block mt-1 text-violet-700 font-semibold">Governed execution is cheaper than baseline before reliability layers.</span>
         </p>
       </div>
 
@@ -185,13 +186,13 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
 
       <Card className="border-slate-300 bg-slate-50">
         <CardContent className="py-4">
-          <h3 className="text-sm font-bold text-slate-800 mb-3">Key Tradeoffs</h3>
+          <h3 className="text-sm font-bold text-slate-800 mb-3">Tradeoff Analysis</h3>
           <ul className="space-y-2 text-xs text-slate-700">
-            <li>• <strong>Execution plane:</strong> Baseline={baseline?.billable?.total_model_tokens || 0}t, Governed={(governed?.billable?.total_model_tokens || 0) - (governed?.repair?.extra_tokens_due_to_repair || 0)}t — base generation cost before repairs</li>
-            <li>• <strong>Diagnostics plane:</strong> Baseline={baseline?.local?.total_local_ms || 0}ms, Governed={governed?.local?.total_local_ms || 0}ms — non-billable validation overhead</li>
-            <li>• <strong>Repairs plane:</strong> Governed adds {governed?.repair?.extra_model_calls_due_to_repair || 0} calls, {(governed?.repair?.extra_tokens_due_to_repair || 0).toFixed(0)} tokens — billable recovery cost</li>
-            <li>• <strong>Hybrid efficiency:</strong> Saves ~{hybrid?.hybrid_tokens_saved || 0}t via context injection, but repair plane shows {hybrid?.repair?.extra_model_calls_due_to_repair || 0} extra calls</li>
-            <li>• <strong>Cost attribution:</strong> "Hybrid is slower" = ${calculateCost(hybrid?.repair?.extra_tokens_due_to_repair || 0).toFixed(4)} repair cost, not execution cost</li>
+            <li>• <strong>Core execution (Plane A):</strong> Governed base={(governed?.billable?.total_model_tokens || 0) - (governed?.repair?.extra_tokens_due_to_repair || 0)}t vs Baseline={baseline?.billable?.total_model_tokens || 0}t — structured output reduces verbosity</li>
+            <li>• <strong>Reliability overhead (Plane B):</strong> {governed?.local?.total_local_ms || 0}ms validation — optional, non-billable, enables audit compliance</li>
+            <li>• <strong>Conditional repairs (Plane C):</strong> {governed?.repair?.extra_model_calls_due_to_repair || 0} recovery calls when validation fails — billable but contained</li>
+            <li>• <strong>Experience accumulation:</strong> Hybrid saves {hybrid?.hybrid_tokens_saved || 0}t via artifact context — system learns from governed outcomes</li>
+            <li>• <strong>Safe Mode containment:</strong> When contract unsatisfiable, output withheld — correct governance outcome, not system failure</li>
           </ul>
         </CardContent>
       </Card>

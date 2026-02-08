@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, XCircle, Clock, Zap, Download, FileJson, TrendingUp, TrendingDown } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Zap, Download, FileJson, TrendingUp, TrendingDown, Shield } from "lucide-react";
 import { downloadEvidenceFile } from "./auditExporter";
 import { getBaselineSnapshot, hasBaselineSnapshot, getRunState } from "./runStore";
+import PipelineStatus from "./PipelineStatus";
 
 function BaselineDeltaCard({ metrics, mode }) {
   const [baselineAvailable, setBaselineAvailable] = useState(false);
@@ -90,21 +91,33 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        <div className="mb-4">
+          <PipelineStatus 
+            stage={evidence.safe_mode_applied ? "governance" : "output"} 
+            safeModeApplied={evidence.safe_mode_applied}
+          />
+        </div>
+
         <div className="flex items-center gap-2">
           {evidence.validation_passed ? (
             <CheckCircle2 className="w-5 h-5 text-green-600" />
+          ) : evidence.safe_mode_applied ? (
+            <Shield className="w-5 h-5 text-amber-600" />
           ) : (
             <XCircle className="w-5 h-5 text-red-500" />
           )}
           <span className="text-sm font-medium text-slate-700">
-            {evidence.validation_passed ? "Validation Passed" : "Validation Failed"}
+            {evidence.validation_passed ? "Contract Satisfied" : evidence.safe_mode_applied ? "Output Withheld (Correct)" : "Validation Failed"}
           </span>
         </div>
 
         {evidence.safe_mode_applied && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-            <p className="text-xs text-amber-800 font-medium">Safe Mode Activated</p>
-            <p className="text-xs text-amber-700 mt-1">Contract could not be satisfied after repairs.</p>
+          <div className="bg-amber-50 border-l-4 border-amber-600 rounded-lg p-3">
+            <p className="text-xs text-amber-800 font-semibold flex items-center gap-2">
+              <Shield className="w-3.5 h-3.5" />
+              Governance Protection Applied
+            </p>
+            <p className="text-xs text-amber-700 mt-1">Contract requirements not met after repair attempts. Output withheld to maintain reliability standards.</p>
           </div>
         )}
 

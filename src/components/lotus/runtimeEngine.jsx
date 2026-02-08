@@ -473,15 +473,15 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress, set
     addAttempt(attR);
   }
 
-  // Safe mode fallback
+  // Safe mode fallback (fail-safe containment)
   if (!validation.passed) {
     emitEvent(EventTypes.LOCAL_STEP, { step: "safe_mode" });
     localStart = Date.now();
     parsedOutput = generateSafeModeOutput(useGrounding, correctionMode);
     safeModeApplied = true;
-    validation = { passed: true, errors: [] };
+    validation = { passed: false, errors: ["Contract not satisfied within repair cap; output contained."] };
     totalLocalMs += Date.now() - localStart;
-    addArtifact({ type: "safe_mode", reason: "Contract validation failed after Hybrid repairs", mode: "hybrid", timestamp: Date.now() });
+    addArtifact({ type: "safe_mode", reason: "Contract validation failed after Hybrid repairs; fail-safe containment applied", mode: "hybrid", timestamp: Date.now() });
   }
 
   onProgress?.("evidence");
@@ -510,8 +510,9 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress, set
       attempts: attemptDetails.length,
       repairs,
       local_repairs: localRepairs,
-      validation_passed: !safeModeApplied,
+      validation_passed: validation.passed && !safeModeApplied,
       safe_mode_applied: safeModeApplied,
+      safe_mode_status: safeModeApplied ? "Contained (Fail-Safe)" : null,
       correction_mode: correctionMode,
       repair_cap: repairCap,
       execution_only: true,
@@ -520,10 +521,10 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress, set
       hybrid_tokens_saved: tokensSaved,
       attemptDetails,
       validation_summary: {
-        total_checks: validation.errors.length + (validation.passed ? 10 : 0),
-        passed_checks: validation.passed ? 10 : 0,
-        failed_checks: validation.errors.length,
-        failures: validation.errors,
+        total_checks: Math.max(1, validation.errors.length + (validation.passed ? 5 : 0)),
+        passed_checks: validation.passed && !safeModeApplied ? 5 : 0,
+        failed_checks: safeModeApplied ? 1 : validation.errors.length,
+        failures: safeModeApplied ? ["Contract not satisfied within repair cap; output contained."] : validation.errors,
       },
     },
   };

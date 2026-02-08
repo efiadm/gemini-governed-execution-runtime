@@ -121,6 +121,7 @@ export default function SettingsPanel() {
             </>
           )}
         </div>
+        </div>
       </SheetContent>
     </Sheet>
   );

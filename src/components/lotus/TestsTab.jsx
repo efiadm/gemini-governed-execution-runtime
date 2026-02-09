@@ -19,8 +19,8 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-slate-800">Test Suite</h3>
-          <p className="text-xs text-slate-500 mt-1">TS-01 through TS-05 adversarial tests</p>
+          <h3 className="text-sm font-semibold text-foreground">Test Suite</h3>
+          <p className="text-xs text-muted-foreground mt-1">TS-01 through TS-05 adversarial tests</p>
         </div>
         <Button onClick={onRunTestSuite} disabled={isRunning} size="sm">
           {isRunning ? (
@@ -37,22 +37,22 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
           No test results yet. Click "Run Test Suite" to execute all tests.
         </p>
       ) : (
-        <div className="surface-elevated overflow-hidden">
+        <div className="surface overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50">
-                <TableHead className="text-xs font-bold">Test</TableHead>
-                <TableHead className="text-center text-xs font-bold">Baseline</TableHead>
-                <TableHead className="text-center text-xs font-bold">Governed</TableHead>
-                <TableHead className="text-center text-xs font-bold">Hybrid</TableHead>
-                <TableHead className="text-center text-xs font-bold">Attempts</TableHead>
-                <TableHead className="text-center text-xs font-bold">Latency</TableHead>
-                <TableHead className="text-center text-xs font-bold">Actions</TableHead>
+              <TableRow className="bg-muted">
+                <TableHead className="text-xs font-bold text-foreground">Test</TableHead>
+                <TableHead className="text-center text-xs font-bold text-foreground">Baseline</TableHead>
+                <TableHead className="text-center text-xs font-bold text-foreground">Governed</TableHead>
+                <TableHead className="text-center text-xs font-bold text-foreground">Hybrid</TableHead>
+                <TableHead className="text-center text-xs font-bold text-foreground">Attempts</TableHead>
+                <TableHead className="text-center text-xs font-bold text-foreground">Latency</TableHead>
+                <TableHead className="text-center text-xs font-bold text-foreground">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {results.map((test) => (
-                <TableRow key={test.id} className={currentTestId === test.id && isRunning ? "bg-blue-50" : ""}>
+                <TableRow key={test.id} className={currentTestId === test.id && isRunning ? "bg-primary/10" : ""}>
                   <TableCell className="text-xs font-medium">{test.name}</TableCell>
                   <TableCell className="text-center">
                     {test.baselineResult === "pass" ? (
@@ -122,23 +122,23 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
 
                   <TabsContent value="overview" className="space-y-4 mt-4">
                     <div>
-                      <h4 className="text-sm font-semibold text-slate-700 mb-2">Prompt</h4>
-                      <p className="text-xs text-slate-600 bg-slate-50 p-3 rounded border border-slate-200">
+                      <h4 className="text-sm font-semibold text-foreground mb-2">Prompt</h4>
+                      <p className="text-xs text-muted-foreground bg-muted p-3 rounded border border-border">
                         {selectedTest.prompt}
                       </p>
                     </div>
                     <div className="grid grid-cols-3 gap-3 text-xs">
-                      <div className="bg-slate-50 rounded p-3 border border-slate-200">
-                        <p className="text-slate-500 mb-1">Attempts</p>
-                        <p className="text-lg font-bold text-slate-900">{selectedTest.attempts || 0}</p>
+                      <div className="bg-card rounded p-3 border border-border">
+                        <p className="text-muted-foreground mb-1">Attempts</p>
+                        <p className="text-lg font-bold text-foreground">{selectedTest.attempts || 0}</p>
                       </div>
-                      <div className="bg-slate-50 rounded p-3 border border-slate-200">
-                        <p className="text-slate-500 mb-1">Repairs</p>
-                        <p className="text-lg font-bold text-slate-900">{selectedTest.repairs || 0}</p>
+                      <div className="bg-card rounded p-3 border border-border">
+                        <p className="text-muted-foreground mb-1">Repairs</p>
+                        <p className="text-lg font-bold text-foreground">{selectedTest.repairs || 0}</p>
                       </div>
-                      <div className="bg-slate-50 rounded p-3 border border-slate-200">
-                        <p className="text-slate-500 mb-1">Latency</p>
-                        <p className="text-lg font-bold text-slate-900">{selectedTest.latency_ms || 0}ms</p>
+                      <div className="bg-card rounded p-3 border border-border">
+                        <p className="text-muted-foreground mb-1">Latency</p>
+                        <p className="text-lg font-bold text-foreground">{selectedTest.latency_ms || 0}ms</p>
                       </div>
                     </div>
                   </TabsContent>
@@ -147,25 +147,25 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
                     {selectedTest.governedEvidence?.attemptDetails && selectedTest.governedEvidence.attemptDetails.length > 0 ? (
                       <div className="space-y-3">
                         {selectedTest.governedEvidence.attemptDetails.map((att, i) => (
-                          <div key={i} className="border border-slate-200 rounded-lg p-3 space-y-2">
+                          <div key={i} className="border border-border rounded-lg p-3 space-y-2">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 {att.ok ? (
-                                  <CheckCircle2 className="w-4 h-4 text-green-600" />
+                                  <CheckCircle2 className="w-4 h-4 text-primary" />
                                 ) : (
-                                  <XCircle className="w-4 h-4 text-red-500" />
+                                  <XCircle className="w-4 h-4 text-destructive" />
                                 )}
-                                <span className="text-xs font-medium text-slate-700">
+                                <span className="text-xs font-medium text-foreground">
                                   Attempt {att.attempt} ({att.kind})
                                 </span>
                               </div>
-                              <div className="flex gap-2 text-xs text-slate-500">
+                              <div className="flex gap-2 text-xs text-muted-foreground">
                                 <span>Model: {att.model_ms}ms</span>
                                 <span>App: {att.local_ms}ms</span>
                               </div>
                             </div>
                             {att.errors?.length > 0 && (
-                              <div className="text-xs text-red-700 bg-red-50 p-2 rounded">
+                              <div className="text-xs text-destructive bg-destructive/10 p-2 rounded">
                                 {att.errors.join(", ")}
                               </div>
                             )}
@@ -187,35 +187,35 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
                         {selectedTest.governedResult === "pass" ? (
-                          <CheckCircle2 className="w-5 h-5 text-green-600" />
+                          <CheckCircle2 className="w-5 h-5 text-primary" />
                         ) : (
-                          <XCircle className="w-5 h-5 text-red-500" />
+                          <XCircle className="w-5 h-5 text-destructive" />
                         )}
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-medium text-foreground">
                           {selectedTest.governedResult === "pass" ? "Validation Passed" : "Validation Failed"}
                         </span>
                       </div>
                       {selectedTest.governedEvidence?.validation_summary && (
                         <div className="grid grid-cols-3 gap-3 text-xs">
-                          <div className="bg-slate-50 rounded p-2 text-center border border-slate-200">
-                            <p className="text-slate-500">Total</p>
-                            <p className="text-lg font-bold">{selectedTest.governedEvidence.validation_summary.total_checks || 0}</p>
+                          <div className="bg-card rounded p-2 text-center border border-border">
+                            <p className="text-muted-foreground">Total</p>
+                            <p className="text-lg font-bold text-foreground">{selectedTest.governedEvidence.validation_summary.total_checks || 0}</p>
                           </div>
-                          <div className="bg-green-50 rounded p-2 text-center border border-green-200">
-                            <p className="text-green-600">Passed</p>
-                            <p className="text-lg font-bold">{selectedTest.governedEvidence.validation_summary.passed_checks || 0}</p>
+                          <div className="bg-primary/10 rounded p-2 text-center border border-primary/30">
+                            <p className="text-primary">Passed</p>
+                            <p className="text-lg font-bold text-foreground">{selectedTest.governedEvidence.validation_summary.passed_checks || 0}</p>
                           </div>
-                          <div className="bg-red-50 rounded p-2 text-center border border-red-200">
-                            <p className="text-red-600">Failed</p>
-                            <p className="text-lg font-bold">{selectedTest.governedEvidence.validation_summary.failed_checks || 0}</p>
+                          <div className="bg-destructive/10 rounded p-2 text-center border border-destructive/30">
+                            <p className="text-destructive">Failed</p>
+                            <p className="text-lg font-bold text-foreground">{selectedTest.governedEvidence.validation_summary.failed_checks || 0}</p>
                           </div>
                         </div>
                       )}
                       {selectedTest.governedEvidence?.validation_summary?.failures?.length > 0 && (
                         <div className="space-y-1">
-                          <p className="text-xs font-medium text-slate-700">Failures:</p>
+                          <p className="text-xs font-medium text-foreground">Failures:</p>
                           {selectedTest.governedEvidence.validation_summary.failures.map((f, i) => (
-                            <p key={i} className="text-xs text-red-700 bg-red-50 p-2 rounded border border-red-200">
+                            <p key={i} className="text-xs text-destructive bg-destructive/10 p-2 rounded border border-destructive/30">
                               {f}
                             </p>
                           ))}

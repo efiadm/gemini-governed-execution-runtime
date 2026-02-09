@@ -89,7 +89,7 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
             evidence.safe_mode_applied ? "bg-green-600" :
             "bg-red-600"
           } text-white text-xs px-2 py-1 whitespace-nowrap`}>
-            {evidence.validation_passed ? "✓ Contract Satisfied" : evidence.safe_mode_applied ? "✓ Model-Limited Execution" : "✗ Failed"}
+            {evidence.validation_passed ? "✓ Contract Satisfied" : evidence.safe_mode_applied ? "✓ Model-Limited Execution (Contained)" : "✗ Failed"}
           </Badge>
         </div>
 
@@ -122,10 +122,21 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
           </div>
           {evidence.validation_summary && (
             <div className="flex justify-between items-center">
-              <span style={{ color: '#9aa1a9' }}>Validation:</span>
-              <span className="font-medium" style={{ color: '#e6e8eb' }}>
-                {evidence.validation_summary.passed_checks} / {evidence.validation_summary.total_checks} passed
+              <span style={{ color: '#9aa1a9' }}>
+                {evidence.safe_mode_applied ? "Validation:" : "Validation:"}
               </span>
+              <span className="font-medium" style={{ color: '#e6e8eb' }}>
+                {evidence.safe_mode_applied 
+                  ? "Not satisfied (contained)" 
+                  : `${evidence.validation_summary.passed_checks} / ${evidence.validation_summary.total_checks} passed`
+                }
+              </span>
+            </div>
+          )}
+          {evidence.safe_mode_applied && (
+            <div className="flex justify-between items-center">
+              <span style={{ color: '#9aa1a9' }}>Evidence:</span>
+              <span className="font-medium" style={{ color: '#1f6f5b' }}>Saved</span>
             </div>
           )}
           {evidence.hybrid_context_injected && (

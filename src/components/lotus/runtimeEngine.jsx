@@ -275,7 +275,14 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress, s
     safeModeApplied = true;
     validation = { passed: false, errors: ["Contract not satisfied within repair cap; output contained."] };
     totalLocalMs += Date.now() - localStart;
+    
+    // Always emit comprehensive artifacts for Model-Limited Execution
+    addArtifact({ type: "contract", content: "Governed JSON Schema", mode: "governed", timestamp: Date.now() });
     addArtifact({ type: "safe_mode", reason: "Contract validation failed after repairs; fail-safe containment applied", mode: "governed", timestamp: Date.now() });
+    if (localRepairs > 0) {
+      addArtifact({ type: "local_repair", repairs: [`${localRepairs} local repairs attempted`], mode: "governed", timestamp: Date.now() });
+    }
+    addArtifact({ type: "contained_outcome", summary: "Model-Limited Execution: Output integrity preserved through fail-safe containment. Contract not satisfied, but execution completed successfully.", mode: "governed", timestamp: Date.now() });
   }
 
   onProgress?.("evidence");
@@ -481,7 +488,14 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress, set
     safeModeApplied = true;
     validation = { passed: false, errors: ["Contract not satisfied within repair cap; output contained."] };
     totalLocalMs += Date.now() - localStart;
+    
+    // Always emit comprehensive artifacts for Model-Limited Execution
+    addArtifact({ type: "contract", content: "Governed JSON Schema", mode: "hybrid", timestamp: Date.now() });
     addArtifact({ type: "safe_mode", reason: "Contract validation failed after Hybrid repairs; fail-safe containment applied", mode: "hybrid", timestamp: Date.now() });
+    if (localRepairs > 0) {
+      addArtifact({ type: "local_repair", repairs: [`${localRepairs} local repairs attempted`], mode: "hybrid", timestamp: Date.now() });
+    }
+    addArtifact({ type: "contained_outcome", summary: "Model-Limited Execution: Output integrity preserved through fail-safe containment. Contract not satisfied, but execution completed successfully.", mode: "hybrid", timestamp: Date.now() });
   }
 
   onProgress?.("evidence");

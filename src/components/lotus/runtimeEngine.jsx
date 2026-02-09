@@ -323,7 +323,7 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress, s
       safe_mode_status: safeModeApplied ? "Contained (Fail-Safe)" : null,
       correction_mode: correctionMode,
       repair_cap: repairCap,
-      execution_only: true,
+      audit_excluded: true,
       attemptDetails,
       validation_summary: {
         total_checks: Math.max(1, validation.errors.length + (validation.passed ? 5 : 0)),

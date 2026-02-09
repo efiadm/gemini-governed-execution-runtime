@@ -173,28 +173,30 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
       <div className="bg-card border-l-4 border-primary rounded-lg p-4 mb-6">
         <h2 className="text-base font-bold text-foreground mb-1">Execution vs Reliability Tradeoffs</h2>
         <p className="text-xs text-muted-foreground">
-          <strong>Plane A (Execution):</strong> Base generation cost. <strong>Plane B (Diagnostics):</strong> Optional validation overhead. <strong>Plane C (Repairs):</strong> Conditional recovery cost. 
-          <span className="block mt-1 text-primary font-semibold">Governance increases base execution cost but reduces downstream reliability and recovery costs by preventing invalid or unstable outputs.</span>
+          <strong>Plane A:</strong> Billable model work (always active). <strong>Plane B:</strong> NON-billable local work that offsets Plane A by handling validation/parsing/evidence (grows with safeguards). <strong>Plane C:</strong> Conditional billable repairs (only when needed). 
+          <span className="block mt-1 text-primary font-semibold">
+            Plane B intentionally absorbs work to reduce Plane A dependency. As governance adds safeguards, Plane B grows — this is expected and desirable.
+          </span>
         </p>
       </div>
 
       <PlaneTable
         title="🚀 Plane A: Execution (Base Generation)"
-        subtitle="💵 Billable — Initial model call to generate response (no repairs)"
+        subtitle="💵 Billable — Raw model generation • Dominant cost & latency source • Always reflects true model work"
         rows={executionRows}
         bgColor="bg-muted"
       />
 
       <PlaneTable
         title="🔍 Plane B: Diagnostics (Runtime-Local)"
-        subtitle="⚙️ Non-Billable — Browser-side validation, parsing, evidence assembly. Activates in governed/hybrid modes."
+        subtitle="⚙️ NON-billable local work that OFFSETS Plane A • Validation + parsing + evidence assembly • Grows with governance safeguards • Baseline = 0ms, Governed/Hybrid = 10-20ms+"
         rows={diagnosticsRows}
         bgColor="bg-muted"
       />
 
       <PlaneTable
         title="🔧 Plane C: Repairs (Recovery Calls)"
-        subtitle="💵 Billable — Extra model calls + tokens only when validation fails. Not triggered on successful first attempt."
+        subtitle="💵 Conditional billable work • Only triggered on validation failures • Values are 0 when no repairs occur"
         rows={repairRows}
         bgColor="bg-muted"
       />

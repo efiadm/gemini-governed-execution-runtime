@@ -99,15 +99,15 @@ export default function DriftTab() {
 
       {/* Authority Drift Flags */}
       {drift.authority_drift_flags.flags.length > 0 && (
-        <Card className="border-amber-200 bg-amber-50">
+        <Card style={{ backgroundColor: 'rgba(200, 120, 84, 0.08)', borderColor: '#c09a3a' }}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-amber-800">Authority Drift Flags</CardTitle>
+            <CardTitle className="text-sm font-semibold" style={{ color: '#c09a3a' }}>Authority Drift Flags</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {drift.authority_drift_flags.flags.map((flag, i) => (
-                <div key={i} className="flex items-center justify-between p-2 bg-white rounded border border-amber-200">
-                  <span className="text-xs text-slate-700">{flag.name.replace(/_/g, " ")}</span>
+                <div key={i} className="flex items-center justify-between p-2 rounded" style={{ backgroundColor: '#1a1f22', border: '1px solid #c09a3a' }}>
+                  <span className="text-xs" style={{ color: '#e6e8eb' }}>{flag.name.replace(/_/g, " ")}</span>
                   <Badge variant="outline" className="text-xs">{flag.count} occurrence(s)</Badge>
                 </div>
               ))}
@@ -118,29 +118,28 @@ export default function DriftTab() {
 
       {/* Hallucination Risk */}
       {hallucination && (
-        <Card className={`border-2 ${
-          hallucination.risk === "HIGH" ? "border-red-300 bg-red-50" :
-          hallucination.risk === "MEDIUM" ? "border-yellow-300 bg-yellow-50" :
-          "border-green-300 bg-green-50"
-        }`}>
+        <Card style={{
+          backgroundColor: hallucination.risk === "HIGH" ? 'rgba(200, 90, 84, 0.1)' : hallucination.risk === "MEDIUM" ? 'rgba(200, 120, 84, 0.08)' : 'rgba(31, 111, 91, 0.05)',
+          borderColor: hallucination.risk === "HIGH" ? '#c85a54' : hallucination.risk === "MEDIUM" ? '#c09a3a' : '#1f6f5b',
+          border: '2px solid'
+        }}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-slate-800">Hallucination Pattern Recognition</CardTitle>
+            <CardTitle className="text-sm font-semibold" style={{ color: '#e6e8eb' }}>Hallucination Pattern Recognition</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3">
-              <Badge className={`text-sm ${
-                hallucination.risk === "HIGH" ? "bg-red-600" :
-                hallucination.risk === "MEDIUM" ? "bg-yellow-600" :
-                "bg-green-600"
-              }`}>
+              <Badge style={{
+                backgroundColor: hallucination.risk === "HIGH" ? '#c85a54' : hallucination.risk === "MEDIUM" ? '#c09a3a' : '#1f6f5b',
+                color: '#ffffff'
+              }} className="text-sm">
                 {hallucination.risk}
               </Badge>
-              <span className="text-xs text-slate-600">Based on citation integrity and validation</span>
+              <span className="text-xs" style={{ color: '#9aa1a9' }}>Based on citation integrity and validation</span>
             </div>
 
             {hallucination.citationIntegrity && (
               <div className="space-y-2">
-                <h4 className="text-xs font-semibold text-slate-700">Citation Integrity</h4>
+                <h4 className="text-xs font-semibold" style={{ color: '#e6e8eb' }}>Citation Integrity</h4>
                 
                 {hallucination.citationIntegrity.uncitedLinks.length > 0 && (
                   <div className="text-xs text-red-700 bg-white p-2 rounded border border-red-200">
@@ -222,12 +221,12 @@ export default function DriftTab() {
                         <Badge variant="outline" className="text-[10px]">{run.grounding || "—"}</Badge>
                       </TableCell>
                       <TableCell className="text-xs">
-                        <span className="text-[10px] text-slate-600">{run.model || "—"}</span>
+                        <span className="text-[10px]" style={{ color: '#9aa1a9' }}>{run.model || "—"}</span>
                       </TableCell>
-                      <TableCell className="text-xs font-mono">
+                      <TableCell className="text-xs font-mono" style={{ color: '#e6e8eb' }}>
                         {run.drift?.structure_drift !== null ? run.drift.structure_drift + "%" : "—"}
                       </TableCell>
-                      <TableCell className="text-xs font-mono">
+                      <TableCell className="text-xs font-mono" style={{ color: '#e6e8eb' }}>
                         {run.drift?.authority_drift_flags?.total || 0}
                       </TableCell>
                       <TableCell className="text-xs">

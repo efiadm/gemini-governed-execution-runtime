@@ -266,9 +266,9 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#0f1113' }}>
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="sticky top-0 z-50" style={{ borderBottom: '1px solid #2a3036', backgroundColor: '#1a1f22' }}>
+      <header className="sticky top-0 z-50 bg-card border-b border-border">
         <div className="max-w-[1800px] mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -276,8 +276,8 @@ export default function Home() {
                 <span className="text-white text-xs font-bold">G3</span>
               </div>
               <div>
-                <h1 className="text-base font-bold" style={{ color: '#e6e8eb' }}>Gemini 3 Governed Execution</h1>
-                <p className="text-[10px]" style={{ color: '#9aa1a9' }}>Knowledge → Governance → Experience → Understanding → Reliable Output</p>
+                <h1 className="text-base font-bold text-foreground">Gemini 3 Governed Execution</h1>
+                <p className="text-[10px] text-muted-foreground">Knowledge → Governance → Experience → Understanding → Reliable Output</p>
               </div>
               </div>
               <div className="flex items-center gap-2">
@@ -341,29 +341,29 @@ export default function Home() {
         </div>
 
         {/* Bottom Dock: Tabs */}
-        <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036', border: '1px solid' }}>
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="px-6 overflow-x-auto" style={{ borderBottom: '1px solid #2a3036' }}>
+            <div className="px-6 overflow-x-auto border-b border-border">
               <TabsList className="bg-transparent border-0 p-0 h-12 min-w-max">
-                <TabsTrigger value="summary" className="data-[state=active]:border-b-2 data-[state=active]:border-[#1f6f5b] rounded-none" style={{ color: '#9aa1a9' }}>
+                <TabsTrigger value="summary" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-foreground">
                   Summary
                 </TabsTrigger>
-                <TabsTrigger value="underhood" className="data-[state=active]:border-b-2 data-[state=active]:border-[#1f6f5b] rounded-none" style={{ color: '#9aa1a9' }}>
+                <TabsTrigger value="underhood" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-foreground">
                   Under the Hood
                 </TabsTrigger>
-                <TabsTrigger value="evidence" className="data-[state=active]:border-b-2 data-[state=active]:border-[#1f6f5b] rounded-none" style={{ color: '#9aa1a9' }}>
+                <TabsTrigger value="evidence" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-foreground">
                   Evidence
                 </TabsTrigger>
-                <TabsTrigger value="performance" className="data-[state=active]:border-b-2 data-[state=active]:border-[#1f6f5b] rounded-none" style={{ color: '#9aa1a9' }}>
+                <TabsTrigger value="performance" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-foreground">
                   Performance
                 </TabsTrigger>
-                <TabsTrigger value="drift" className="data-[state=active]:border-b-2 data-[state=active]:border-[#1f6f5b] rounded-none" style={{ color: '#9aa1a9' }}>
+                <TabsTrigger value="drift" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-foreground">
                   Drift
                 </TabsTrigger>
-                <TabsTrigger value="artifacts" className="data-[state=active]:border-b-2 data-[state=active]:border-[#1f6f5b] rounded-none" style={{ color: '#9aa1a9' }}>
+                <TabsTrigger value="artifacts" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-foreground">
                   Artifacts
                 </TabsTrigger>
-                <TabsTrigger value="tests" className="data-[state=active]:border-b-2 data-[state=active]:border-[#1f6f5b] rounded-none" style={{ color: '#9aa1a9' }}>
+                <TabsTrigger value="tests" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-foreground">
                   Tests
                 </TabsTrigger>
               </TabsList>

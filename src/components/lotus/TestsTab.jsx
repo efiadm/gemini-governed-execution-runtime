@@ -19,8 +19,8 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-slate-800">Test Suite</h3>
-          <p className="text-xs text-slate-500 mt-1">TS-01 through TS-05 adversarial tests</p>
+          <h3 className="text-sm font-semibold" style={{ color: '#e6e8eb' }}>Test Suite</h3>
+          <p className="text-xs mt-1" style={{ color: '#9aa1a9' }}>TS-01 through TS-05 adversarial tests</p>
         </div>
         <Button onClick={onRunTestSuite} disabled={isRunning} size="sm">
           {isRunning ? (
@@ -33,27 +33,27 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
       </div>
 
       {results.length === 0 ? (
-        <p className="text-sm text-slate-400 italic text-center py-8">
+        <p className="text-sm italic text-center py-8" style={{ color: '#6f7679' }}>
           No test results yet. Click "Run Test Suite" to execute all tests.
         </p>
       ) : (
-        <div className="border border-slate-200 rounded-lg overflow-hidden">
+        <div className="rounded-lg overflow-hidden" style={{ border: '1px solid #2a3036' }}>
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50">
-                <TableHead className="text-xs font-bold">Test</TableHead>
-                <TableHead className="text-center text-xs font-bold">Baseline</TableHead>
-                <TableHead className="text-center text-xs font-bold">Governed</TableHead>
-                <TableHead className="text-center text-xs font-bold">Hybrid</TableHead>
-                <TableHead className="text-center text-xs font-bold">Attempts</TableHead>
-                <TableHead className="text-center text-xs font-bold">Latency</TableHead>
-                <TableHead className="text-center text-xs font-bold">Actions</TableHead>
+              <TableRow style={{ backgroundColor: '#20262a' }}>
+                <TableHead className="text-xs font-bold" style={{ color: '#e6e8eb' }}>Test</TableHead>
+                <TableHead className="text-center text-xs font-bold" style={{ color: '#e6e8eb' }}>Baseline</TableHead>
+                <TableHead className="text-center text-xs font-bold" style={{ color: '#e6e8eb' }}>Governed</TableHead>
+                <TableHead className="text-center text-xs font-bold" style={{ color: '#e6e8eb' }}>Hybrid</TableHead>
+                <TableHead className="text-center text-xs font-bold" style={{ color: '#e6e8eb' }}>Attempts</TableHead>
+                <TableHead className="text-center text-xs font-bold" style={{ color: '#e6e8eb' }}>Latency</TableHead>
+                <TableHead className="text-center text-xs font-bold" style={{ color: '#e6e8eb' }}>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {results.map((test) => (
-                <TableRow key={test.id} className={currentTestId === test.id && isRunning ? "bg-blue-50" : ""}>
-                  <TableCell className="text-xs font-medium">{test.name}</TableCell>
+                <TableRow key={test.id} style={{ backgroundColor: currentTestId === test.id && isRunning ? 'rgba(46, 139, 117, 0.08)' : 'transparent' }}>
+                  <TableCell className="text-xs font-medium" style={{ color: '#e6e8eb' }}>{test.name}</TableCell>
                   <TableCell className="text-center">
                     {test.baselineResult === "pass" ? (
                       <CheckCircle2 className="w-4 h-4 text-green-600 mx-auto" />
@@ -87,8 +87,8 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
                       <span className="text-slate-300">—</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-center text-xs font-mono">{test.attempts || "—"}</TableCell>
-                  <TableCell className="text-center text-xs font-mono">{test.latency_ms || "—"}ms</TableCell>
+                  <TableCell className="text-center text-xs font-mono" style={{ color: '#e6e8eb' }}>{test.attempts || "—"}</TableCell>
+                  <TableCell className="text-center text-xs font-mono" style={{ color: '#e6e8eb' }}>{test.latency_ms || "—"}ms</TableCell>
                   <TableCell className="text-center">
                     {test.governedResult && (
                       <Button variant="ghost" size="sm" onClick={() => handleView(test)} className="h-7">

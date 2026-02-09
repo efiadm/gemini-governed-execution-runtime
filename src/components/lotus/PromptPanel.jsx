@@ -74,8 +74,8 @@ export default function PromptPanel({
                   disabled={disabled}
                   className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                     mode === m 
-                      ? 'bg-accent text-accent-foreground' 
-                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                      ? 'bg-primary text-primary-foreground shadow-[0_0_0_2px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] ring-2 ring-primary/50 ring-offset-2 ring-offset-background' 
+                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm'
                   }`}
                 >
                   {m.charAt(0).toUpperCase() + m.slice(1)}
@@ -94,8 +94,8 @@ export default function PromptPanel({
                   disabled={disabled}
                   className={`flex-1 px-3 py-2 text-xs font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                     grounding === g 
-                      ? 'bg-muted text-foreground' 
-                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                      ? 'bg-primary text-primary-foreground shadow-[0_0_0_2px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] ring-2 ring-primary/50 ring-offset-2 ring-offset-background' 
+                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm'
                   }`}
                 >
                   {g.charAt(0).toUpperCase() + g.slice(1)}

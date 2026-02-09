@@ -59,6 +59,15 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
 
   return (
     <div className="space-y-3">
+      {/* Grounding Disclaimer */}
+      {evidence?.grounding === "off" && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <p className="text-xs text-amber-800">
+            <span className="font-semibold">Note:</span> Grounding is off. Panel content depends on base model capabilities only. External sources and verified facts unavailable.
+          </p>
+        </div>
+      )}
+
       {/* PANE A: ANSWER */}
       <Card className="border-slate-200 shadow-sm">
         <CardHeader className="pb-3">

@@ -17,7 +17,7 @@ export default function SummaryTab() {
   if (!runState.run_id) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-sm italic" style={{ color: '#6f7679' }}>No runs yet. Execute a prompt to see summary.</p>
+        <p className="text-sm italic" style={{ color: '#8ea597' }}>No runs yet. Execute a prompt to see summary.</p>
       </div>
     );
   }
@@ -48,22 +48,22 @@ export default function SummaryTab() {
     <div className="space-y-6">
       {/* Lane Comparison Table - only show if multiple lanes have data */}
       {lanesWithData >= 2 && (
-        <Card style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
+        <Card style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold" style={{ color: '#e6e8eb' }}>Lane Comparison</CardTitle>
+            <CardTitle className="text-sm font-semibold" style={{ color: '#e7f0ea' }}>Lane Comparison</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <div className="min-w-[500px]">
                 <div className="grid grid-cols-4 gap-2 text-xs">
-                  <div className="font-semibold" style={{ color: '#9aa1a9' }}>Metric</div>
+                  <div className="font-semibold" style={{ color: '#8ea597' }}>Metric</div>
                   {lanes.map(lane => (
-                    <div key={lane} className="font-semibold text-center p-2 rounded" style={{ backgroundColor: '#20262a', color: '#e6e8eb' }}>
+                    <div key={lane} className="font-semibold text-center p-2 rounded" style={{ backgroundColor: '#131b16', color: '#e7f0ea' }}>
                       {lane.charAt(0).toUpperCase() + lane.slice(1)}
                     </div>
                   ))}
               
-              <div className="py-2" style={{ color: '#9aa1a9' }}>Tokens (billable)</div>
+              <div className="py-2" style={{ color: '#8ea597' }}>Tokens (billable)</div>
               {lanes.map(lane => (
                 <div key={lane} className="text-center font-mono py-2">
                   {performance?.[lane]?.total_model_tokens || "—"}
@@ -118,31 +118,31 @@ export default function SummaryTab() {
           </CardContent>
         </Card>
 
-        <Card style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
+        <Card style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#9aa1a9' }}>Validation</CardTitle>
+            <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#8ea597' }}>Validation</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center gap-2">
               {validation.passed ? (
-                <CheckCircle2 className="w-5 h-5" style={{ color: '#1f6f5b' }} />
+                <CheckCircle2 className="w-5 h-5" style={{ color: '#3bd18a' }} />
               ) : validation.passed === null ? (
-                <span className="text-xs" style={{ color: '#6f7679' }}>N/A (Baseline)</span>
+                <span className="text-xs" style={{ color: '#8ea597' }}>N/A (Baseline)</span>
               ) : (
-                <XCircle className="w-5 h-5" style={{ color: '#c85a54' }} />
+                <XCircle className="w-5 h-5" style={{ color: '#f26b6b' }} />
               )}
-              <span className="text-sm font-medium" style={{ color: '#e6e8eb' }}>
+              <span className="text-sm font-medium" style={{ color: '#e7f0ea' }}>
                 {validation.passed ? "Passed" : validation.passed === null ? "Not Applicable" : "Failed"}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
-                <span style={{ color: '#9aa1a9' }}>Attempts:</span>
-                <p className="font-bold" style={{ color: '#e6e8eb' }}>{validation.attempts}</p>
+                <span style={{ color: '#8ea597' }}>Attempts:</span>
+                <p className="font-bold" style={{ color: '#e7f0ea' }}>{validation.attempts}</p>
               </div>
               <div>
-                <span style={{ color: '#9aa1a9' }}>Repairs:</span>
-                <p className="font-bold" style={{ color: '#e6e8eb' }}>{validation.repairs}</p>
+                <span style={{ color: '#8ea597' }}>Repairs:</span>
+                <p className="font-bold" style={{ color: '#e7f0ea' }}>{validation.repairs}</p>
               </div>
             </div>
             {validation.errors && validation.errors.length > 0 && (
@@ -193,9 +193,9 @@ export default function SummaryTab() {
       </div>
 
       {runState.artifacts && runState.artifacts.length > 0 && (
-        <Card style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
+        <Card style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#9aa1a9' }}>Recent Artifacts</CardTitle>
+            <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#8ea597' }}>Recent Artifacts</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex gap-2 flex-wrap">

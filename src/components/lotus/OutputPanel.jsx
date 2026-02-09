@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileJson, FileText, Copy, ChevronDown, ChevronRight, X } from "lucide-react";
+import { FileJson, FileText, Copy, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
 function RenderedSection({ title, items, icon: Icon }) {
@@ -10,12 +10,12 @@ function RenderedSection({ title, items, icon: Icon }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        {Icon && <Icon className="w-4 h-4" style={{ color: '#9aa1a9' }} />}
-        <h4 className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#e6e8eb' }}>{title}</h4>
+        {Icon && <Icon className="w-4 h-4 text-slate-500" />}
+        <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">{title}</h4>
       </div>
       <ul className="space-y-1">
         {items.map((item, i) => (
-          <li key={i} className="text-sm leading-relaxed pl-4 border-l-2" style={{ color: '#9aa1a9', borderColor: '#2a3036' }}>
+          <li key={i} className="text-sm text-slate-700 leading-relaxed pl-4 border-l-2 border-slate-200">
             {item}
           </li>
         ))}
@@ -24,19 +24,9 @@ function RenderedSection({ title, items, icon: Icon }) {
   );
 }
 
-export default function OutputPanel({ output, evidence, mode, isRunning, showTelemetry: showTelemetryProp = true }) {
+export default function OutputPanel({ output, evidence, mode, isRunning, showTelemetry = true }) {
   const [view, setView] = useState("rendered");
   const [showExecutionTrace, setShowExecutionTrace] = useState(false);
-  const [showTelemetry, setShowTelemetry] = useState(showTelemetryProp);
-  
-  React.useEffect(() => {
-    // Auto-collapse telemetry on mobile
-    if (typeof window !== "undefined" && window.innerWidth < 768) {
-      setShowTelemetry(false);
-    } else {
-      setShowTelemetry(showTelemetryProp);
-    }
-  }, [showTelemetryProp]);
 
   const handleCopy = () => {
     const text = view === "raw" ? JSON.stringify(output, null, 2) : JSON.stringify(output);
@@ -46,11 +36,11 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
 
   if (isRunning) {
     return (
-      <Card className="h-full surface">
+      <Card className="border-slate-200 shadow-sm h-full">
         <CardContent className="flex items-center justify-center min-h-[400px]">
           <div className="text-center space-y-3">
-            <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-sm text-muted-foreground">Processing...</p>
+            <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-sm text-slate-500">Processing...</p>
           </div>
         </CardContent>
       </Card>
@@ -59,9 +49,9 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
 
   if (!output) {
     return (
-      <Card className="h-full surface">
+      <Card className="border-slate-200 shadow-sm h-full">
         <CardContent className="flex items-center justify-center min-h-[400px]">
-          <p className="text-sm italic text-muted-foreground">No output yet. Run a prompt to see results.</p>
+          <p className="text-sm text-slate-400 italic">No output yet. Run a prompt to see results.</p>
         </CardContent>
       </Card>
     );
@@ -70,13 +60,13 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
   return (
     <div className="space-y-3">
       {/* PANE A: ANSWER */}
-      <Card className="surface">
+      <Card className="border-slate-200 shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-semibold text-card-foreground">Answer</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-700">Answer</CardTitle>
             <div className="flex items-center gap-2">
               {evidence?.safe_mode_applied && (
-                <Badge variant="secondary" className="text-xs">Safe Mode</Badge>
+                <Badge className="bg-amber-100 text-amber-800 text-xs">Safe Mode</Badge>
               )}
               <Button variant="ghost" size="sm" onClick={handleCopy} className="h-7">
                 <Copy className="w-3 h-3" />
@@ -88,66 +78,27 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
           {view === "rendered" && mode !== "baseline" && typeof output === "object" ? (
             <RenderedSection title="Answer" items={output.canonical_answer} />
           ) : (
-            <pre className="text-xs p-4 rounded-lg overflow-auto font-mono bg-background text-foreground border border-border">
+            <pre className="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-auto font-mono">
               {typeof output === "string" ? output : JSON.stringify(output, null, 2)}
             </pre>
           )}
         </CardContent>
       </Card>
 
-      {/* PANE B: EXECUTION TRACE (Collapsible, non-blocking) */}
-      {showTelemetry && evidence?.attemptDetails && (
-        <Card className="surface">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <button
-                onClick={() => setShowExecutionTrace(!showExecutionTrace)}
-                className="flex items-center gap-2 text-sm font-semibold text-card-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {showExecutionTrace ? (
-                  <ChevronDown className="w-4 h-4" />
-                ) : (
-                  <ChevronRight className="w-4 h-4" />
-                )}
-                Execution Trace
-              </button>
-              <Button variant="ghost" size="sm" onClick={() => setShowTelemetry(false)} className="h-6 w-6 p-0">
-                <X className="w-3 h-3" />
-              </Button>
-            </div>
-          </CardHeader>
-          {showExecutionTrace && (
-            <CardContent className="max-h-[200px] overflow-y-auto">
-              <div className="space-y-1 text-[10px] text-muted-foreground font-mono">
-                {evidence.attemptDetails.map((att, idx) => (
-                  <div key={idx} className="flex justify-between items-center py-1 border-b border-border/50">
-                    <span>Attempt {att.attempt} ({att.kind}):</span>
-                    <span>
-                      💵 {Math.round(att.model_ms)}ms • ⚙️ {Math.round(att.local_ms)}ms
-                      {att.ok ? " ✓" : " ✗"}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          )}
-        </Card>
-      )}
-      
-      {/* PANE C: OUTPUT DETAILS (Collapsible) */}
+      {/* PANE B: EXECUTION TRACE (Collapsible) */}
       {showTelemetry && (
-        <Card className="surface">
+        <Card className="border-slate-200 shadow-sm">
           <CardHeader className="pb-2">
             <button
               onClick={() => setShowExecutionTrace(!showExecutionTrace)}
-              className="flex items-center gap-2 text-sm font-semibold w-full text-card-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 w-full"
             >
               {showExecutionTrace ? (
                 <ChevronDown className="w-4 h-4" />
               ) : (
                 <ChevronRight className="w-4 h-4" />
               )}
-              Output Details
+              Show Execution Trace
             </button>
           </CardHeader>
           {showExecutionTrace && (
@@ -165,13 +116,13 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
                   <RenderedSection title="Next Steps" items={output.next_steps} />
                   {output.sources && (
                     <div className="space-y-2">
-                      <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Sources</h4>
-                      <p className="text-xs text-muted-foreground">{output.sources.note}</p>
+                      <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Sources</h4>
+                      <p className="text-xs text-slate-600">{output.sources.note}</p>
                       {output.sources.items && output.sources.items.length > 0 && (
                         <ul className="space-y-1">
                           {output.sources.items.map((src, i) => (
-                            <li key={i} className="text-xs text-muted-foreground">
-                              • {src.title} {src.url && <a href={src.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">↗</a>}
+                            <li key={i} className="text-xs text-slate-600">
+                              • {src.title} {src.url && <a href={src.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">↗</a>}
                             </li>
                           ))}
                         </ul>
@@ -180,7 +131,11 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
                   )}
                   {output.risk && (
                     <div className="flex items-center gap-2">
-                      <Badge variant={output.risk.level === "high" ? "destructive" : "secondary"} className="text-xs">
+                      <Badge className={`text-xs ${
+                        output.risk.level === "high" ? "bg-red-100 text-red-800" :
+                        output.risk.level === "medium" ? "bg-amber-100 text-amber-800" :
+                        "bg-green-100 text-green-800"
+                      }`}>
                         Risk: {output.risk.level}
                       </Badge>
                     </div>

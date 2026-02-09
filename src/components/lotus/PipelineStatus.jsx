@@ -35,8 +35,8 @@ export default function PipelineStatus({ stage, safeModeApplied, validationPasse
         {stages.map((s, idx) => {
           const status = getStageStatus(s.key);
           return (
-            <div key={s.key} className="flex items-center gap-1.5 flex-wrap" title={s.tooltip}>
-              <div className="flex items-center gap-1.5">
+            <React.Fragment key={s.key}>
+              <div className="flex items-center gap-1.5 flex-wrap" title={s.tooltip}>
                 {status === "complete" && <CheckCircle2 className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />}
                 {status === "active" && <Circle className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />}
                 {status === "contained" && <CheckCircle2 className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />}
@@ -51,7 +51,7 @@ export default function PipelineStatus({ stage, safeModeApplied, validationPasse
                 </span>
               </div>
               {idx < stages.length - 1 && <span className="text-slate-400 flex-shrink-0">→</span>}
-            </div>
+            </React.Fragment>
           );
         })}
       </div>

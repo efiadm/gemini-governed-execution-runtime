@@ -25,7 +25,7 @@ export default function ProgressStepper({ step, timestamps }) {
             const isPending = index > currentIndex && step !== "complete";
 
             return (
-              <div key={s.key} className="flex items-center">
+              <React.Fragment key={s.key}>
                 <div className="flex items-center gap-2">
                   {isComplete ? (
                     <CheckCircle2 className="w-5 h-5 text-emerald-600" />
@@ -47,7 +47,7 @@ export default function ProgressStepper({ step, timestamps }) {
                 {index < currentSteps.length - 1 && (
                   <div className={`flex-1 h-0.5 mx-3 ${isComplete ? "bg-emerald-300" : "bg-slate-200"}`} />
                 )}
-              </div>
+              </React.Fragment>
             );
           })}
         </div>

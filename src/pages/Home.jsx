@@ -16,7 +16,6 @@ import UnderTheHoodPanel from "@/components/lotus/UnderTheHoodPanel";
 import TruncationWidget from "@/components/lotus/TruncationWidget";
 import ProgressStepper from "@/components/lotus/ProgressStepper";
 import SummaryTab from "@/components/lotus/SummaryTab";
-import SettingsPanel from "@/components/lotus/SettingsPanel";
 
 
 
@@ -24,7 +23,7 @@ import { runBaseline, runGoverned, runHybrid } from "@/components/lotus/runtimeE
 import { runAuditPipeline } from "@/components/lotus/auditPipeline";
 import { getSettings } from "@/components/lotus/settingsStore";
 import { TEST_SUITE, runTestSuite } from "@/components/lotus/testSuite";
-import { calculateMetrics, calculateTruncationRisk, buildNormalizedPerformance } from "@/components/lotus/metricsEngine";
+import { calculateMetrics, calculateTruncationRisk } from "@/components/lotus/metricsEngine";
 import { generateRequestId } from "@/components/lotus/utils";
 import { getStoredModel, setStoredModel } from "@/components/lotus/modelsRegistry";
 import { PRESET_PROMPTS } from "@/components/lotus/presets";
@@ -104,13 +103,11 @@ export default function Home() {
         result = await runHybrid(prompt, grounding, model, onProgress, settings);
       }
       
-      // Execution complete - use normalized performance from runtime
-      const performance = result.performance || buildNormalizedPerformance(result.evidence, result.rawOutput, prompt, runMode, model, grounding);
-      const metrics = calculateMetrics(result.evidence, result.rawOutput, prompt, runMode);
-      
-      // Update UI immediately
+      // Execution complete - update UI immediately
       setCurrentOutput(result.output);
       setCurrentEvidence(result.evidence);
+
+      const metrics = calculateMetrics(result.evidence, result.rawOutput, prompt, runMode);
       setAllModeMetrics(prev => ({ ...prev, [runMode]: metrics }));
       
       if (runMode === "baseline") {
@@ -163,35 +160,21 @@ export default function Home() {
         artifacts: getRunState().artifacts || [],
       };
 
-      // Compute drift and hallucination telemetry (Plane B work, already completed)
+      // Compute drift and hallucination telemetry
       const drift = computeDriftTelemetry(runRecord, evidenceHistory.current.map(h => h.evidence));
       const hallucination = computeHallucinationTelemetry(runRecord);
 
       runRecord.drift = drift;
       runRecord.hallucination = hallucination;
 
-      // Populate ALL tab data immediately (eagerly, no lazy loading)
-      const tabData = {
-        summary: { metrics, evidence: result.evidence, performance },
-        performance: { allModeMetrics: { ...allModeMetrics, [runMode]: metrics }, baselineMetrics: baselineRef.current, performance },
-        drift,
-        hallucination,
-        evidence: result.evidence,
-        artifacts: getRunState().artifacts || [],
-      };
-      
-      runRecord.tabData = tabData;
-      runRecord.performance = performance;
-
       // Add to history
       addToRunHistory(runRecord);
 
-      // Update global run store with all data
+      // Update global run store
       updateRunState({
         ...runRecord,
         drift,
         hallucination,
-        tabData,
       });
 
       await base44.entities.GovernanceRun.create({
@@ -238,8 +221,18 @@ export default function Home() {
       
       setTestResults(results);
       
-      // Don't aggregate test metrics - they have different structure
-      // PerformanceTab expects single-run metrics, not aggregated test metrics
+      const allMetrics = { baseline: {}, governed: {}, hybrid: {} };
+      results.forEach(r => {
+        ["baseline", "governed", "hybrid"].forEach(m => {
+          if (r[`${m}Metrics`]) {
+            Object.keys(r[`${m}Metrics`]).forEach(key => {
+              allMetrics[m][key] = (allMetrics[m][key] || 0) + r[`${m}Metrics`][key];
+            });
+          }
+        });
+      });
+      
+      setAllModeMetrics(allMetrics);
       toast.success("Test suite complete");
     } catch (err) {
       toast.error(`Test suite error: ${err.message}`);
@@ -273,22 +266,21 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="sticky top-0 z-50 surface border-b border-border">
+      <header className="border-b border-slate-200 bg-white sticky top-0 z-50 shadow-sm">
         <div className="max-w-[1800px] mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground text-xs font-bold">G3</span>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center">
+                <span className="text-white text-xs font-bold">G3</span>
               </div>
               <div>
-                <h1 className="text-base font-bold text-foreground">Gemini 3 Governed Execution</h1>
-                <p className="text-[10px] text-muted-foreground">Knowledge → Governance → Experience → Understanding → Reliable Output</p>
+                <h1 className="text-base font-bold text-slate-900">Gemini 3 Governed Execution</h1>
+                <p className="text-[10px] text-slate-500">Knowledge → Governance → Experience → Understanding → Reliable Output</p>
               </div>
               </div>
               <div className="flex items-center gap-2">
-              <SettingsPanel />
               <Button
                 variant="ghost"
                 size="sm"
@@ -349,29 +341,29 @@ export default function Home() {
         </div>
 
         {/* Bottom Dock: Tabs */}
-        <div className="surface-elevated overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="px-6 overflow-x-auto border-b border-border">
+            <div className="border-b border-slate-200 px-6 overflow-x-auto">
               <TabsList className="bg-transparent border-0 p-0 h-12 min-w-max">
-                <TabsTrigger value="summary" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-foreground">
+                <TabsTrigger value="summary" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
                   Summary
                 </TabsTrigger>
-                <TabsTrigger value="underhood" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-foreground">
+                <TabsTrigger value="underhood" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
                   Under the Hood
                 </TabsTrigger>
-                <TabsTrigger value="evidence" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-foreground">
+                <TabsTrigger value="evidence" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
                   Evidence
                 </TabsTrigger>
-                <TabsTrigger value="performance" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-foreground">
+                <TabsTrigger value="performance" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
                   Performance
                 </TabsTrigger>
-                <TabsTrigger value="drift" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-foreground">
+                <TabsTrigger value="drift" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
                   Drift
                 </TabsTrigger>
-                <TabsTrigger value="artifacts" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-foreground">
+                <TabsTrigger value="artifacts" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
                   Artifacts
                 </TabsTrigger>
-                <TabsTrigger value="tests" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-foreground">
+                <TabsTrigger value="tests" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
                   Tests
                 </TabsTrigger>
               </TabsList>

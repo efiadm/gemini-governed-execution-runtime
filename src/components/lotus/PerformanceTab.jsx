@@ -9,7 +9,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
   const [showOnlyBillable, setShowOnlyBillable] = useState(false);
 
   if (!allModeMetrics || Object.keys(allModeMetrics).length === 0) {
-    return <p className="text-sm italic" style={{ color: '#8ea597' }}>No performance data yet. Run tests to see metrics.</p>;
+    return <p className="text-sm text-slate-400 italic">No performance data yet. Run tests to see metrics.</p>;
   }
 
   const { baseline, governed, hybrid } = allModeMetrics;
@@ -40,11 +40,11 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
     
     return (
       <TableRow>
-        <TableCell className="text-xs font-medium" style={{ color: '#e6e8eb' }}>
+        <TableCell className="text-xs font-medium text-slate-700">
           {label}
           {isBillable && <Badge className="ml-2 bg-red-100 text-red-700 text-[9px]">Billable</Badge>}
         </TableCell>
-        <TableCell className="text-center text-xs font-mono" style={{ color: '#e6e8eb' }}>{baseVal || "—"}{unit}</TableCell>
+        <TableCell className="text-center text-xs font-mono">{baseVal || "—"}{unit}</TableCell>
         <TableCell className="text-center text-xs">
           <div className="flex items-center justify-center gap-1">
             <span className="font-mono">{govVal || "—"}{unit}</span>
@@ -77,20 +77,20 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
     <div className="mb-6">
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h3 className="text-sm font-semibold" style={{ color: '#e7f0ea' }}>{title}</h3>
-          <p className="text-xs mt-0.5" style={{ color: '#8ea597' }}>{subtitle}</p>
+          <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
+          <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
         </div>
       </div>
       <div className="overflow-x-auto">
         <div className="min-w-[700px]">
-          <div className="rounded-lg overflow-hidden" style={{ border: '1px solid rgba(231, 240, 234, 0.10)' }}>
+          <div className="border border-slate-200 rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow style={{ backgroundColor: 'linear-gradient(180deg, rgba(19,27,22,0.95), rgba(15,21,18,0.95))' }}>
-                  <TableHead className="text-xs font-bold" style={{ color: '#c7d6cc' }}>Metric</TableHead>
-                  <TableHead className="text-center text-xs font-bold" style={{ color: '#c7d6cc' }}>Baseline</TableHead>
-                  <TableHead className="text-center text-xs font-bold" style={{ color: '#c7d6cc' }}>Governed</TableHead>
-                  <TableHead className="text-center text-xs font-bold" style={{ color: '#c7d6cc' }}>Hybrid</TableHead>
+                <TableRow className={bgColor}>
+                  <TableHead className="text-xs font-bold">Metric</TableHead>
+                  <TableHead className="text-center text-xs font-bold">Baseline</TableHead>
+                  <TableHead className="text-center text-xs font-bold">Governed</TableHead>
+                  <TableHead className="text-center text-xs font-bold">Hybrid</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{rows}</TableBody>
@@ -155,11 +155,11 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg p-4 mb-6" style={{ backgroundColor: 'rgba(45, 179, 122, 0.08)', borderLeft: '4px solid #2db37a' }}>
-        <h2 className="text-base font-bold mb-1" style={{ color: '#e7f0ea' }}>Execution vs Reliability Tradeoffs</h2>
-        <p className="text-xs" style={{ color: '#8ea597' }}>
+      <div className="bg-gradient-to-r from-violet-50 to-indigo-50 border-l-4 border-violet-600 rounded-lg p-4 mb-6">
+        <h2 className="text-base font-bold text-slate-900 mb-1">Execution vs Reliability Tradeoffs</h2>
+        <p className="text-xs text-slate-600">
           <strong>Plane A (Execution):</strong> Base generation cost. <strong>Plane B (Diagnostics):</strong> Optional validation overhead. <strong>Plane C (Repairs):</strong> Conditional recovery cost. 
-          <span className="block mt-1 font-semibold" style={{ color: '#2db37a' }}>Governance increases base execution cost but reduces downstream reliability and recovery costs by preventing invalid or unstable outputs.</span>
+          <span className="block mt-1 text-violet-700 font-semibold">Governance increases base execution cost but reduces downstream reliability and recovery costs by preventing invalid or unstable outputs.</span>
         </p>
       </div>
 
@@ -184,13 +184,13 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
         bgColor="bg-amber-50"
       />
 
-      <Card style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
+      <Card className="border-blue-200 bg-blue-50">
         <CardContent className="py-4">
-          <h3 className="text-sm font-bold mb-3" style={{ color: '#e7f0ea' }}>Conditional Activation Model</h3>
-          <p className="text-xs mb-3" style={{ color: '#8ea597' }}>
+          <h3 className="text-sm font-bold text-slate-800 mb-3">Conditional Activation Model</h3>
+          <p className="text-xs text-slate-700 mb-3">
             <strong>Plane C (Repairs) activates only on validation failure.</strong> When validation passes on first attempt, governed and hybrid modes incur Plane A + Plane B costs only — comparable to baseline with added contract guarantees and auditability.
           </p>
-          <ul className="space-y-2 text-xs" style={{ color: '#8ea597' }}>
+          <ul className="space-y-2 text-xs text-slate-700">
             <li>• <strong>Best case (validation passes):</strong> Plane A (base execution) + Plane B (runtime validation) — no repairs triggered</li>
             <li>• <strong>Recovery case (validation fails):</strong> Plane C activates — extra model calls until contract satisfied or safe mode applied</li>
             <li>• <strong>Safe Mode containment:</strong> When contract remains unsatisfiable after repairs, output is withheld — correct governance outcome</li>

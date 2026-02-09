@@ -44,10 +44,10 @@ export default function ArtifactsTab() {
 
   return (
     <div className="space-y-4">
-      <Card style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
+      <Card style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-semibold" style={{ color: '#e7f0ea' }}>Artifact Store (Runtime-Local)</CardTitle>
+            <CardTitle className="text-sm font-semibold" style={{ color: '#e6e8eb' }}>Artifact Store (Runtime-Local)</CardTitle>
             {artifacts.length > showLimit && !showAll && (
               <Button variant="ghost" size="sm" onClick={() => setShowAll(true)}>
                 Show all ({artifacts.length})
@@ -56,17 +56,17 @@ export default function ArtifactsTab() {
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-xs mb-4" style={{ color: '#8ea597' }}>
+          <p className="text-xs mb-4" style={{ color: '#9aa1a9' }}>
             Runtime artifacts (app logic, non-billable). Hybrid mode uses these to reduce billable model tokens.
           </p>
 
           {artifacts.length > 0 && (
             <div className="flex gap-2 mb-4">
               <Select value={filterMode} onValueChange={setFilterMode}>
-                <SelectTrigger className="w-32 h-8 text-xs" style={{ backgroundColor: 'rgba(11, 15, 13, 0.95)', borderColor: 'rgba(231,240,234,0.18)', color: '#e7f0ea' }}>
+                <SelectTrigger className="w-32 h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 10px 30px rgba(0,0,0,0.45)' }}>
+                <SelectContent>
                   <SelectItem value="all">All Modes</SelectItem>
                   <SelectItem value="baseline">Baseline</SelectItem>
                   <SelectItem value="governed">Governed</SelectItem>
@@ -75,10 +75,10 @@ export default function ArtifactsTab() {
               </Select>
 
               <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="w-32 h-8 text-xs" style={{ backgroundColor: 'rgba(11, 15, 13, 0.95)', borderColor: 'rgba(231,240,234,0.18)', color: '#e7f0ea' }}>
+                <SelectTrigger className="w-32 h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 10px 30px rgba(0,0,0,0.45)' }}>
+                <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
                   {uniqueTypes.map(type => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
@@ -89,7 +89,7 @@ export default function ArtifactsTab() {
           )}
 
           {displayedArtifacts.length === 0 ? (
-            <p className="text-sm italic text-center py-8" style={{ color: '#8ea597' }}>
+            <p className="text-sm italic text-center py-8" style={{ color: '#6f7679' }}>
               {artifacts.length === 0 ? "No artifacts yet. Run Governed or Hybrid mode." : "No artifacts match filters."}
             </p>
           ) : (
@@ -97,18 +97,18 @@ export default function ArtifactsTab() {
               {displayedArtifacts.map((art, i) => {
                 const Icon = getIcon(art.type);
                 return (
-                  <div key={i} className="flex items-start gap-3 p-3 rounded-lg" style={{ backgroundColor: '#131b16', border: '1px solid rgba(231, 240, 234, 0.10)' }}>
-                    <Icon className="w-4 h-4 mt-0.5" style={{ color: '#8ea597' }} />
+                  <div key={i} className="flex items-start gap-3 p-3 rounded-lg" style={{ backgroundColor: '#20262a', border: '1px solid #2a3036' }}>
+                    <Icon className="w-4 h-4 mt-0.5" style={{ color: '#9aa1a9' }} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="text-xs font-medium" style={{ color: '#e7f0ea' }}>{art.type}</p>
-                        {art.mode && <Badge variant="outline" className="text-[10px]" style={{ backgroundColor: 'rgba(231,240,234,0.08)', color: '#e7f0ea', borderColor: 'rgba(231, 240, 234, 0.14)' }}>{art.mode}</Badge>}
+                        <p className="text-xs font-medium" style={{ color: '#e6e8eb' }}>{art.type}</p>
+                        {art.mode && <Badge variant="outline" className="text-[10px]">{art.mode}</Badge>}
                       </div>
-                      <p className="text-xs mt-1" style={{ color: '#8ea597' }}>
+                      <p className="text-xs mt-1" style={{ color: '#9aa1a9' }}>
                         {art.content || art.header || art.reason || JSON.stringify(art).substring(0, 60)}
                       </p>
                       {art.tokens_saved > 0 && (
-                        <p className="text-xs mt-1" style={{ color: '#2db37a' }}>Tokens saved: ~{art.tokens_saved}</p>
+                        <p className="text-xs mt-1" style={{ color: '#1f6f5b' }}>Tokens saved: ~{art.tokens_saved}</p>
                       )}
                     </div>
                   </div>

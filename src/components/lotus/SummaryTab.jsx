@@ -17,7 +17,7 @@ export default function SummaryTab() {
   if (!runState.run_id) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-sm italic" style={{ color: '#8ea597' }}>No runs yet. Execute a prompt to see summary.</p>
+        <p className="text-sm text-slate-400 italic">No runs yet. Execute a prompt to see summary.</p>
       </div>
     );
   }
@@ -48,45 +48,45 @@ export default function SummaryTab() {
     <div className="space-y-6">
       {/* Lane Comparison Table - only show if multiple lanes have data */}
       {lanesWithData >= 2 && (
-        <Card style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
+        <Card className="border-slate-200">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold" style={{ color: '#e7f0ea' }}>Lane Comparison</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-700">Lane Comparison</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <div className="min-w-[500px]">
                 <div className="grid grid-cols-4 gap-2 text-xs">
-                  <div className="font-semibold" style={{ color: '#8ea597' }}>Metric</div>
+                  <div className="font-semibold text-slate-600">Metric</div>
                   {lanes.map(lane => (
-                    <div key={lane} className="font-semibold text-center p-2 rounded" style={{ backgroundColor: '#131b16', color: '#e7f0ea' }}>
+                    <div key={lane} className={`font-semibold text-slate-700 text-center p-2 rounded ${laneColors[lane]}`}>
                       {lane.charAt(0).toUpperCase() + lane.slice(1)}
                     </div>
                   ))}
               
-              <div className="py-2" style={{ color: '#8ea597' }}>Tokens (billable)</div>
+              <div className="text-slate-600 py-2">Tokens (billable)</div>
               {lanes.map(lane => (
-                <div key={lane} className="text-center font-mono py-2" style={{ color: '#e7f0ea' }}>
+                <div key={lane} className="text-center font-mono py-2">
                   {performance?.[lane]?.total_model_tokens || "—"}
                 </div>
               ))}
               
-              <div className="py-2" style={{ color: '#8ea597' }}>Model Time (billable)</div>
+              <div className="text-slate-600 py-2">Model Time (billable)</div>
               {lanes.map(lane => (
-                <div key={lane} className="text-center font-mono py-2" style={{ color: '#e7f0ea' }}>
+                <div key={lane} className="text-center font-mono py-2">
                   {performance?.[lane]?.total_model_latency_ms || "—"}ms
                 </div>
               ))}
               
-              <div className="py-2" style={{ color: '#8ea597' }}>Runtime-local</div>
+              <div className="text-slate-600 py-2">Runtime-local</div>
               {lanes.map(lane => (
-                <div key={lane} className="text-center font-mono py-2" style={{ color: '#e7f0ea' }}>
+                <div key={lane} className="text-center font-mono py-2">
                   {performance?.[lane]?.total_local_latency_ms || "—"}ms
                 </div>
               ))}
               
-              <div className="py-2" style={{ color: '#8ea597' }}>Repairs</div>
+              <div className="text-slate-600 py-2">Repairs</div>
               {lanes.map(lane => (
-                <div key={lane} className="text-center font-mono py-2" style={{ color: '#e7f0ea' }}>
+                <div key={lane} className="text-center font-mono py-2">
                   {validation?.repairs || 0}
                 </div>
               ))}
@@ -98,55 +98,55 @@ export default function SummaryTab() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
+        <Card className="border-slate-200">
           <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#8ea597' }}>Run Info</CardTitle>
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Run Info</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="flex justify-between text-xs">
-              <span style={{ color: '#8ea597' }}>Mode:</span>
-              <Badge variant="secondary" style={{ backgroundColor: 'rgba(231,240,234,0.08)', color: '#e7f0ea', borderColor: 'rgba(231, 240, 234, 0.14)' }}>{mode}</Badge>
+              <span className="text-slate-600">Mode:</span>
+              <Badge variant="secondary">{mode}</Badge>
             </div>
             <div className="flex justify-between text-xs">
-              <span style={{ color: '#8ea597' }}>Model:</span>
-              <span className="font-mono" style={{ color: '#e7f0ea' }}>{model}</span>
+              <span className="text-slate-600">Model:</span>
+              <span className="font-mono text-slate-800">{model}</span>
             </div>
             <div className="flex justify-between text-xs">
-              <span style={{ color: '#8ea597' }}>Grounding:</span>
-              <Badge variant="outline" style={{ backgroundColor: 'rgba(231,240,234,0.08)', color: '#e7f0ea', borderColor: 'rgba(231, 240, 234, 0.14)' }}>{grounding}</Badge>
+              <span className="text-slate-600">Grounding:</span>
+              <Badge variant="outline">{grounding}</Badge>
             </div>
           </CardContent>
         </Card>
 
-        <Card style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
+        <Card className="border-slate-200">
           <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#8ea597' }}>Validation</CardTitle>
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Validation</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center gap-2">
               {validation.passed ? (
-                <CheckCircle2 className="w-5 h-5" style={{ color: '#3bd18a' }} />
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
               ) : validation.passed === null ? (
-                <span className="text-xs" style={{ color: '#8ea597' }}>N/A (Baseline)</span>
+                <span className="text-xs text-slate-400">N/A (Baseline)</span>
               ) : (
-                <XCircle className="w-5 h-5" style={{ color: '#f26b6b' }} />
+                <XCircle className="w-5 h-5 text-red-500" />
               )}
-              <span className="text-sm font-medium" style={{ color: '#e7f0ea' }}>
+              <span className="text-sm font-medium text-slate-700">
                 {validation.passed ? "Passed" : validation.passed === null ? "Not Applicable" : "Failed"}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
-                <span style={{ color: '#8ea597' }}>Attempts:</span>
-                <p className="font-bold" style={{ color: '#e7f0ea' }}>{validation.attempts}</p>
+                <span className="text-slate-600">Attempts:</span>
+                <p className="font-bold text-slate-900">{validation.attempts}</p>
               </div>
               <div>
-                <span style={{ color: '#8ea597' }}>Repairs:</span>
-                <p className="font-bold" style={{ color: '#e7f0ea' }}>{validation.repairs}</p>
+                <span className="text-slate-600">Repairs:</span>
+                <p className="font-bold text-slate-900">{validation.repairs}</p>
               </div>
             </div>
             {validation.errors && validation.errors.length > 0 && (
-              <div className="flex items-center gap-1 text-xs" style={{ color: '#f26b6b' }}>
+              <div className="flex items-center gap-1 text-xs text-red-600">
                 <AlertTriangle className="w-3 h-3" />
                 <span>{validation.errors.length} errors</span>
               </div>
@@ -155,34 +155,34 @@ export default function SummaryTab() {
         </Card>
 
         {mode !== "baseline" && validation.repairs > 0 && hasBaseline && (
-          <Card style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
+          <Card className="border-slate-200">
             <CardHeader className="pb-3">
-              <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#8ea597' }}>Conditional Overhead</CardTitle>
+              <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Conditional Overhead</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <p className="text-[10px] mb-3" style={{ color: '#8ea597' }}>Overhead incurs only when validation fails and recovery path activates.</p>
+              <p className="text-[10px] text-slate-500 mb-3">Overhead incurs only when validation fails and recovery path activates.</p>
               <div className="flex justify-between text-xs">
-                <span style={{ color: '#8ea597' }}>Δ Tokens:</span>
+                <span className="text-slate-600">Δ Tokens:</span>
                 <div className="flex items-center gap-1">
                   {getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) > 0 ? (
-                    <ArrowUp className="w-3 h-3" style={{ color: '#f6c453' }} />
+                    <ArrowUp className="w-3 h-3 text-orange-600" />
                   ) : (
-                    <ArrowDown className="w-3 h-3" style={{ color: '#2db37a' }} />
+                    <ArrowDown className="w-3 h-3 text-blue-600" />
                   )}
-                  <span className="font-mono" style={{ color: getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) > 0 ? '#f6c453' : '#2db37a' }}>
+                  <span className={`font-mono ${getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) > 0 ? 'text-orange-600' : 'text-blue-600'}`}>
                     {Math.abs(getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) || 0)}
                   </span>
                 </div>
               </div>
               <div className="flex justify-between text-xs">
-                <span style={{ color: '#8ea597' }}>Δ Latency:</span>
+                <span className="text-slate-600">Δ Latency:</span>
                 <div className="flex items-center gap-1">
                   {getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) > 0 ? (
-                    <ArrowUp className="w-3 h-3" style={{ color: '#f6c453' }} />
+                    <ArrowUp className="w-3 h-3 text-orange-600" />
                   ) : (
-                    <ArrowDown className="w-3 h-3" style={{ color: '#2db37a' }} />
+                    <ArrowDown className="w-3 h-3 text-blue-600" />
                   )}
-                  <span className="font-mono" style={{ color: getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) > 0 ? '#f6c453' : '#2db37a' }}>
+                  <span className={`font-mono ${getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) > 0 ? 'text-orange-600' : 'text-blue-600'}`}>
                     {Math.abs(getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) || 0)}ms
                   </span>
                 </div>
@@ -193,14 +193,14 @@ export default function SummaryTab() {
       </div>
 
       {runState.artifacts && runState.artifacts.length > 0 && (
-        <Card style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
+        <Card className="border-slate-200">
           <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#8ea597' }}>Recent Artifacts</CardTitle>
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Recent Artifacts</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex gap-2 flex-wrap">
               {runState.artifacts.slice(-5).map((art, i) => (
-                <Badge key={i} variant="outline" className="text-xs" style={{ backgroundColor: 'rgba(231,240,234,0.08)', color: '#e7f0ea', borderColor: 'rgba(231, 240, 234, 0.14)' }}>
+                <Badge key={i} variant="outline" className="text-xs">
                   {art.type}
                 </Badge>
               ))}

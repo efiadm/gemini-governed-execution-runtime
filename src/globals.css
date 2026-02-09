@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* ============================================
+     LOTUS / GEMINI GOVERNED UI THEME
+     Hunter Green + Dark Surfaces
+     Competition-Grade Submission
+     ============================================ */
+  
+  .lotus {
+    color-scheme: dark;
+    
+    /* Background surfaces (mapped to LOTUS palette) */
+    --background: 192 8% 5%;           /* bg-1: #0b1010 */
+    --foreground: 0 0% 92%;            /* text-0: rgba(255,255,255,.92) */
+    
+    --card: 180 13% 8%;                /* bg-2: #0f1616 */
+    --card-foreground: 0 0% 92%;       /* text-0 */
+    
+    --popover: 180 15% 10%;            /* bg-3: #141d1d */
+    --popover-foreground: 0 0% 92%;    /* text-0 */
+    
+    --primary: 162 41% 29%;            /* accent: #2d6b57 */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 180 15% 12%;          /* bg-4: #1a2525 */
+    --secondary-foreground: 0 0% 78%;  /* text-1 */
+    
+    --muted: 180 15% 10%;              /* bg-3 */
+    --muted-foreground: 0 0% 62%;      /* text-2 */
+    
+    --accent: 162 45% 35%;             /* accent-2: #3c8a73 */
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 44% 52%;          /* danger: #b84b4b */
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Borders and inputs */
+    --border: 0 0% 100% / 0.08;        /* line-1: rgba(255,255,255,.08) */
+    --input: 0 0% 100% / 0.12;         /* line-2: rgba(255,255,255,.12) */
+    --ring: 162 45% 40%;               /* accent-2 for focus */
+    
+    /* Radius */
+    --radius: 0.75rem;                 /* 12px */
+    
+    /* Chart colors (hunter green shades) */
+    --chart-1: 162 41% 29%;
+    --chart-2: 162 45% 35%;
+    --chart-3: 162 38% 42%;
+    --chart-4: 162 35% 48%;
+    --chart-5: 162 32% 55%;
+    
+    /* Sidebar tokens (if needed) */
+    --sidebar-background: 192 8% 5%;
+    --sidebar-foreground: 0 0% 78%;
+    --sidebar-primary: 162 41% 29%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 162 45% 35%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 100% / 0.08;
+    --sidebar-ring: 162 45% 40%;
+  }
+  
+  /* Force base elements to use theme tokens */
+  .lotus body {
+    @apply bg-background text-foreground;
+  }
+  
+  /* Ensure all surfaces respect tokens */
+  .lotus * {
+    @apply border-border;
+  }
+}
+
+@layer base {
+  /* Global resets and accessibility */
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Focus-visible ring (accessibility) */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+  
+  /* Disabled state standardization */
+  *:disabled {
+    @apply opacity-50 cursor-not-allowed pointer-events-none;
+  }
+}
+
+@layer components {
+  /* Scrollbar styling (optional refinement) */
+  .lotus ::-webkit-scrollbar {
+    @apply h-2.5 w-2.5;
+  }
+  
+  .lotus ::-webkit-scrollbar-thumb {
+    @apply rounded-full;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .lotus ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+  
+  .lotus ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+  }
+}

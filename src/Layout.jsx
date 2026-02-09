@@ -5,17 +5,19 @@ export default function Layout({ children, currentPageName }) {
     <>
       <style>{`
         :root {
-          --app-bg: #0f1312;
-          --panel-bg: #171d1b;
-          --panel-border: #26302c;
-          --output-bg: #1e2522;
-          --input-bg: #141a18;
-          --input-border: #2a3531;
-          --input-focus: #3b6f5c;
-          --text-primary: #e6ece9;
-          --text-secondary: #a7b2ad;
-          --text-muted: #6f7c76;
-          --accent-green: #3b6f5c;
+          --app-bg: #0f1113;
+          --panel-bg: #1b1f23;
+          --panel-secondary: #22272e;
+          --panel-border: #2a2f36;
+          --output-bg: #1e2226;
+          --input-bg: #14171a;
+          --input-border: #2a2f36;
+          --input-focus: #1f6f5b;
+          --text-primary: #e6e8eb;
+          --text-secondary: #9aa1a9;
+          --text-muted: #6f7679;
+          --accent-primary: #1f6f5b;
+          --accent-secondary: #2e8b75;
           --error-red: #c85a54;
         }
         
@@ -44,20 +46,20 @@ export default function Layout({ children, currentPageName }) {
         .border { border-color: var(--panel-border) !important; }
         
         /* Success/green states */
-        .bg-green-50 { background-color: rgba(59, 111, 92, 0.1) !important; }
-        .bg-green-100 { background-color: rgba(59, 111, 92, 0.15) !important; }
-        .bg-green-600 { background-color: var(--accent-green) !important; }
-        .text-green-600 { color: var(--accent-green) !important; }
-        .text-green-700 { color: var(--accent-green) !important; }
-        .text-green-800 { color: var(--accent-green) !important; }
-        .border-green-200 { border-color: var(--accent-green) !important; }
+        .bg-green-50 { background-color: rgba(31, 111, 91, 0.1) !important; }
+        .bg-green-100 { background-color: rgba(31, 111, 91, 0.15) !important; }
+        .bg-green-600 { background-color: var(--accent-primary) !important; }
+        .text-green-600 { color: var(--accent-primary) !important; }
+        .text-green-700 { color: var(--accent-primary) !important; }
+        .text-green-800 { color: var(--accent-primary) !important; }
+        .border-green-200 { border-color: var(--accent-primary) !important; }
         
         /* Blue/teal states */
-        .bg-blue-50 { background-color: rgba(59, 111, 92, 0.08) !important; }
-        .bg-blue-100 { background-color: rgba(59, 111, 92, 0.12) !important; }
-        .text-blue-600 { color: #6b9088 !important; }
-        .text-blue-700 { color: #6b9088 !important; }
-        .border-blue-200 { border-color: #2a3531 !important; }
+        .bg-blue-50 { background-color: rgba(46, 139, 117, 0.08) !important; }
+        .bg-blue-100 { background-color: rgba(46, 139, 117, 0.12) !important; }
+        .text-blue-600 { color: var(--accent-secondary) !important; }
+        .text-blue-700 { color: var(--accent-secondary) !important; }
+        .border-blue-200 { border-color: var(--panel-border) !important; }
         
         /* Error/red states */
         .bg-red-50 { background-color: rgba(200, 90, 84, 0.1) !important; }
@@ -73,10 +75,10 @@ export default function Layout({ children, currentPageName }) {
         .text-orange-700 { color: #c0866d !important; }
         
         /* Violet/purple accents */
-        .bg-violet-50 { background-color: rgba(59, 111, 92, 0.05) !important; }
-        .bg-indigo-50 { background-color: rgba(59, 111, 92, 0.05) !important; }
+        .bg-violet-50 { background-color: rgba(31, 111, 91, 0.05) !important; }
+        .bg-indigo-50 { background-color: rgba(31, 111, 91, 0.05) !important; }
         .bg-amber-50 { background-color: rgba(200, 120, 84, 0.06) !important; }
-        .border-violet-600 { border-color: var(--accent-green) !important; }
+        .border-violet-600 { border-color: var(--accent-primary) !important; }
         
         /* Shadows - subtle only */
         .shadow { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3) !important; }
@@ -107,8 +109,14 @@ export default function Layout({ children, currentPageName }) {
         /* Output panel - slightly lighter */
         .bg-slate-900 { background-color: var(--output-bg) !important; }
         
-        /* Remove bright backgrounds from specific utility classes */
-        .bg-slate-800 { background-color: #1a1f1d !important; }
+        /* Additional surface variants */
+        .bg-slate-800 { background-color: var(--panel-secondary) !important; }
+        
+        /* Table rows - alternating shades */
+        tbody tr:nth-child(even) { background-color: rgba(0, 0, 0, 0.15); }
+        
+        /* Ensure proper contrast on all surfaces */
+        .text-slate-100 { color: var(--text-primary) !important; }
       `}</style>
       <div className="min-h-screen">
         {children}

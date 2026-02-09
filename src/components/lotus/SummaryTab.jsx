@@ -65,28 +65,28 @@ export default function SummaryTab() {
               
               <div className="py-2" style={{ color: '#8ea597' }}>Tokens (billable)</div>
               {lanes.map(lane => (
-                <div key={lane} className="text-center font-mono py-2">
+                <div key={lane} className="text-center font-mono py-2" style={{ color: '#e7f0ea' }}>
                   {performance?.[lane]?.total_model_tokens || "—"}
                 </div>
               ))}
               
-              <div className="py-2" style={{ color: '#9aa1a9' }}>Model Time (billable)</div>
+              <div className="py-2" style={{ color: '#8ea597' }}>Model Time (billable)</div>
               {lanes.map(lane => (
-                <div key={lane} className="text-center font-mono py-2" style={{ color: '#e6e8eb' }}>
+                <div key={lane} className="text-center font-mono py-2" style={{ color: '#e7f0ea' }}>
                   {performance?.[lane]?.total_model_latency_ms || "—"}ms
                 </div>
               ))}
               
-              <div className="py-2" style={{ color: '#9aa1a9' }}>Runtime-local</div>
+              <div className="py-2" style={{ color: '#8ea597' }}>Runtime-local</div>
               {lanes.map(lane => (
-                <div key={lane} className="text-center font-mono py-2" style={{ color: '#e6e8eb' }}>
+                <div key={lane} className="text-center font-mono py-2" style={{ color: '#e7f0ea' }}>
                   {performance?.[lane]?.total_local_latency_ms || "—"}ms
                 </div>
               ))}
               
-              <div className="py-2" style={{ color: '#9aa1a9' }}>Repairs</div>
+              <div className="py-2" style={{ color: '#8ea597' }}>Repairs</div>
               {lanes.map(lane => (
-                <div key={lane} className="text-center font-mono py-2">
+                <div key={lane} className="text-center font-mono py-2" style={{ color: '#e7f0ea' }}>
                   {validation?.repairs || 0}
                 </div>
               ))}
@@ -98,22 +98,22 @@ export default function SummaryTab() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
+        <Card style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#9aa1a9' }}>Run Info</CardTitle>
+            <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#8ea597' }}>Run Info</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="flex justify-between text-xs">
-              <span style={{ color: '#9aa1a9' }}>Mode:</span>
-              <Badge variant="secondary">{mode}</Badge>
+              <span style={{ color: '#8ea597' }}>Mode:</span>
+              <Badge variant="secondary" style={{ backgroundColor: 'rgba(231,240,234,0.08)', color: '#e7f0ea', borderColor: 'rgba(231, 240, 234, 0.14)' }}>{mode}</Badge>
             </div>
             <div className="flex justify-between text-xs">
-              <span style={{ color: '#9aa1a9' }}>Model:</span>
-              <span className="font-mono" style={{ color: '#e6e8eb' }}>{model}</span>
+              <span style={{ color: '#8ea597' }}>Model:</span>
+              <span className="font-mono" style={{ color: '#e7f0ea' }}>{model}</span>
             </div>
             <div className="flex justify-between text-xs">
-              <span style={{ color: '#9aa1a9' }}>Grounding:</span>
-              <Badge variant="outline">{grounding}</Badge>
+              <span style={{ color: '#8ea597' }}>Grounding:</span>
+              <Badge variant="outline" style={{ backgroundColor: 'rgba(231,240,234,0.08)', color: '#e7f0ea', borderColor: 'rgba(231, 240, 234, 0.14)' }}>{grounding}</Badge>
             </div>
           </CardContent>
         </Card>
@@ -146,7 +146,7 @@ export default function SummaryTab() {
               </div>
             </div>
             {validation.errors && validation.errors.length > 0 && (
-              <div className="flex items-center gap-1 text-xs text-red-600">
+              <div className="flex items-center gap-1 text-xs" style={{ color: '#f26b6b' }}>
                 <AlertTriangle className="w-3 h-3" />
                 <span>{validation.errors.length} errors</span>
               </div>
@@ -155,34 +155,34 @@ export default function SummaryTab() {
         </Card>
 
         {mode !== "baseline" && validation.repairs > 0 && hasBaseline && (
-          <Card style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
+          <Card style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
             <CardHeader className="pb-3">
-              <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#9aa1a9' }}>Conditional Overhead</CardTitle>
+              <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#8ea597' }}>Conditional Overhead</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <p className="text-[10px] mb-3" style={{ color: '#9aa1a9' }}>Overhead incurs only when validation fails and recovery path activates.</p>
+              <p className="text-[10px] mb-3" style={{ color: '#8ea597' }}>Overhead incurs only when validation fails and recovery path activates.</p>
               <div className="flex justify-between text-xs">
-                <span style={{ color: '#9aa1a9' }}>Δ Tokens:</span>
+                <span style={{ color: '#8ea597' }}>Δ Tokens:</span>
                 <div className="flex items-center gap-1">
                   {getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) > 0 ? (
-                    <ArrowUp className="w-3 h-3 text-orange-600" />
+                    <ArrowUp className="w-3 h-3" style={{ color: '#f6c453' }} />
                   ) : (
-                    <ArrowDown className="w-3 h-3 text-blue-600" />
+                    <ArrowDown className="w-3 h-3" style={{ color: '#2db37a' }} />
                   )}
-                  <span className={`font-mono ${getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) > 0 ? 'text-orange-600' : 'text-blue-600'}`}>
+                  <span className="font-mono" style={{ color: getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) > 0 ? '#f6c453' : '#2db37a' }}>
                     {Math.abs(getDelta(currentPerf.total_model_tokens, baselinePerf.total_model_tokens) || 0)}
                   </span>
                 </div>
               </div>
               <div className="flex justify-between text-xs">
-                <span style={{ color: '#9aa1a9' }}>Δ Latency:</span>
+                <span style={{ color: '#8ea597' }}>Δ Latency:</span>
                 <div className="flex items-center gap-1">
                   {getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) > 0 ? (
-                    <ArrowUp className="w-3 h-3 text-orange-600" />
+                    <ArrowUp className="w-3 h-3" style={{ color: '#f6c453' }} />
                   ) : (
-                    <ArrowDown className="w-3 h-3 text-blue-600" />
+                    <ArrowDown className="w-3 h-3" style={{ color: '#2db37a' }} />
                   )}
-                  <span className={`font-mono ${getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) > 0 ? 'text-orange-600' : 'text-blue-600'}`}>
+                  <span className="font-mono" style={{ color: getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) > 0 ? '#f6c453' : '#2db37a' }}>
                     {Math.abs(getDelta(currentPerf.total_latency_ms, baselinePerf.total_latency_ms) || 0)}ms
                   </span>
                 </div>
@@ -200,7 +200,7 @@ export default function SummaryTab() {
           <CardContent>
             <div className="flex gap-2 flex-wrap">
               {runState.artifacts.slice(-5).map((art, i) => (
-                <Badge key={i} variant="outline" className="text-xs">
+                <Badge key={i} variant="outline" className="text-xs" style={{ backgroundColor: 'rgba(231,240,234,0.08)', color: '#e7f0ea', borderColor: 'rgba(231, 240, 234, 0.14)' }}>
                   {art.type}
                 </Badge>
               ))}

@@ -5,87 +5,110 @@ export default function Layout({ children, currentPageName }) {
     <>
       <style>{`
         :root {
-          --color-bg-primary: #0E1113;
-          --color-bg-secondary: #14181B;
-          --color-bg-tertiary: #1E2429;
-          --color-accent-primary: #1F7A5A;
-          --color-accent-secondary: #2B8A9C;
-          --color-text-primary: #E6E8EA;
-          --color-text-secondary: #A9B0B6;
-          --color-text-muted: #7A8288;
-          --color-border: #2A3038;
-          --color-error: #C85A54;
+          --app-bg: #0f1312;
+          --panel-bg: #171d1b;
+          --panel-border: #26302c;
+          --output-bg: #1e2522;
+          --input-bg: #141a18;
+          --input-border: #2a3531;
+          --input-focus: #3b6f5c;
+          --text-primary: #e6ece9;
+          --text-secondary: #a7b2ad;
+          --text-muted: #6f7c76;
+          --accent-green: #3b6f5c;
+          --error-red: #c85a54;
         }
         
         body {
-          background-color: var(--color-bg-primary);
-          color: var(--color-text-primary);
+          background-color: var(--app-bg);
+          color: var(--text-primary);
         }
         
-        /* Override shadcn defaults */
-        .bg-white { background-color: var(--color-bg-secondary) !important; }
-        .bg-slate-50 { background-color: var(--color-bg-tertiary) !important; }
-        .bg-slate-100 { background-color: var(--color-bg-tertiary) !important; }
-        .bg-gray-50 { background-color: var(--color-bg-tertiary) !important; }
+        /* Override shadcn defaults - panels and cards */
+        .bg-white { background-color: var(--panel-bg) !important; }
+        .bg-slate-50 { background-color: var(--panel-bg) !important; }
+        .bg-slate-100 { background-color: var(--panel-bg) !important; }
+        .bg-gray-50 { background-color: var(--app-bg) !important; }
         
-        .text-slate-900 { color: var(--color-text-primary) !important; }
-        .text-slate-800 { color: var(--color-text-primary) !important; }
-        .text-slate-700 { color: var(--color-text-secondary) !important; }
-        .text-slate-600 { color: var(--color-text-muted) !important; }
-        .text-slate-500 { color: var(--color-text-muted) !important; }
+        /* Text colors */
+        .text-slate-900 { color: var(--text-primary) !important; }
+        .text-slate-800 { color: var(--text-primary) !important; }
+        .text-slate-700 { color: var(--text-secondary) !important; }
+        .text-slate-600 { color: var(--text-muted) !important; }
+        .text-slate-500 { color: var(--text-muted) !important; }
+        .text-slate-400 { color: var(--text-muted) !important; }
         
-        .border-slate-200 { border-color: var(--color-border) !important; }
-        .border-slate-300 { border-color: var(--color-border) !important; }
+        /* Borders */
+        .border-slate-200 { border-color: var(--panel-border) !important; }
+        .border-slate-300 { border-color: var(--panel-border) !important; }
+        .border { border-color: var(--panel-border) !important; }
         
-        .bg-green-50 { background-color: rgba(31, 122, 90, 0.1) !important; }
-        .bg-green-100 { background-color: rgba(31, 122, 90, 0.15) !important; }
-        .bg-green-600 { background-color: var(--color-accent-primary) !important; }
-        .text-green-600 { color: var(--color-accent-primary) !important; }
-        .text-green-700 { color: var(--color-accent-primary) !important; }
-        .text-green-800 { color: var(--color-accent-primary) !important; }
+        /* Success/green states */
+        .bg-green-50 { background-color: rgba(59, 111, 92, 0.1) !important; }
+        .bg-green-100 { background-color: rgba(59, 111, 92, 0.15) !important; }
+        .bg-green-600 { background-color: var(--accent-green) !important; }
+        .text-green-600 { color: var(--accent-green) !important; }
+        .text-green-700 { color: var(--accent-green) !important; }
+        .text-green-800 { color: var(--accent-green) !important; }
+        .border-green-200 { border-color: var(--accent-green) !important; }
         
-        .bg-blue-50 { background-color: rgba(43, 138, 156, 0.1) !important; }
-        .bg-blue-100 { background-color: rgba(43, 138, 156, 0.15) !important; }
-        .text-blue-600 { color: var(--color-accent-secondary) !important; }
-        .text-blue-700 { color: var(--color-accent-secondary) !important; }
+        /* Blue/teal states */
+        .bg-blue-50 { background-color: rgba(59, 111, 92, 0.08) !important; }
+        .bg-blue-100 { background-color: rgba(59, 111, 92, 0.12) !important; }
+        .text-blue-600 { color: #6b9088 !important; }
+        .text-blue-700 { color: #6b9088 !important; }
+        .border-blue-200 { border-color: #2a3531 !important; }
         
+        /* Error/red states */
         .bg-red-50 { background-color: rgba(200, 90, 84, 0.1) !important; }
-        .bg-red-100 { background-color: rgba(200, 90, 84, 0.15) !important; }
-        .bg-red-600 { background-color: var(--color-error) !important; }
-        .text-red-600 { color: var(--color-error) !important; }
-        .text-red-700 { color: var(--color-error) !important; }
+        .bg-red-100 { background-color: rgba(200, 90, 84, 0.12) !important; }
+        .bg-red-600 { background-color: var(--error-red) !important; }
+        .text-red-600 { color: var(--error-red) !important; }
+        .text-red-700 { color: var(--error-red) !important; }
+        .border-red-200 { border-color: var(--error-red) !important; }
         
-        .bg-orange-50 { background-color: rgba(200, 120, 84, 0.1) !important; }
-        .text-orange-600 { color: #D69563 !important; }
-        .text-orange-700 { color: #D69563 !important; }
+        /* Orange/warning states */
+        .bg-orange-50 { background-color: rgba(200, 120, 84, 0.08) !important; }
+        .text-orange-600 { color: #c0866d !important; }
+        .text-orange-700 { color: #c0866d !important; }
         
-        .bg-violet-50 { background-color: rgba(43, 138, 156, 0.08) !important; }
-        .bg-indigo-50 { background-color: rgba(43, 138, 156, 0.08) !important; }
-        .bg-amber-50 { background-color: rgba(200, 120, 84, 0.08) !important; }
+        /* Violet/purple accents */
+        .bg-violet-50 { background-color: rgba(59, 111, 92, 0.05) !important; }
+        .bg-indigo-50 { background-color: rgba(59, 111, 92, 0.05) !important; }
+        .bg-amber-50 { background-color: rgba(200, 120, 84, 0.06) !important; }
+        .border-violet-600 { border-color: var(--accent-green) !important; }
         
-        .shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4) !important; }
-        .shadow-lg { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4) !important; }
+        /* Shadows - subtle only */
+        .shadow { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3) !important; }
+        .shadow-lg { box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.3) !important; }
+        .shadow-sm { box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.2) !important; }
         
-        /* Card borders */
-        .border { border-color: var(--color-border) !important; }
+        /* Gradients - minimal */
+        .bg-gradient-to-br { background: var(--panel-bg) !important; }
+        .bg-gradient-to-r { background: rgba(59, 111, 92, 0.08) !important; }
         
-        /* Gradients */
-        .bg-gradient-to-br { background: linear-gradient(to bottom right, var(--color-bg-secondary), var(--color-bg-tertiary)) !important; }
-        .bg-gradient-to-r { background: linear-gradient(to right, rgba(43, 138, 156, 0.1), rgba(31, 122, 90, 0.1)) !important; }
-        
-        /* Table backgrounds */
-        .bg-violet-50 { background-color: rgba(43, 138, 156, 0.05) !important; }
-        
-        /* Input and select backgrounds */
+        /* Input fields */
         input, textarea, select, [role="combobox"] {
-          background-color: var(--color-bg-tertiary) !important;
-          border-color: var(--color-border) !important;
-          color: var(--color-text-primary) !important;
+          background-color: var(--input-bg) !important;
+          border-color: var(--input-border) !important;
+          color: var(--text-primary) !important;
         }
         
-        /* Button adjustments */
-        button { color: var(--color-text-primary); }
-        button:disabled { opacity: 0.4; }
+        input:focus, textarea:focus, select:focus, [role="combobox"]:focus {
+          border-color: var(--input-focus) !important;
+          box-shadow: none !important;
+          outline: none !important;
+        }
+        
+        /* Buttons */
+        button { color: var(--text-primary); }
+        button:disabled { opacity: 0.3; }
+        
+        /* Output panel - slightly lighter */
+        .bg-slate-900 { background-color: var(--output-bg) !important; }
+        
+        /* Remove bright backgrounds from specific utility classes */
+        .bg-slate-800 { background-color: #1a1f1d !important; }
       `}</style>
       <div className="min-h-screen">
         {children}

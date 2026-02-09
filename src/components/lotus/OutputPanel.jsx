@@ -36,11 +36,11 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
 
   if (isRunning) {
     return (
-      <Card className="shadow-sm h-full" style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
+      <Card className="h-full bg-card border-border">
         <CardContent className="flex items-center justify-center min-h-[400px]">
           <div className="text-center space-y-3">
-            <div className="w-12 h-12 border-4 border-t-transparent rounded-full animate-spin mx-auto" style={{ borderColor: '#7a6ab0' }} />
-            <p className="text-sm" style={{ color: '#9aa1a9' }}>Processing...</p>
+            <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-sm text-muted-foreground">Processing...</p>
           </div>
         </CardContent>
       </Card>
@@ -49,9 +49,9 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
 
   if (!output) {
     return (
-      <Card className="shadow-sm h-full" style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
+      <Card className="h-full bg-card border-border">
         <CardContent className="flex items-center justify-center min-h-[400px]">
-          <p className="text-sm italic" style={{ color: '#6f7679' }}>No output yet. Run a prompt to see results.</p>
+          <p className="text-sm italic text-muted-foreground">No output yet. Run a prompt to see results.</p>
         </CardContent>
       </Card>
     );
@@ -60,10 +60,10 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
   return (
     <div className="space-y-3">
       {/* PANE A: ANSWER */}
-      <Card className="shadow-sm" style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
+      <Card className="bg-card border-border">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-semibold" style={{ color: '#e6e8eb' }}>Answer</CardTitle>
+            <CardTitle className="text-sm font-semibold text-card-foreground">Answer</CardTitle>
             <div className="flex items-center gap-2">
               {evidence?.safe_mode_applied && (
                 <Badge className="bg-amber-100 text-amber-800 text-xs">Safe Mode</Badge>
@@ -78,7 +78,7 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
           {view === "rendered" && mode !== "baseline" && typeof output === "object" ? (
             <RenderedSection title="Answer" items={output.canonical_answer} />
           ) : (
-            <pre className="text-xs p-4 rounded-lg overflow-auto font-mono" style={{ backgroundColor: '#0f1113', color: '#e6e8eb' }}>
+            <pre className="text-xs p-4 rounded-lg overflow-auto font-mono bg-background text-foreground border border-border">
               {typeof output === "string" ? output : JSON.stringify(output, null, 2)}
             </pre>
           )}
@@ -87,12 +87,11 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
 
       {/* PANE B: EXECUTION TRACE (Collapsible) */}
       {showTelemetry && (
-        <Card className="shadow-sm" style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
+        <Card className="bg-card border-border">
           <CardHeader className="pb-2">
             <button
               onClick={() => setShowExecutionTrace(!showExecutionTrace)}
-              className="flex items-center gap-2 text-sm font-semibold w-full"
-              style={{ color: '#e6e8eb' }}
+              className="flex items-center gap-2 text-sm font-semibold w-full text-card-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {showExecutionTrace ? (
                 <ChevronDown className="w-4 h-4" />

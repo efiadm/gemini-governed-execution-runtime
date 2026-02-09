@@ -44,10 +44,10 @@ export default function ArtifactsTab() {
 
   return (
     <div className="space-y-4">
-      <Card style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
+      <Card className="bg-card border-border">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-semibold" style={{ color: '#e6e8eb' }}>Artifact Store (Runtime-Local)</CardTitle>
+            <CardTitle className="text-sm font-semibold text-card-foreground">Artifact Store (Runtime-Local)</CardTitle>
             {artifacts.length > showLimit && !showAll && (
               <Button variant="ghost" size="sm" onClick={() => setShowAll(true)}>
                 Show all ({artifacts.length})
@@ -56,7 +56,7 @@ export default function ArtifactsTab() {
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-xs mb-4" style={{ color: '#9aa1a9' }}>
+          <p className="text-xs mb-4 text-muted-foreground">
             Runtime artifacts (app logic, non-billable). Hybrid mode uses these to reduce billable model tokens.
           </p>
 
@@ -89,7 +89,7 @@ export default function ArtifactsTab() {
           )}
 
           {displayedArtifacts.length === 0 ? (
-            <p className="text-sm italic text-center py-8" style={{ color: '#6f7679' }}>
+            <p className="text-sm italic text-center py-8 text-muted-foreground">
               {artifacts.length === 0 ? "No artifacts yet. Run Governed or Hybrid mode." : "No artifacts match filters."}
             </p>
           ) : (
@@ -97,18 +97,18 @@ export default function ArtifactsTab() {
               {displayedArtifacts.map((art, i) => {
                 const Icon = getIcon(art.type);
                 return (
-                  <div key={i} className="flex items-start gap-3 p-3 rounded-lg" style={{ backgroundColor: '#20262a', border: '1px solid #2a3036' }}>
-                    <Icon className="w-4 h-4 mt-0.5" style={{ color: '#9aa1a9' }} />
+                  <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-secondary border border-border">
+                    <Icon className="w-4 h-4 mt-0.5 text-muted-foreground" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="text-xs font-medium" style={{ color: '#e6e8eb' }}>{art.type}</p>
+                        <p className="text-xs font-medium text-foreground">{art.type}</p>
                         {art.mode && <Badge variant="outline" className="text-[10px]">{art.mode}</Badge>}
                       </div>
-                      <p className="text-xs mt-1" style={{ color: '#9aa1a9' }}>
+                      <p className="text-xs mt-1 text-muted-foreground">
                         {art.content || art.header || art.reason || JSON.stringify(art).substring(0, 60)}
                       </p>
                       {art.tokens_saved > 0 && (
-                        <p className="text-xs mt-1" style={{ color: '#1f6f5b' }}>Tokens saved: ~{art.tokens_saved}</p>
+                        <p className="text-xs mt-1 text-primary">Tokens saved: ~{art.tokens_saved}</p>
                       )}
                     </div>
                   </div>

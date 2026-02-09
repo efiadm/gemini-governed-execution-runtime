@@ -45,22 +45,22 @@ function BaselineDeltaCard({ metrics, mode, repairs }) {
 export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
   if (!evidence) {
     return (
-      <Card className="shadow-sm h-full" style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
+      <Card className="h-full bg-card border-border">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold" style={{ color: '#e6e8eb' }}>Summary</CardTitle>
+          <CardTitle className="text-sm font-semibold text-card-foreground">Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm italic" style={{ color: '#6f7679' }}>No run data yet.</p>
+          <p className="text-sm italic text-muted-foreground">No run data yet.</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="shadow-sm h-full" style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
+    <Card className="h-full bg-card border-border">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-semibold" style={{ color: '#e6e8eb' }}>Execution Summary</CardTitle>
+          <CardTitle className="text-sm font-semibold text-card-foreground">Execution Summary</CardTitle>
           <div className="flex gap-1">
             {onDownload && (
               <Button variant="ghost" size="sm" onClick={onDownload} className="h-7">

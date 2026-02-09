@@ -6,18 +6,18 @@ export default function Layout({ children, currentPageName }) {
       <style>{`
         :root {
           --app-bg: #0f1113;
-          --panel-bg: #1b1f23;
-          --panel-secondary: #22272e;
-          --panel-border: #2a2f36;
+          --panel-bg: #1a1f22;
+          --panel-secondary: #20262a;
+          --panel-border: #2a3238;
           --output-bg: #1e2226;
-          --input-bg: #14171a;
-          --input-border: #2a2f36;
+          --input-bg: #1e2428;
+          --input-border: #2a3238;
           --input-focus: #1f6f5b;
           --text-primary: #e6e8eb;
           --text-secondary: #9aa1a9;
           --text-muted: #6f7679;
           --accent-primary: #1f6f5b;
-          --accent-secondary: #2e8b75;
+          --accent-secondary: #8b7abf;
           --error-red: #c85a54;
         }
         
@@ -29,8 +29,9 @@ export default function Layout({ children, currentPageName }) {
         /* Override shadcn defaults - panels and cards */
         .bg-white { background-color: var(--panel-bg) !important; }
         .bg-slate-50 { background-color: var(--panel-bg) !important; }
-        .bg-slate-100 { background-color: var(--panel-bg) !important; }
-        .bg-gray-50 { background-color: var(--app-bg) !important; }
+        .bg-slate-100 { background-color: var(--panel-secondary) !important; }
+        .bg-gray-50 { background-color: var(--panel-bg) !important; }
+        .bg-background { background-color: var(--app-bg) !important; }
         
         /* Text colors */
         .text-slate-900 { color: var(--text-primary) !important; }
@@ -112,11 +113,21 @@ export default function Layout({ children, currentPageName }) {
         /* Additional surface variants */
         .bg-slate-800 { background-color: var(--panel-secondary) !important; }
         
-        /* Table rows - alternating shades */
-        tbody tr:nth-child(even) { background-color: rgba(0, 0, 0, 0.15); }
+        /* Table rows - alternating shades for readability */
+        tbody tr { background-color: var(--panel-bg); }
+        tbody tr:nth-child(even) { background-color: rgba(0, 0, 0, 0.2); }
         
         /* Ensure proper contrast on all surfaces */
         .text-slate-100 { color: var(--text-primary) !important; }
+        
+        /* Empty states should not be white */
+        .text-slate-400 { color: var(--text-muted) !important; }
+        
+        /* Popover and dropdown backgrounds */
+        [role="menu"], [role="dialog"], [role="listbox"] {
+          background-color: var(--panel-secondary) !important;
+          border-color: var(--panel-border) !important;
+        }
       `}</style>
       <div className="min-h-screen">
         {children}

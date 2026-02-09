@@ -28,7 +28,7 @@ export default function EvidenceTab({ evidence, mode, onRunBaseline }) {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-card border-border">
+      <Card className="surface">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold text-card-foreground">Request Metadata</CardTitle>
         </CardHeader>
@@ -67,7 +67,7 @@ export default function EvidenceTab({ evidence, mode, onRunBaseline }) {
       </Card>
 
       {evidence.attemptDetails && evidence.attemptDetails.length > 0 && (
-        <Card className="bg-card border-border">
+        <Card className="surface">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-card-foreground">Attempt History</CardTitle>
           </CardHeader>
@@ -126,7 +126,7 @@ export default function EvidenceTab({ evidence, mode, onRunBaseline }) {
       )}
 
       {evidence.validation_summary && (
-      <Card className={`bg-card border-border ${evidence.safe_mode_applied ? "border-green-500 bg-green-900/10" : ""}`}>
+      <Card className={`surface ${evidence.safe_mode_applied ? "border-green-500 bg-green-900/10" : ""}`}>
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-semibold text-card-foreground">Validation Summary</CardTitle>
         {evidence.safe_mode_applied && (

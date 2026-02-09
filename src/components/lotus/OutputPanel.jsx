@@ -36,7 +36,7 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
 
   if (isRunning) {
     return (
-      <Card className="h-full bg-card border-border">
+      <Card className="h-full surface">
         <CardContent className="flex items-center justify-center min-h-[400px]">
           <div className="text-center space-y-3">
             <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
@@ -49,7 +49,7 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
 
   if (!output) {
     return (
-      <Card className="h-full bg-card border-border">
+      <Card className="h-full surface">
         <CardContent className="flex items-center justify-center min-h-[400px]">
           <p className="text-sm italic text-muted-foreground">No output yet. Run a prompt to see results.</p>
         </CardContent>
@@ -60,7 +60,7 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
   return (
     <div className="space-y-3">
       {/* PANE A: ANSWER */}
-      <Card className="bg-card border-border">
+      <Card className="surface">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm font-semibold text-card-foreground">Answer</CardTitle>
@@ -87,7 +87,7 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
 
       {/* PANE B: EXECUTION TRACE (Collapsible) */}
       {showTelemetry && (
-        <Card className="bg-card border-border">
+        <Card className="surface">
           <CardHeader className="pb-2">
             <button
               onClick={() => setShowExecutionTrace(!showExecutionTrace)}

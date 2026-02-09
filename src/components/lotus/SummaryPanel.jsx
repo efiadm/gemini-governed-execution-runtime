@@ -45,7 +45,7 @@ function BaselineDeltaCard({ metrics, mode, repairs }) {
 export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
   if (!evidence) {
     return (
-      <Card className="h-full bg-card border-border">
+      <Card className="h-full surface">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold text-card-foreground">Summary</CardTitle>
         </CardHeader>
@@ -57,7 +57,7 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
   }
 
   return (
-    <Card className="h-full bg-card border-border">
+    <Card className="h-full surface">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-semibold text-card-foreground">Execution Summary</CardTitle>

@@ -163,7 +163,7 @@ export default function UnderTheHoodPanel() {
       </div>
 
       {/* Invariants & Governance Checks */}
-      <Card className="bg-card border-border">
+      <Card className="surface">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold text-card-foreground">Invariants & Governance</CardTitle>
         </CardHeader>
@@ -230,7 +230,7 @@ export default function UnderTheHoodPanel() {
 
       {/* Telemetry Details */}
       {(drift || hallucination) && (
-        <Card className="bg-card border-border">
+        <Card className="surface">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-card-foreground">Telemetry Details</CardTitle>
           </CardHeader>
@@ -288,7 +288,7 @@ export default function UnderTheHoodPanel() {
       )}
 
       {/* Evidence Metadata */}
-      <Card className="bg-card border-border">
+      <Card className="surface">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold text-card-foreground">Evidence Metadata</CardTitle>
         </CardHeader>

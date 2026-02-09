@@ -44,7 +44,7 @@ export default function ArtifactsTab() {
 
   return (
     <div className="space-y-4">
-      <Card className="bg-card border-border">
+      <Card className="surface">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm font-semibold text-card-foreground">Artifact Store (Runtime-Local)</CardTitle>

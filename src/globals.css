@@ -13,7 +13,7 @@
     color-scheme: dark;
     
     /* Core palette (shadcn-compatible HSL) */
-    --background: 192 8% 5%;           /* bg-1: #0b1010 */
+    --background: 192 8% 4%;           /* bg-0: #070a0a */
     --foreground: 0 0% 92%;            /* text-0 */
     
     --card: 180 13% 8%;                /* bg-2: #0f1616 */
@@ -48,11 +48,6 @@
     --chart-3: 162 38% 42%;
     --chart-4: 162 35% 48%;
     --chart-5: 162 32% 55%;
-    
-    /* Enrichment variables */
-    --surface-glow: 0 0% 100% / 0.06;
-    --surface-inset: 0 0% 0% / 0.25;
-    --elevation-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   }
   
   /* Base element styling */
@@ -63,103 +58,185 @@
   
   /* Focus-visible (accessibility-first) */
   .lotus *:focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    @apply outline-none;
+    box-shadow: 0 0 0 3px rgba(60, 138, 115, 0.4), 0 0 12px rgba(60, 138, 115, 0.3);
   }
   
   /* Disabled state standardization */
   .lotus *:disabled {
-    @apply opacity-50 cursor-not-allowed pointer-events-none;
+    @apply opacity-40 cursor-not-allowed;
+    pointer-events: none !important;
   }
   
   /* Anti-white safeguards (explicit, no wildcards) */
-  .lotus .bg-white { @apply bg-card; }
-  .lotus .bg-slate-50 { @apply bg-card; }
-  .lotus .bg-slate-100 { @apply bg-muted; }
-  .lotus .bg-slate-200 { @apply bg-secondary; }
-  .lotus .bg-gray-50 { @apply bg-card; }
-  .lotus .bg-gray-100 { @apply bg-muted; }
-  .lotus .bg-neutral-50 { @apply bg-card; }
-  .lotus .bg-zinc-50 { @apply bg-card; }
+  .lotus .bg-white { background: hsl(var(--card)) !important; }
+  .lotus .bg-slate-50 { background: hsl(var(--card)) !important; }
+  .lotus .bg-slate-100 { background: hsl(var(--muted)) !important; }
+  .lotus .bg-slate-200 { background: hsl(var(--secondary)) !important; }
+  .lotus .bg-gray-50 { background: hsl(var(--card)) !important; }
+  .lotus .bg-gray-100 { background: hsl(var(--muted)) !important; }
+  .lotus .bg-neutral-50 { background: hsl(var(--card)) !important; }
+  .lotus .bg-zinc-50 { background: hsl(var(--card)) !important; }
   
   .lotus .text-slate-900,
   .lotus .text-slate-800,
   .lotus .text-gray-900,
   .lotus .text-neutral-900,
-  .lotus .text-zinc-900 { @apply text-foreground; }
+  .lotus .text-zinc-900 { color: hsl(var(--foreground)) !important; }
   
   .lotus .text-slate-700,
   .lotus .text-slate-600,
-  .lotus .text-gray-700 { @apply text-muted-foreground; }
+  .lotus .text-gray-700,
+  .lotus .text-gray-600 { color: hsl(var(--muted-foreground)) !important; }
+  
+  .lotus .text-slate-500,
+  .lotus .text-slate-400 { color: hsl(var(--muted-foreground) / 0.8) !important; }
   
   .lotus .border-slate-200,
   .lotus .border-slate-300,
   .lotus .border-gray-200,
-  .lotus .border-neutral-200 { @apply border-border; }
+  .lotus .border-neutral-200 { border-color: hsl(var(--border)) !important; }
 }
 
 @layer components {
   /* ============================================
-     ENRICHMENT PRIMITIVES
+     DEPTH PRIMITIVES (ENRICHMENT)
      ============================================ */
   
   /* Base surface (cards, panels) */
   .lotus .surface {
-    @apply bg-card border border-border rounded-xl;
+    @apply rounded-xl border;
     background: linear-gradient(
       to bottom,
       hsl(var(--card)) 0%,
-      hsl(var(--card) / 0.97) 100%
+      hsl(180 13% 6%) 100%
     );
+    border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 
-      inset 0 1px 0 hsl(var(--surface-glow)),
-      0 1px 2px rgba(0, 0, 0, 0.3);
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 2px 8px rgba(0, 0, 0, 0.4);
     position: relative;
   }
   
-  /* Elevated surface (modals, popovers) */
+  /* Elevated surface (modals, popovers, dropdowns) */
   .lotus .surface-elevated {
-    @apply bg-popover border border-input rounded-xl;
+    @apply rounded-xl border;
     background: linear-gradient(
       to bottom,
       hsl(var(--popover)) 0%,
-      hsl(var(--popover) / 0.96) 100%
+      hsl(180 15% 8%) 100%
     );
+    border-color: rgba(255, 255, 255, 0.12);
     box-shadow: 
-      inset 0 1px 0 hsl(var(--surface-glow)),
-      var(--elevation-shadow);
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 10px 30px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.05);
   }
   
-  /* Hoverable surface */
+  /* Hoverable surface (subtle lift) */
   .lotus .surface-hoverable {
     @apply transition-all duration-200;
   }
   
-  .lotus .surface-hoverable:hover {
-    @apply bg-secondary;
-    box-shadow: 
-      inset 0 1px 0 hsl(var(--surface-glow)),
-      0 2px 4px rgba(0, 0, 0, 0.4);
-  }
-  
-  /* Engraved/inset panels (headers, key sections) */
-  .lotus .engraved {
-    @apply border border-border rounded-lg;
+  .lotus .surface-hoverable:hover:not(:disabled) {
     background: linear-gradient(
       to bottom,
-      hsl(var(--muted) / 0.5) 0%,
-      hsl(var(--muted) / 0.3) 100%
+      hsl(var(--secondary)) 0%,
+      hsl(180 15% 10%) 100%
     );
     box-shadow: 
-      inset 0 1px 2px hsl(var(--surface-inset)),
-      inset 0 0 0 1px hsl(var(--border));
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 4px 12px rgba(0, 0, 0, 0.5);
+    transform: translateY(-1px);
   }
   
-  /* Governed focus ring (hunter green glow) */
-  .lotus .ring-governed:focus-visible {
+  /* Engraved/inset panels */
+  .lotus .engraved {
+    @apply rounded-lg border;
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--muted) / 0.4) 0%,
+      hsl(var(--muted) / 0.2) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: 
+      inset 0 2px 4px rgba(0, 0, 0, 0.3),
+      inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* ============================================
+     BUTTON INTERACTION STATES (MUST BE OBVIOUS)
+     ============================================ */
+  
+  /* All buttons base */
+  .lotus button,
+  .lotus [role="button"] {
+    @apply transition-all duration-150;
+    position: relative;
+  }
+  
+  /* Hover state (brighten) */
+  .lotus button:hover:not(:disabled),
+  .lotus [role="button"]:hover:not(:disabled) {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+  }
+  
+  /* Active/Pressed state (MUST BE VISIBLE) */
+  .lotus button:active:not(:disabled),
+  .lotus [role="button"]:active:not(:disabled) {
+    transform: translateY(2px) !important;
+    filter: brightness(0.85) !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+  }
+  
+  /* Focus-visible (green ring) */
+  .lotus button:focus-visible,
+  .lotus [role="button"]:focus-visible {
     @apply outline-none;
     box-shadow: 
-      0 0 0 3px rgba(45, 107, 87, 0.28),
-      0 0 8px rgba(60, 138, 115, 0.2);
+      0 0 0 3px rgba(60, 138, 115, 0.5),
+      0 0 16px rgba(60, 138, 115, 0.4) !important;
+  }
+  
+  /* Disabled state (MUST BE OBVIOUS) */
+  .lotus button:disabled,
+  .lotus [role="button"]:disabled {
+    @apply opacity-40 cursor-not-allowed;
+    filter: grayscale(0.5);
+    transform: none !important;
+    pointer-events: none !important;
+  }
+  
+  /* Primary button (hunter green) */
+  .lotus button[class*="primary"],
+  .lotus .bg-primary,
+  .lotus .bg-accent {
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--primary)) 0%,
+      hsl(162 41% 25%) 100%
+    ) !important;
+    box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 2px 8px rgba(45, 107, 87, 0.3);
+  }
+  
+  .lotus button[class*="primary"]:hover:not(:disabled),
+  .lotus .bg-primary:hover:not(:disabled),
+  .lotus .bg-accent:hover:not(:disabled) {
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--accent)) 0%,
+      hsl(162 45% 30%) 100%
+    ) !important;
+  }
+  
+  .lotus button[class*="primary"]:active:not(:disabled),
+  .lotus .bg-primary:active:not(:disabled),
+  .lotus .bg-accent:active:not(:disabled) {
+    background: hsl(162 41% 22%) !important;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5) !important;
   }
   
   /* ============================================
@@ -169,42 +246,57 @@
   /* Tables */
   .lotus table {
     @apply border-collapse;
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--card)) 0%,
+      hsl(180 13% 7%) 100%
+    );
   }
   
   .lotus thead {
-    @apply bg-muted border-b border-input;
     background: linear-gradient(
       to bottom,
       hsl(var(--muted)) 0%,
-      hsl(var(--muted) / 0.95) 100%
+      hsl(var(--muted) / 0.9) 100%
     );
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   }
   
   .lotus thead th {
     @apply text-muted-foreground font-semibold;
-    box-shadow: inset 0 1px 0 hsl(var(--surface-glow));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    padding: 0.75rem 1rem;
   }
   
   .lotus tbody tr {
-    @apply border-b border-border transition-colors;
+    @apply border-b transition-colors;
+    border-color: rgba(255, 255, 255, 0.06);
   }
   
   .lotus tbody tr:hover {
-    @apply bg-secondary/50;
+    background: rgba(255, 255, 255, 0.03);
   }
   
   .lotus tbody td {
     @apply text-foreground;
+    padding: 0.75rem 1rem;
   }
   
-  /* Tabs */
+  /* Tabs (active state must be obvious) */
   .lotus [role="tab"] {
     @apply text-muted-foreground transition-all;
     position: relative;
+    padding: 0.75rem 1.5rem;
+  }
+  
+  .lotus [role="tab"]:hover:not([data-state="active"]) {
+    @apply text-foreground;
+    background: rgba(255, 255, 255, 0.03);
   }
   
   .lotus [role="tab"][data-state="active"] {
     @apply text-foreground;
+    background: rgba(60, 138, 115, 0.08);
   }
   
   .lotus [role="tab"][data-state="active"]::after {
@@ -217,33 +309,73 @@
     background: linear-gradient(
       to right,
       transparent 0%,
-      hsl(var(--primary)) 20%,
-      hsl(var(--accent)) 80%,
+      hsl(var(--primary)) 15%,
+      hsl(var(--accent)) 85%,
       transparent 100%
     );
-    box-shadow: 0 0 8px hsl(var(--primary) / 0.4);
+    box-shadow: 0 0 12px rgba(60, 138, 115, 0.6);
   }
   
   /* Badges (status pills) */
-  .lotus .badge {
-    @apply border border-border rounded-full;
+  .lotus .badge,
+  .lotus [class*="Badge"] {
+    @apply rounded-full border;
     background: linear-gradient(
       to bottom,
-      hsl(var(--muted) / 0.4) 0%,
-      hsl(var(--muted) / 0.2) 100%
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.02) 100%
     );
+    border-color: rgba(255, 255, 255, 0.1);
+    padding: 0.25rem 0.75rem;
   }
   
   /* Code blocks */
   .lotus pre,
   .lotus code {
-    @apply bg-background border border-border rounded-lg;
+    @apply rounded-lg border;
     background: linear-gradient(
       135deg,
       hsl(var(--background)) 0%,
-      hsl(192 10% 4%) 100%
+      hsl(192 10% 3%) 100%
     );
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+  }
+  
+  .lotus pre {
+    padding: 1rem;
+  }
+  
+  .lotus code {
+    padding: 0.25rem 0.5rem;
+  }
+  
+  /* Inputs and selects */
+  .lotus input,
+  .lotus textarea,
+  .lotus select {
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--muted)) 0%,
+      hsl(180 15% 8%) 100%
+    ) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+  
+  .lotus input:hover:not(:disabled),
+  .lotus textarea:hover:not(:disabled),
+  .lotus select:hover:not(:disabled) {
+    border-color: rgba(255, 255, 255, 0.16) !important;
+  }
+  
+  .lotus input:focus,
+  .lotus textarea:focus,
+  .lotus select:focus {
+    border-color: rgba(60, 138, 115, 0.6) !important;
+    box-shadow: 
+      inset 0 1px 2px rgba(0, 0, 0, 0.3),
+      0 0 0 3px rgba(60, 138, 115, 0.25) !important;
   }
   
   /* Scrollbars */
@@ -255,7 +387,7 @@
     @apply rounded-full;
     background: linear-gradient(
       to bottom,
-      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0.14) 0%,
       rgba(255, 255, 255, 0.08) 100%
     );
   }
@@ -263,13 +395,13 @@
   .lotus ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(
       to bottom,
-      rgba(255, 255, 255, 0.18) 0%,
+      rgba(255, 255, 255, 0.20) 0%,
       rgba(255, 255, 255, 0.12) 100%
     );
   }
   
   .lotus ::-webkit-scrollbar-track {
-    @apply bg-background/50;
+    background: rgba(0, 0, 0, 0.2);
   }
   
   /* ============================================
@@ -284,7 +416,15 @@
   .lotus [role="dialog"],
   .lotus [role="menu"],
   .lotus [role="listbox"] {
-    @apply surface-elevated;
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--popover)) 0%,
+      hsl(180 15% 8%) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 10px 30px rgba(0, 0, 0, 0.5);
   }
   
   /* Select dropdowns */
@@ -295,6 +435,7 @@
   
   /* Ensure option elements are dark */
   .lotus option {
-    @apply bg-popover text-popover-foreground;
+    background: hsl(var(--popover));
+    color: hsl(var(--popover-foreground));
   }
 }

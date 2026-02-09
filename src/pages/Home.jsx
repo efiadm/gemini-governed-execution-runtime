@@ -266,9 +266,9 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ backgroundColor: '#0f1113' }}>
       {/* Header */}
-      <header className="border-b border-slate-200 bg-white sticky top-0 z-50 shadow-sm">
+      <header className="sticky top-0 z-50" style={{ borderBottom: '1px solid #2a3036', backgroundColor: '#1a1f22' }}>
         <div className="max-w-[1800px] mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -276,8 +276,8 @@ export default function Home() {
                 <span className="text-white text-xs font-bold">G3</span>
               </div>
               <div>
-                <h1 className="text-base font-bold text-slate-900">Gemini 3 Governed Execution</h1>
-                <p className="text-[10px] text-slate-500">Knowledge → Governance → Experience → Understanding → Reliable Output</p>
+                <h1 className="text-base font-bold" style={{ color: '#e6e8eb' }}>Gemini 3 Governed Execution</h1>
+                <p className="text-[10px]" style={{ color: '#9aa1a9' }}>Knowledge → Governance → Experience → Understanding → Reliable Output</p>
               </div>
               </div>
               <div className="flex items-center gap-2">
@@ -341,29 +341,29 @@ export default function Home() {
         </div>
 
         {/* Bottom Dock: Tabs */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036', border: '1px solid' }}>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="border-b border-slate-200 px-6 overflow-x-auto">
+            <div className="px-6 overflow-x-auto" style={{ borderBottom: '1px solid #2a3036' }}>
               <TabsList className="bg-transparent border-0 p-0 h-12 min-w-max">
-                <TabsTrigger value="summary" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
+                <TabsTrigger value="summary" className="data-[state=active]:border-b-2 data-[state=active]:border-[#1f6f5b] rounded-none" style={{ color: '#9aa1a9' }}>
                   Summary
                 </TabsTrigger>
-                <TabsTrigger value="underhood" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
+                <TabsTrigger value="underhood" className="data-[state=active]:border-b-2 data-[state=active]:border-[#1f6f5b] rounded-none" style={{ color: '#9aa1a9' }}>
                   Under the Hood
                 </TabsTrigger>
-                <TabsTrigger value="evidence" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
+                <TabsTrigger value="evidence" className="data-[state=active]:border-b-2 data-[state=active]:border-[#1f6f5b] rounded-none" style={{ color: '#9aa1a9' }}>
                   Evidence
                 </TabsTrigger>
-                <TabsTrigger value="performance" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
+                <TabsTrigger value="performance" className="data-[state=active]:border-b-2 data-[state=active]:border-[#1f6f5b] rounded-none" style={{ color: '#9aa1a9' }}>
                   Performance
                 </TabsTrigger>
-                <TabsTrigger value="drift" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
+                <TabsTrigger value="drift" className="data-[state=active]:border-b-2 data-[state=active]:border-[#1f6f5b] rounded-none" style={{ color: '#9aa1a9' }}>
                   Drift
                 </TabsTrigger>
-                <TabsTrigger value="artifacts" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
+                <TabsTrigger value="artifacts" className="data-[state=active]:border-b-2 data-[state=active]:border-[#1f6f5b] rounded-none" style={{ color: '#9aa1a9' }}>
                   Artifacts
                 </TabsTrigger>
-                <TabsTrigger value="tests" className="data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none">
+                <TabsTrigger value="tests" className="data-[state=active]:border-b-2 data-[state=active]:border-[#1f6f5b] rounded-none" style={{ color: '#9aa1a9' }}>
                   Tests
                 </TabsTrigger>
               </TabsList>

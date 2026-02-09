@@ -26,7 +26,7 @@ export default function PromptPanel({
   const disabled = isRunning || isTestRunning;
 
   return (
-    <Card className="shadow-sm h-full relative z-10" style={{ backgroundColor: '#12161a', borderColor: '#2a3036' }}>
+    <Card className="h-full relative z-10" style={{ backgroundColor: '#12161a', borderColor: '#2a3036' }}>
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-semibold" style={{ color: '#e6e8eb' }}>Prompt Input</CardTitle>
       </CardHeader>

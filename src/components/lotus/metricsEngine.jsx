@@ -8,11 +8,13 @@ import { estimateTokens } from "./utils";
  * - Base tokens (pre-repair)
  * - Base cost
  * 
- * Plane B (Diagnostics) - Non-billable runtime-local work that OFFSETS Plane A
+ * Plane B (Diagnostics) - NON-billable app-side work that OFFSETS Plane A
+ * - "Runtime-local" = work done in the APPLICATION, not on model servers
  * - Validation time (parsing + contract checking)
  * - Render time (formatting + structuring)
  * - Evidence assembly (metadata + telemetry)
- * This plane GROWS with governed/hybrid as more safeguards are added
+ * - This plane GROWS with governed/hybrid as more safeguards are added
+ * - Baseline: 0ms (no governance), Governed/Hybrid: 10-50ms (active safeguards)
  * 
  * Plane C (Repairs) - Conditional billable recovery
  * - Extra model calls (attempts beyond first)
@@ -101,12 +103,12 @@ export function calculateMetrics(evidence, rawOutput, prompt, mode) {
       grounding_used: evidence?.grounding === "on",
       tool_calls_count: 0,
     },
-    // Plane B: Non-billable runtime-local work (offsets Plane A)
-    local: {
-      local_validation_ms: validationMs,
-      local_render_ms: renderMs,
-      local_evidence_assembly_ms: evidenceAssemblyMs,
-      total_local_ms: localLatency,
+    // Plane B: Non-billable app runtime work (offsets Plane A)
+    runtime_local: {
+      validation_ms: validationMs,
+      render_ms: renderMs,
+      evidence_assembly_ms: evidenceAssemblyMs,
+      total_runtime_local_ms: localLatency,
     },
     // Plane A: Base execution metrics
     total: {

@@ -57,7 +57,7 @@ export default function ArtifactsTab() {
         </CardHeader>
         <CardContent>
           <p className="text-xs mb-4 text-muted-foreground">
-            Runtime artifacts (app logic, non-billable). Hybrid mode uses these to reduce billable model tokens.
+            Runtime-local (app-side) storage • System-side artifacts, not user-local • Hybrid mode uses these to reduce billable tokens
           </p>
 
           {artifacts.length > 0 && (

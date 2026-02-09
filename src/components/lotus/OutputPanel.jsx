@@ -10,12 +10,12 @@ function RenderedSection({ title, items, icon: Icon }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        {Icon && <Icon className="w-4 h-4 text-slate-500" />}
-        <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">{title}</h4>
+        {Icon && <Icon className="w-4 h-4" style={{ color: '#9aa1a9' }} />}
+        <h4 className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#e6e8eb' }}>{title}</h4>
       </div>
       <ul className="space-y-1">
         {items.map((item, i) => (
-          <li key={i} className="text-sm text-slate-700 leading-relaxed pl-4 border-l-2 border-slate-200">
+          <li key={i} className="text-sm leading-relaxed pl-4 border-l-2" style={{ color: '#9aa1a9', borderColor: '#2a3036' }}>
             {item}
           </li>
         ))}
@@ -36,11 +36,11 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
 
   if (isRunning) {
     return (
-      <Card className="border-slate-200 shadow-sm h-full">
+      <Card className="shadow-sm h-full" style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
         <CardContent className="flex items-center justify-center min-h-[400px]">
           <div className="text-center space-y-3">
-            <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-sm text-slate-500">Processing...</p>
+            <div className="w-12 h-12 border-4 border-t-transparent rounded-full animate-spin mx-auto" style={{ borderColor: '#7a6ab0' }} />
+            <p className="text-sm" style={{ color: '#9aa1a9' }}>Processing...</p>
           </div>
         </CardContent>
       </Card>
@@ -49,9 +49,9 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
 
   if (!output) {
     return (
-      <Card className="border-slate-200 shadow-sm h-full">
+      <Card className="shadow-sm h-full" style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
         <CardContent className="flex items-center justify-center min-h-[400px]">
-          <p className="text-sm text-slate-400 italic">No output yet. Run a prompt to see results.</p>
+          <p className="text-sm italic" style={{ color: '#6f7679' }}>No output yet. Run a prompt to see results.</p>
         </CardContent>
       </Card>
     );
@@ -60,10 +60,10 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
   return (
     <div className="space-y-3">
       {/* PANE A: ANSWER */}
-      <Card className="border-slate-200 shadow-sm">
+      <Card className="shadow-sm" style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-semibold text-slate-700">Answer</CardTitle>
+            <CardTitle className="text-sm font-semibold" style={{ color: '#e6e8eb' }}>Answer</CardTitle>
             <div className="flex items-center gap-2">
               {evidence?.safe_mode_applied && (
                 <Badge className="bg-amber-100 text-amber-800 text-xs">Safe Mode</Badge>
@@ -78,7 +78,7 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
           {view === "rendered" && mode !== "baseline" && typeof output === "object" ? (
             <RenderedSection title="Answer" items={output.canonical_answer} />
           ) : (
-            <pre className="text-xs bg-slate-900 text-slate-100 p-4 rounded-lg overflow-auto font-mono">
+            <pre className="text-xs p-4 rounded-lg overflow-auto font-mono" style={{ backgroundColor: '#0f1113', color: '#e6e8eb' }}>
               {typeof output === "string" ? output : JSON.stringify(output, null, 2)}
             </pre>
           )}
@@ -87,11 +87,12 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
 
       {/* PANE B: EXECUTION TRACE (Collapsible) */}
       {showTelemetry && (
-        <Card className="border-slate-200 shadow-sm">
+        <Card className="shadow-sm" style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
           <CardHeader className="pb-2">
             <button
               onClick={() => setShowExecutionTrace(!showExecutionTrace)}
-              className="flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 w-full"
+              className="flex items-center gap-2 text-sm font-semibold w-full"
+              style={{ color: '#e6e8eb' }}
             >
               {showExecutionTrace ? (
                 <ChevronDown className="w-4 h-4" />

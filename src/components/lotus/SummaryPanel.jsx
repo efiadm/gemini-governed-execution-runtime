@@ -21,21 +21,21 @@ function BaselineDeltaCard({ metrics, mode, repairs }) {
   const latencyDelta = (metrics.total?.model_latency_ms || 0) - (baselineMetrics.model_latency_ms || 0);
 
   return (
-    <div className={`rounded-lg p-2 ${tokenDelta > 0 ? 'bg-orange-50' : tokenDelta < 0 ? 'bg-blue-50' : 'bg-slate-50'}`}>
+    <div className="rounded-lg p-2" style={{ backgroundColor: tokenDelta > 0 ? 'rgba(200, 120, 84, 0.08)' : tokenDelta < 0 ? 'rgba(46, 139, 117, 0.08)' : '#20262a' }}>
       <div className="flex items-center gap-1 mb-0.5">
         {tokenDelta > 0 ? (
-          <TrendingUp className="w-3 h-3 text-orange-600" />
+          <TrendingUp className="w-3 h-3" style={{ color: '#c0866d' }} />
         ) : tokenDelta < 0 ? (
-          <TrendingDown className="w-3 h-3 text-blue-600" />
+          <TrendingDown className="w-3 h-3" style={{ color: '#2e8b75' }} />
         ) : (
-          <TrendingUp className="w-3 h-3 text-slate-500" />
+          <TrendingUp className="w-3 h-3" style={{ color: '#9aa1a9' }} />
         )}
-        <span className="text-[10px] text-slate-600 font-medium">Conditional Overhead</span>
+        <span className="text-[10px] font-medium" style={{ color: '#9aa1a9' }}>Conditional Overhead</span>
       </div>
-      <p className={`text-base font-bold ${tokenDelta > 0 ? 'text-orange-700' : tokenDelta < 0 ? 'text-blue-700' : 'text-slate-700'}`}>
+      <p className="text-base font-bold" style={{ color: tokenDelta > 0 ? '#c0866d' : tokenDelta < 0 ? '#2e8b75' : '#e6e8eb' }}>
         {tokenDelta > 0 ? '+' : ''}{tokenDelta}t
       </p>
-      <p className={`text-[10px] ${latencyDelta > 0 ? 'text-orange-600' : latencyDelta < 0 ? 'text-blue-600' : 'text-slate-500'}`}>
+      <p className="text-[10px]" style={{ color: latencyDelta > 0 ? '#c0866d' : latencyDelta < 0 ? '#2e8b75' : '#9aa1a9' }}>
         Recovery path
       </p>
     </div>
@@ -45,22 +45,22 @@ function BaselineDeltaCard({ metrics, mode, repairs }) {
 export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
   if (!evidence) {
     return (
-      <Card className="border-slate-200 shadow-sm h-full">
+      <Card className="shadow-sm h-full" style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold text-slate-700">Summary</CardTitle>
+          <CardTitle className="text-sm font-semibold" style={{ color: '#e6e8eb' }}>Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-slate-400 italic">No run data yet.</p>
+          <p className="text-sm italic" style={{ color: '#6f7679' }}>No run data yet.</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="border-slate-200 shadow-sm h-full">
+    <Card className="shadow-sm h-full" style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-semibold text-slate-700">Execution Summary</CardTitle>
+          <CardTitle className="text-sm font-semibold" style={{ color: '#e6e8eb' }}>Execution Summary</CardTitle>
           <div className="flex gap-1">
             {onDownload && (
               <Button variant="ghost" size="sm" onClick={onDownload} className="h-7">
@@ -94,44 +94,44 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
         </div>
 
         <div className="grid grid-cols-3 gap-2">
-          <div className="bg-slate-50 rounded-lg p-2">
+          <div className="rounded-lg p-2" style={{ backgroundColor: '#20262a' }}>
             <div className="flex items-center gap-1 mb-0.5">
-              <Clock className="w-3 h-3 text-slate-500" />
-              <span className="text-[10px] text-slate-500 font-medium">Latency</span>
+              <Clock className="w-3 h-3" style={{ color: '#9aa1a9' }} />
+              <span className="text-[10px] font-medium" style={{ color: '#9aa1a9' }}>Latency</span>
             </div>
-            <p className="text-base font-bold text-slate-900">{evidence.latency_ms}ms</p>
-            <p className="text-[10px] text-slate-500">💵 {evidence.model_latency_ms}ms ⚙️ {evidence.local_latency_ms}ms</p>
+            <p className="text-base font-bold" style={{ color: '#e6e8eb' }}>{evidence.latency_ms}ms</p>
+            <p className="text-[10px]" style={{ color: '#9aa1a9' }}>💵 {evidence.model_latency_ms}ms ⚙️ {evidence.local_latency_ms}ms</p>
           </div>
 
-          <div className="bg-slate-50 rounded-lg p-2">
+          <div className="rounded-lg p-2" style={{ backgroundColor: '#20262a' }}>
             <div className="flex items-center gap-1 mb-0.5">
-              <Zap className="w-3 h-3 text-slate-500" />
-              <span className="text-[10px] text-slate-500 font-medium">Attempts</span>
+              <Zap className="w-3 h-3" style={{ color: '#9aa1a9' }} />
+              <span className="text-[10px] font-medium" style={{ color: '#9aa1a9' }}>Attempts</span>
             </div>
-            <p className="text-base font-bold text-slate-900">{evidence.attempts}</p>
-            <p className="text-[10px] text-slate-500">💵 {evidence.repairs} {evidence.local_repairs > 0 ? `⚙️ ${evidence.local_repairs}` : ''}</p>
+            <p className="text-base font-bold" style={{ color: '#e6e8eb' }}>{evidence.attempts}</p>
+            <p className="text-[10px]" style={{ color: '#9aa1a9' }}>💵 {evidence.repairs} {evidence.local_repairs > 0 ? `⚙️ ${evidence.local_repairs}` : ''}</p>
           </div>
 
           {evidence.repairs > 0 && <BaselineDeltaCard metrics={metrics} mode={mode} repairs={evidence.repairs} />}
         </div>
 
-        <div className="pt-2 border-t border-slate-200 space-y-0.5 text-[10px]">
+        <div className="pt-2 space-y-0.5 text-[10px]" style={{ borderTop: '1px solid #2a3036' }}>
           <div className="flex justify-between items-center">
-            <span className="text-slate-500">Mode / Grounding:</span>
-            <span className="font-medium text-slate-700">{evidence.mode} / {evidence.grounding}</span>
+            <span style={{ color: '#9aa1a9' }}>Mode / Grounding:</span>
+            <span className="font-medium" style={{ color: '#e6e8eb' }}>{evidence.mode} / {evidence.grounding}</span>
           </div>
           {evidence.validation_summary && (
             <div className="flex justify-between items-center">
-              <span className="text-slate-500">Validation:</span>
-              <span className="font-medium text-slate-700">
+              <span style={{ color: '#9aa1a9' }}>Validation:</span>
+              <span className="font-medium" style={{ color: '#e6e8eb' }}>
                 {evidence.validation_summary.passed_checks} / {evidence.validation_summary.total_checks} passed
               </span>
             </div>
           )}
           {evidence.hybrid_context_injected && (
             <div className="flex justify-between items-center">
-              <span className="text-slate-500">Hybrid Context:</span>
-              <span className="font-medium text-emerald-700">~{evidence.hybrid_tokens_saved}t saved</span>
+              <span style={{ color: '#9aa1a9' }}>Hybrid Context:</span>
+              <span className="font-medium" style={{ color: '#1f6f5b' }}>~{evidence.hybrid_tokens_saved}t saved</span>
             </div>
           )}
         </div>

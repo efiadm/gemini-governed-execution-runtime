@@ -54,21 +54,14 @@ export function calculateMetrics(evidence, rawOutput, prompt, mode) {
   
   // === PLANE B: Runtime-local breakdown ===
   // Plane B represents NON-BILLABLE local work that offsets Plane A
-  // For baseline: Plane B = 0 (no governance overhead)
-  // For governed/hybrid: Plane B grows as validation and processing increase
+  // Mode-agnostic: if local_latency_ms exists, break it down; otherwise = 0
   
   let validationMs = 0;
   let renderMs = 0;
   let evidenceAssemblyMs = 0;
   
-  if (mode === "baseline") {
-    // Baseline has no local governance work
-    validationMs = 0;
-    renderMs = 0;
-    evidenceAssemblyMs = 0;
-  } else {
-    // Governed/Hybrid: Use real local_latency_ms from evidence
-    // Break it down proportionally based on attempt details if available
+  if (localLatency > 0) {
+    // Break down local_latency_ms based on attempt details if available
     const attemptDetails = evidence?.attemptDetails || [];
     
     if (attemptDetails.length > 0) {
@@ -89,6 +82,7 @@ export function calculateMetrics(evidence, rawOutput, prompt, mode) {
       evidenceAssemblyMs = Math.round(localLatency * 0.15);
     }
   }
+  // If localLatency = 0 (baseline), all Plane B values remain 0
   
   const metrics = {
     billable: {

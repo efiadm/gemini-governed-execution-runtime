@@ -32,15 +32,35 @@ export function shouldInjectContext(context, prompt) {
   return contextTokens > summaryTokens + 20 && promptTokens < 500;
 }
 
+/**
+ * Store artifact in runtime-local (app-side) storage
+ * This is system-side storage, not user-local
+ */
 export function storeArtifact(title, summary) {
   if (typeof window === "undefined") return;
   
   const artifacts = JSON.parse(localStorage.getItem("lotus_artifacts") || "[]");
-  artifacts.push({ title, summary, timestamp: Date.now() });
+  artifacts.push({ 
+    title, 
+    summary, 
+    timestamp: Date.now(),
+    storage_type: "runtime_local" // Clarify this is app-side, not user-local
+  });
   
-  if (artifacts.length > 10) {
+  // Keep last 50 artifacts
+  if (artifacts.length > 50) {
     artifacts.shift();
   }
   
   localStorage.setItem("lotus_artifacts", JSON.stringify(artifacts));
+}
+
+export function getAllArtifacts() {
+  if (typeof window === "undefined") return [];
+  return JSON.parse(localStorage.getItem("lotus_artifacts") || "[]");
+}
+
+export function getRecentArtifacts(count = 10) {
+  const all = getAllArtifacts();
+  return all.slice(-count);
 }

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileJson, FileText, Copy, ChevronDown, ChevronRight } from "lucide-react";
+import { FileJson, FileText, Copy, ChevronDown, ChevronRight, X } from "lucide-react";
 import { toast } from "sonner";
 
 function RenderedSection({ title, items, icon: Icon }) {
@@ -24,9 +24,19 @@ function RenderedSection({ title, items, icon: Icon }) {
   );
 }
 
-export default function OutputPanel({ output, evidence, mode, isRunning, showTelemetry = true }) {
+export default function OutputPanel({ output, evidence, mode, isRunning, showTelemetry: showTelemetryProp = true }) {
   const [view, setView] = useState("rendered");
   const [showExecutionTrace, setShowExecutionTrace] = useState(false);
+  const [showTelemetry, setShowTelemetry] = useState(showTelemetryProp);
+  
+  React.useEffect(() => {
+    // Auto-collapse telemetry on mobile
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setShowTelemetry(false);
+    } else {
+      setShowTelemetry(showTelemetryProp);
+    }
+  }, [showTelemetryProp]);
 
   const handleCopy = () => {
     const text = view === "raw" ? JSON.stringify(output, null, 2) : JSON.stringify(output);
@@ -85,7 +95,46 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
         </CardContent>
       </Card>
 
-      {/* PANE B: EXECUTION TRACE (Collapsible) */}
+      {/* PANE B: EXECUTION TRACE (Collapsible, non-blocking) */}
+      {showTelemetry && evidence?.attemptDetails && (
+        <Card className="surface">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => setShowExecutionTrace(!showExecutionTrace)}
+                className="flex items-center gap-2 text-sm font-semibold text-card-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {showExecutionTrace ? (
+                  <ChevronDown className="w-4 h-4" />
+                ) : (
+                  <ChevronRight className="w-4 h-4" />
+                )}
+                Execution Trace
+              </button>
+              <Button variant="ghost" size="sm" onClick={() => setShowTelemetry(false)} className="h-6 w-6 p-0">
+                <X className="w-3 h-3" />
+              </Button>
+            </div>
+          </CardHeader>
+          {showExecutionTrace && (
+            <CardContent className="max-h-[200px] overflow-y-auto">
+              <div className="space-y-1 text-[10px] text-muted-foreground font-mono">
+                {evidence.attemptDetails.map((att, idx) => (
+                  <div key={idx} className="flex justify-between items-center py-1 border-b border-border/50">
+                    <span>Attempt {att.attempt} ({att.kind}):</span>
+                    <span>
+                      💵 {Math.round(att.model_ms)}ms • ⚙️ {Math.round(att.local_ms)}ms
+                      {att.ok ? " ✓" : " ✗"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          )}
+        </Card>
+      )}
+      
+      {/* PANE C: OUTPUT DETAILS (Collapsible) */}
       {showTelemetry && (
         <Card className="surface">
           <CardHeader className="pb-2">
@@ -98,7 +147,7 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
               ) : (
                 <ChevronRight className="w-4 h-4" />
               )}
-              Show Execution Trace
+              Output Details
             </button>
           </CardHeader>
           {showExecutionTrace && (

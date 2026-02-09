@@ -20,7 +20,7 @@ export default function DriftTab() {
   if (!runState.drift) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-sm italic" style={{ color: '#6f7679' }}>No drift data yet. Run a prompt to see drift analysis.</p>
+        <p className="text-sm italic" style={{ color: '#8ea597' }}>No drift data yet. Run a prompt to see drift analysis.</p>
       </div>
     );
   }
@@ -32,61 +32,61 @@ export default function DriftTab() {
     <div className="space-y-6">
       {/* Drift Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
+        <Card style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#9aa1a9' }}>Structure Quality</CardTitle>
+            <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#8ea597' }}>Structure Quality</CardTitle>
           </CardHeader>
           <CardContent>
             {drift.structure_drift !== null ? (
               <>
-                <p className="text-2xl font-bold" style={{ color: '#e6e8eb' }}>{drift.structure_drift}%</p>
-                <p className="text-xs mt-1" style={{ color: '#9aa1a9' }}>
+                <p className="text-2xl font-bold" style={{ color: '#e7f0ea' }}>{drift.structure_drift}%</p>
+                <p className="text-xs mt-1" style={{ color: '#8ea597' }}>
                   {runState.mode === "baseline" ? "Baseline (unstructured)" : "Contract compliance"}
                 </p>
               </>
             ) : (
-              <p className="text-xs italic" style={{ color: '#6f7679' }}>Not applicable in baseline mode (no governance layer).</p>
+              <p className="text-xs italic" style={{ color: '#8ea597' }}>Not applicable in baseline mode (no governance layer).</p>
             )}
           </CardContent>
         </Card>
 
-        <Card style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
+        <Card style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#9aa1a9' }}>Authority Drift</CardTitle>
+            <CardTitle className="text-xs font-semibold uppercase" style={{ color: '#8ea597' }}>Authority Drift</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               {drift.authority_drift_flags.total > 0 && (
-                <AlertTriangle className="w-5 h-5" style={{ color: '#c09a3a' }} />
+                <AlertTriangle className="w-5 h-5" style={{ color: '#f6c453' }} />
               )}
-              <p className="text-2xl font-bold" style={{ color: '#e6e8eb' }}>
+              <p className="text-2xl font-bold" style={{ color: '#e7f0ea' }}>
                 {drift.authority_drift_flags.total}
               </p>
             </div>
-            <p className="text-xs mt-1" style={{ color: '#9aa1a9' }}>Override attempts detected</p>
+            <p className="text-xs mt-1" style={{ color: '#8ea597' }}>Override attempts detected</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Mode Divergence */}
       {drift.mode_divergence && (
-        <Card style={{ backgroundColor: '#1a1f22', borderColor: '#2a3036' }}>
+        <Card style={{ backgroundColor: '#0f1512', borderColor: 'rgba(231, 240, 234, 0.10)', boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset' }}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold" style={{ color: '#e6e8eb' }}>Mode Divergence</CardTitle>
+            <CardTitle className="text-sm font-semibold" style={{ color: '#e7f0ea' }}>Mode Divergence</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {drift.mode_divergence.baseline_governed !== null && (
-                <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: '#20262a' }}>
-                  <span className="text-sm" style={{ color: '#e6e8eb' }}>Baseline ↔ Governed</span>
+                <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: '#131b16' }}>
+                  <span className="text-sm" style={{ color: '#e7f0ea' }}>Baseline ↔ Governed</span>
                   <Badge variant={drift.mode_divergence.baseline_governed > 0.7 ? "default" : "destructive"}>
                     {(drift.mode_divergence.baseline_governed * 100).toFixed(1)}% similar
                   </Badge>
                 </div>
               )}
               {drift.mode_divergence.governed_hybrid !== null && (
-                <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: '#20262a' }}>
-                  <span className="text-sm" style={{ color: '#e6e8eb' }}>Governed ↔ Hybrid</span>
+                <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: '#131b16' }}>
+                  <span className="text-sm" style={{ color: '#e7f0ea' }}>Governed ↔ Hybrid</span>
                   <Badge variant={drift.mode_divergence.governed_hybrid > 0.7 ? "default" : "destructive"}>
                     {(drift.mode_divergence.governed_hybrid * 100).toFixed(1)}% similar
                   </Badge>

@@ -19,8 +19,8 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold" style={{ color: '#e6e8eb' }}>Test Suite</h3>
-          <p className="text-xs mt-1" style={{ color: '#9aa1a9' }}>TS-01 through TS-05 adversarial tests</p>
+          <h3 className="text-sm font-semibold" style={{ color: '#e7f0ea' }}>Test Suite</h3>
+          <p className="text-xs mt-1" style={{ color: '#8ea597' }}>TS-01 through TS-05 adversarial tests</p>
         </div>
         <Button onClick={onRunTestSuite} disabled={isRunning} size="sm">
           {isRunning ? (
@@ -33,21 +33,21 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
       </div>
 
       {results.length === 0 ? (
-        <p className="text-sm italic text-center py-8" style={{ color: '#6f7679' }}>
+        <p className="text-sm italic text-center py-8" style={{ color: '#8ea597' }}>
           No test results yet. Click "Run Test Suite" to execute all tests.
         </p>
       ) : (
-        <div className="rounded-lg overflow-hidden" style={{ border: '1px solid #2a3036' }}>
+        <div className="rounded-lg overflow-hidden" style={{ border: '1px solid rgba(231, 240, 234, 0.10)' }}>
           <Table>
             <TableHeader>
-              <TableRow style={{ backgroundColor: '#20262a' }}>
-                <TableHead className="text-xs font-bold" style={{ color: '#e6e8eb' }}>Test</TableHead>
-                <TableHead className="text-center text-xs font-bold" style={{ color: '#e6e8eb' }}>Baseline</TableHead>
-                <TableHead className="text-center text-xs font-bold" style={{ color: '#e6e8eb' }}>Governed</TableHead>
-                <TableHead className="text-center text-xs font-bold" style={{ color: '#e6e8eb' }}>Hybrid</TableHead>
-                <TableHead className="text-center text-xs font-bold" style={{ color: '#e6e8eb' }}>Attempts</TableHead>
-                <TableHead className="text-center text-xs font-bold" style={{ color: '#e6e8eb' }}>Latency</TableHead>
-                <TableHead className="text-center text-xs font-bold" style={{ color: '#e6e8eb' }}>Actions</TableHead>
+              <TableRow style={{ backgroundColor: 'linear-gradient(180deg, rgba(19,27,22,0.95), rgba(15,21,18,0.95))' }}>
+                <TableHead className="text-xs font-bold" style={{ color: '#c7d6cc' }}>Test</TableHead>
+                <TableHead className="text-center text-xs font-bold" style={{ color: '#c7d6cc' }}>Baseline</TableHead>
+                <TableHead className="text-center text-xs font-bold" style={{ color: '#c7d6cc' }}>Governed</TableHead>
+                <TableHead className="text-center text-xs font-bold" style={{ color: '#c7d6cc' }}>Hybrid</TableHead>
+                <TableHead className="text-center text-xs font-bold" style={{ color: '#c7d6cc' }}>Attempts</TableHead>
+                <TableHead className="text-center text-xs font-bold" style={{ color: '#c7d6cc' }}>Latency</TableHead>
+                <TableHead className="text-center text-xs font-bold" style={{ color: '#c7d6cc' }}>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

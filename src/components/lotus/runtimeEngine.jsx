@@ -1,3 +1,4 @@
+import { buildNormalizedPerformance } from "./metricsEngine";
 import { base44 } from "@/api/base44Client";
 import {
   validateGovernedOutput,
@@ -14,7 +15,6 @@ import { emitEvent, EventTypes } from "./eventBus";
 import { updateRunState, addAttempt, addArtifact } from "./runStore";
 import { attemptLocalRepair, ensureRequiredFields } from "./localRepair";
 import { checkCache, saveToCache } from "./cacheReplay";
-import { buildNormalizedPerformance } from "./metricsEngine";
 
 /**
  * Unified execution pipeline: runOnce

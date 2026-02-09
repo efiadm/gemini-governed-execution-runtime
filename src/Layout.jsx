@@ -80,6 +80,9 @@ export default function Layout({ children, currentPageName }) {
         .bg-indigo-50 { background-color: rgba(31, 111, 91, 0.05) !important; }
         .bg-amber-50 { background-color: rgba(200, 120, 84, 0.06) !important; }
         .border-violet-600 { border-color: var(--accent-primary) !important; }
+        .bg-violet-600 { background-color: var(--accent-secondary) !important; }
+        .text-violet-600 { color: var(--accent-secondary) !important; }
+        .text-violet-700 { color: var(--accent-secondary) !important; }
         
         /* Shadows - subtle only */
         .shadow { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3) !important; }
@@ -87,8 +90,8 @@ export default function Layout({ children, currentPageName }) {
         .shadow-sm { box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.2) !important; }
         
         /* Gradients - minimal */
-        .bg-gradient-to-br { background: var(--panel-bg) !important; }
-        .bg-gradient-to-r { background: rgba(59, 111, 92, 0.08) !important; }
+        .bg-gradient-to-br { background: var(--app-bg) !important; }
+        .bg-gradient-to-r { background: rgba(31, 111, 91, 0.08) !important; }
         
         /* Input fields */
         input, textarea, select, [role="combobox"] {

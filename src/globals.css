@@ -1,441 +1,224 @@
+css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  /* ============================================
-     GEMINI 3 GOVERNED EXECUTION THEME
-     Competition-Grade Submission
-     Hunter Green + Enriched Dark Surfaces
-     ============================================ */
-  
-  .gemini3 {
-    color-scheme: dark;
-    
-    /* Core palette (shadcn-compatible HSL) */
-    --background: 192 8% 4%;           /* bg-0: #070a0a */
-    --foreground: 0 0% 92%;            /* text-0 */
-    
-    --card: 180 13% 8%;                /* bg-2: #0f1616 */
-    --card-foreground: 0 0% 92%;
-    
-    --popover: 180 15% 10%;            /* bg-3: #141d1d */
-    --popover-foreground: 0 0% 92%;
-    
-    --primary: 162 41% 29%;            /* accent: #2d6b57 */
-    --primary-foreground: 0 0% 100%;
-    
-    --secondary: 180 15% 12%;          /* bg-4: #1a2525 */
-    --secondary-foreground: 0 0% 78%;
-    
-    --muted: 180 15% 10%;              /* bg-3 */
-    --muted-foreground: 0 0% 62%;      /* text-2 */
-    
-    --accent: 162 45% 35%;             /* accent-2: #3c8a73 */
-    --accent-foreground: 0 0% 100%;
-    
-    --destructive: 0 44% 52%;          /* danger: #b84b4b */
-    --destructive-foreground: 0 0% 100%;
-    
-    --border: 0 0% 100% / 0.08;        /* line-1 */
-    --input: 0 0% 100% / 0.12;         /* line-2 */
-    --ring: 162 45% 40%;               /* accent for focus */
-    
-    --radius: 0.75rem;                 /* 12px */
-    
-    --chart-1: 162 41% 29%;
-    --chart-2: 162 45% 35%;
-    --chart-3: 162 38% 42%;
-    --chart-4: 162 35% 48%;
-    --chart-5: 162 32% 55%;
-  }
-  
-  /* Base element styling */
-  .gemini3 body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
-  
-  /* Focus-visible (accessibility-first) */
-  .gemini3 *:focus-visible {
-    @apply outline-none;
-    box-shadow: 0 0 0 3px rgba(60, 138, 115, 0.4), 0 0 12px rgba(60, 138, 115, 0.3);
-  }
-  
-  /* Disabled state standardization */
-  .gemini3 *:disabled {
-    @apply opacity-40 cursor-not-allowed;
-    pointer-events: none !important;
-  }
-  
-  /* Anti-white safeguards (explicit, no wildcards) */
-  .gemini3 .bg-white { background: hsl(var(--card)) !important; }
-  .gemini3 .bg-slate-50 { background: hsl(var(--card)) !important; }
-  .gemini3 .bg-slate-100 { background: hsl(var(--muted)) !important; }
-  .gemini3 .bg-slate-200 { background: hsl(var(--secondary)) !important; }
-  .gemini3 .bg-gray-50 { background: hsl(var(--card)) !important; }
-  .gemini3 .bg-gray-100 { background: hsl(var(--muted)) !important; }
-  .gemini3 .bg-neutral-50 { background: hsl(var(--card)) !important; }
-  .gemini3 .bg-zinc-50 { background: hsl(var(--card)) !important; }
-  
-  .gemini3 .text-slate-900,
-  .gemini3 .text-slate-800,
-  .gemini3 .text-gray-900,
-  .gemini3 .text-neutral-900,
-  .gemini3 .text-zinc-900 { color: hsl(var(--foreground)) !important; }
-  
-  .gemini3 .text-slate-700,
-  .gemini3 .text-slate-600,
-  .gemini3 .text-gray-700,
-  .gemini3 .text-gray-600 { color: hsl(var(--muted-foreground)) !important; }
-  
-  .gemini3 .text-slate-500,
-  .gemini3 .text-slate-400 { color: hsl(var(--muted-foreground) / 0.8) !important; }
-  
-  .gemini3 .border-slate-200,
-  .gemini3 .border-slate-300,
-  .gemini3 .border-gray-200,
-  .gemini3 .border-neutral-200 { border-color: hsl(var(--border)) !important; }
+/* =========================
+   GEMINI GOVERNED UI THEME (GLOBAL)
+   Hunter Green + Dark Gray + Near-Black
+   ========================= */
+
+:root{
+  --bg-0: #070a0a;          /* page */
+  --bg-1: #0b1010;          /* app shell */
+  --bg-2: #0f1616;          /* primary surfaces */
+  --bg-3: #141d1d;          /* elevated surfaces */
+  --bg-4: #1a2525;          /* hover surfaces */
+  --line-1: rgba(255,255,255,.08);
+  --line-2: rgba(255,255,255,.12);
+
+  --text-0: rgba(255,255,255,.92);
+  --text-1: rgba(255,255,255,.78);
+  --text-2: rgba(255,255,255,.62);
+  --text-3: rgba(255,255,255,.45);
+
+  --accent: #2d6b57;        /* hunter green */
+  --accent-2: #3c8a73;      /* hover */
+  --accent-soft: rgba(45,107,87,.20);
+
+  --danger: #b84b4b;
+  --warn: #b08a3a;
+  --ok: #3f8f6f;
+
+  --radius: 12px;
+  --shadow: 0 10px 30px rgba(0,0,0,.45);
 }
 
-@layer components {
-  /* ============================================
-     DEPTH PRIMITIVES (ENRICHMENT)
-     ============================================ */
-  
-  /* Base surface (cards, panels) */
-  .gemini3 .surface {
-    @apply rounded-xl border;
-    background: linear-gradient(
-      to bottom,
-      hsl(var(--card)) 0%,
-      hsl(180 13% 6%) 100%
-    );
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 
-      inset 0 1px 0 rgba(255, 255, 255, 0.06),
-      0 2px 8px rgba(0, 0, 0, 0.4);
-    position: relative;
-  }
-  
-  /* Elevated surface (modals, popovers, dropdowns) */
-  .gemini3 .surface-elevated {
-    @apply rounded-xl border;
-    background: linear-gradient(
-      to bottom,
-      hsl(var(--popover)) 0%,
-      hsl(180 15% 8%) 100%
-    );
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 10px 30px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(255, 255, 255, 0.05);
-  }
-  
-  /* Hoverable surface (subtle lift) */
-  .gemini3 .surface-hoverable {
-    @apply transition-all duration-200;
-  }
-  
-  .gemini3 .surface-hoverable:hover:not(:disabled) {
-    background: linear-gradient(
-      to bottom,
-      hsl(var(--secondary)) 0%,
-      hsl(180 15% 10%) 100%
-    );
-    box-shadow: 
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 4px 12px rgba(0, 0, 0, 0.5);
-    transform: translateY(-1px);
-  }
-  
-  /* Engraved/inset panels */
-  .gemini3 .engraved {
-    @apply rounded-lg border;
-    background: linear-gradient(
-      to bottom,
-      hsl(var(--muted) / 0.4) 0%,
-      hsl(var(--muted) / 0.2) 100%
-    );
-    border-color: rgba(255, 255, 255, 0.06);
-    box-shadow: 
-      inset 0 2px 4px rgba(0, 0, 0, 0.3),
-      inset 0 0 0 1px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* ============================================
-     BUTTON INTERACTION STATES (MUST BE OBVIOUS)
-     ============================================ */
-  
-  /* All buttons base */
-  .gemini3 button,
-  .gemini3 [role="button"] {
-    @apply transition-all duration-150;
-    position: relative;
-  }
-  
-  /* Hover state (brighten) */
-  .gemini3 button:hover:not(:disabled),
-  .gemini3 [role="button"]:hover:not(:disabled) {
-    transform: translateY(-1px);
-    filter: brightness(1.1);
-  }
-  
-  /* Active/Pressed state (MUST BE VISIBLE) */
-  .gemini3 button:active:not(:disabled),
-  .gemini3 [role="button"]:active:not(:disabled) {
-    transform: translateY(2px) !important;
-    filter: brightness(0.85) !important;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
-  }
-  
-  /* Focus-visible (green ring) */
-  .gemini3 button:focus-visible,
-  .gemini3 [role="button"]:focus-visible {
-    @apply outline-none;
-    box-shadow: 
-      0 0 0 3px rgba(60, 138, 115, 0.5),
-      0 0 16px rgba(60, 138, 115, 0.4) !important;
-  }
-  
-  /* Disabled state (MUST BE OBVIOUS) */
-  .gemini3 button:disabled,
-  .gemini3 [role="button"]:disabled {
-    @apply opacity-40 cursor-not-allowed;
-    filter: grayscale(0.5);
-    transform: none !important;
-    pointer-events: none !important;
-  }
-  
-  /* Primary button (hunter green) */
-  .gemini3 button[class*="primary"],
-  .gemini3 .bg-primary,
-  .gemini3 .bg-accent {
-    background: linear-gradient(
-      to bottom,
-      hsl(var(--primary)) 0%,
-      hsl(162 41% 25%) 100%
-    ) !important;
-    box-shadow: 
-      inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      0 2px 8px rgba(45, 107, 87, 0.3);
-  }
-  
-  .gemini3 button[class*="primary"]:hover:not(:disabled),
-  .gemini3 .bg-primary:hover:not(:disabled),
-  .gemini3 .bg-accent:hover:not(:disabled) {
-    background: linear-gradient(
-      to bottom,
-      hsl(var(--accent)) 0%,
-      hsl(162 45% 30%) 100%
-    ) !important;
-  }
-  
-  .gemini3 button[class*="primary"]:active:not(:disabled),
-  .gemini3 .bg-primary:active:not(:disabled),
-  .gemini3 .bg-accent:active:not(:disabled) {
-    background: hsl(162 41% 22%) !important;
-    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5) !important;
-  }
-  
-  /* ============================================
-     COMPONENT-SPECIFIC ENRICHMENT
-     ============================================ */
-  
-  /* Tables */
-  .gemini3 table {
-    @apply border-collapse;
-    background: linear-gradient(
-      to bottom,
-      hsl(var(--card)) 0%,
-      hsl(180 13% 7%) 100%
-    );
-  }
-  
-  .gemini3 thead {
-    background: linear-gradient(
-      to bottom,
-      hsl(var(--muted)) 0%,
-      hsl(var(--muted) / 0.9) 100%
-    );
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  }
-  
-  .gemini3 thead th {
-    @apply text-muted-foreground font-semibold;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-    padding: 0.75rem 1rem;
-  }
-  
-  .gemini3 tbody tr {
-    @apply border-b transition-colors;
-    border-color: rgba(255, 255, 255, 0.06);
-  }
-  
-  .gemini3 tbody tr:hover {
-    background: rgba(255, 255, 255, 0.03);
-  }
-  
-  .gemini3 tbody td {
-    @apply text-foreground;
-    padding: 0.75rem 1rem;
-  }
-  
-  /* Tabs (active state must be obvious) */
-  .gemini3 [role="tab"] {
-    @apply text-muted-foreground transition-all;
-    position: relative;
-    padding: 0.75rem 1.5rem;
-  }
-  
-  .gemini3 [role="tab"]:hover:not([data-state="active"]) {
-    @apply text-foreground;
-    background: rgba(255, 255, 255, 0.03);
-  }
-  
-  .gemini3 [role="tab"][data-state="active"] {
-    @apply text-foreground;
-    background: rgba(60, 138, 115, 0.08);
-  }
-  
-  .gemini3 [role="tab"][data-state="active"]::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(
-      to right,
-      transparent 0%,
-      hsl(var(--primary)) 15%,
-      hsl(var(--accent)) 85%,
-      transparent 100%
-    );
-    box-shadow: 0 0 12px rgba(60, 138, 115, 0.6);
-  }
-  
-  /* Badges (status pills) */
-  .gemini3 .badge,
-  .gemini3 [class*="Badge"] {
-    @apply rounded-full border;
-    background: linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0.06) 0%,
-      rgba(255, 255, 255, 0.02) 100%
-    );
-    border-color: rgba(255, 255, 255, 0.1);
-    padding: 0.25rem 0.75rem;
-  }
-  
-  /* Code blocks */
-  .gemini3 pre,
-  .gemini3 code {
-    @apply rounded-lg border;
-    background: linear-gradient(
-      135deg,
-      hsl(var(--background)) 0%,
-      hsl(192 10% 3%) 100%
-    );
-    border-color: rgba(255, 255, 255, 0.06);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
-  }
-  
-  .gemini3 pre {
-    padding: 1rem;
-  }
-  
-  .gemini3 code {
-    padding: 0.25rem 0.5rem;
-  }
-  
-  /* Inputs and selects */
-  .gemini3 input,
-  .gemini3 textarea,
-  .gemini3 select {
-    background: linear-gradient(
-      to bottom,
-      hsl(var(--muted)) 0%,
-      hsl(180 15% 8%) 100%
-    ) !important;
-    border-color: rgba(255, 255, 255, 0.12) !important;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
-  }
-  
-  .gemini3 input:hover:not(:disabled),
-  .gemini3 textarea:hover:not(:disabled),
-  .gemini3 select:hover:not(:disabled) {
-    border-color: rgba(255, 255, 255, 0.16) !important;
-  }
-  
-  .gemini3 input:focus,
-  .gemini3 textarea:focus,
-  .gemini3 select:focus {
-    border-color: rgba(60, 138, 115, 0.6) !important;
-    box-shadow: 
-      inset 0 1px 2px rgba(0, 0, 0, 0.3),
-      0 0 0 3px rgba(60, 138, 115, 0.25) !important;
-  }
-  
-  /* Scrollbars */
-  .gemini3 ::-webkit-scrollbar {
-    @apply h-2.5 w-2.5;
-  }
-  
-  .gemini3 ::-webkit-scrollbar-thumb {
-    @apply rounded-full;
-    background: linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0.14) 0%,
-      rgba(255, 255, 255, 0.08) 100%
-    );
-  }
-  
-  .gemini3 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0.20) 0%,
-      rgba(255, 255, 255, 0.12) 100%
-    );
-  }
-  
-  .gemini3 ::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
-  }
-  
-  /* ============================================
-     RADIX/SHADCN SPECIFIC TARGETS
-     ============================================ */
-  
-  /* Popovers, Dropdowns, Dialogs */
-  .gemini3 [data-radix-popper-content-wrapper] {
-    z-index: 50;
-  }
-  
-  .gemini3 [role="dialog"],
-  .gemini3 [role="menu"],
-  .gemini3 [role="listbox"] {
-    background: linear-gradient(
-      to bottom,
-      hsl(var(--popover)) 0%,
-      hsl(180 15% 8%) 100%
-    );
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 10px 30px rgba(0, 0, 0, 0.5);
-  }
-  
-  /* Select dropdowns */
-  .gemini3 [cmdk-root],
-  .gemini3 [cmdk-list] {
-    @apply bg-popover text-popover-foreground;
-  }
-  
-  /* Ensure option elements are dark */
-  .gemini3 option {
-    background: hsl(var(--popover));
-    color: hsl(var(--popover-foreground));
-  }
+/* Base */
+html, body {
+  background: var(--bg-0) !important;
+  color: var(--text-0) !important;
 }
+
+* {
+  border-color: var(--line-1);
+}
+
+a { color: rgba(120, 220, 190, .9); }
+a:hover { color: rgba(150, 255, 220, .95); }
+
+/* App shell / main containers */
+#root, .app, .App, .layout, .container, .page, main {
+  background: var(--bg-1) !important;
+  color: var(--text-0) !important;
+}
+
+/* Universal surface enforcement (prevents "white panels") */
+.card, .panel, .section, .box, .surface,
+[class*="Card"], [class*="Panel"], [class*="Section"], [class*="Container"],
+[class*="tab"], [class*="Tab"], [class*="Tabs"],
+[class*="summary"], [class*="Summary"],
+[class*="evidence"], [class*="Evidence"],
+[class*="performance"], [class*="Performance"],
+[class*="drift"], [class*="Drift"],
+[class*="artifact"], [class*="Artifact"],
+[class*="test"], [class*="Test"],
+[class*="table"], [class*="Table"],
+[class*="modal"], [class*="Modal"],
+[class*="dialog"], [class*="Dialog"] {
+  background: var(--bg-2) !important;
+  color: var(--text-0) !important;
+  border-color: var(--line-1) !important;
+}
+
+/* Elevated panels */
+.card.elevated, .panel.elevated, .modal, .dialog,
+[class*="popover"], [class*="Popover"], [class*="dropdown"], [class*="Dropdown"] {
+  background: var(--bg-3) !important;
+  box-shadow: var(--shadow) !important;
+  border: 1px solid var(--line-2) !important;
+  border-radius: var(--radius) !important;
+}
+
+/* Headings / labels */
+h1,h2,h3,h4,h5,h6 { color: var(--text-0) !important; }
+label, .label, .field-label, [class*="Label"] { color: var(--text-1) !important; }
+small, .muted, .hint, [class*="muted"], [class*="Hint"] { color: var(--text-2) !important; }
+
+/* Inputs */
+input, textarea, select,
+.input, .textarea, .select,
+[class*="Input"], [class*="Textarea"], [class*="Select"] {
+  background: var(--bg-3) !important;
+  color: var(--text-0) !important;
+  border: 1px solid var(--line-2) !important;
+  border-radius: 10px !important;
+  outline: none !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-3) !important;
+}
+
+/* Focus ring (subtle hunter green) */
+input:focus, textarea:focus, select:focus,
+.input:focus, .textarea:focus, .select:focus {
+  border-color: rgba(60,138,115,.85) !important;
+  box-shadow: 0 0 0 3px rgba(45,107,87,.28) !important;
+}
+
+/* Dropdown menus / options */
+option { background: var(--bg-3) !important; color: var(--text-0) !important; }
+.menu, .dropdown-menu, [role="listbox"], [role="menu"] {
+  background: var(--bg-3) !important;
+  color: var(--text-0) !important;
+  border: 1px solid var(--line-2) !important;
+}
+
+/* Buttons */
+button, .btn, [class*="Button"]{
+  background: var(--bg-3) !important;
+  color: var(--text-0) !important;
+  border: 1px solid var(--line-2) !important;
+  border-radius: 10px !important;
+}
+
+button:hover, .btn:hover, [class*="Button"]:hover{
+  background: var(--bg-4) !important;
+}
+
+button.primary, .btn-primary, [class*="primary"]{
+  background: rgba(45,107,87,.55) !important;
+  border-color: rgba(60,138,115,.75) !important;
+}
+button.primary:hover, .btn-primary:hover, [class*="primary"]:hover{
+  background: rgba(60,138,115,.65) !important;
+}
+
+/* Tabs (top row + inner panel tabs) */
+.tabs, [role="tablist"], [class*="TabList"] {
+  background: transparent !important;
+}
+
+[role="tab"], .tab, [class*="Tab"]{
+  background: var(--bg-2) !important;
+  color: var(--text-1) !important;
+  border: 1px solid var(--line-1) !important;
+  border-bottom: none !important;
+  border-radius: 10px 10px 0 0 !important;
+}
+
+[role="tab"][aria-selected="true"], .tab.active, [class*="active"]{
+  color: var(--text-0) !important;
+  background: var(--bg-3) !important;
+  border-color: rgba(60,138,115,.55) !important;
+  box-shadow: inset 0 -2px 0 rgba(60,138,115,.8) !important;
+}
+
+/* Tab panel content area (fix "white interior sections") */
+[role="tabpanel"], .tab-panel, .tabpanel, [class*="TabPanel"]{
+  background: var(--bg-2) !important;
+  border: 1px solid var(--line-1) !important;
+  border-radius: 0 12px 12px 12px !important;
+  color: var(--text-0) !important;
+}
+
+/* Tables (fix "too white") */
+table, .table, [class*="Table"]{
+  background: var(--bg-2) !important;
+  color: var(--text-0) !important;
+  border-collapse: collapse !important;
+}
+
+th, thead th{
+  background: var(--bg-3) !important;
+  color: var(--text-1) !important;
+  border-bottom: 1px solid var(--line-2) !important;
+}
+
+td{
+  background: var(--bg-2) !important;
+  border-bottom: 1px solid var(--line-1) !important;
+  color: var(--text-0) !important;
+}
+
+tr:hover td{
+  background: rgba(255,255,255,.03) !important;
+}
+
+/* Badges / status pills */
+.badge, .pill, [class*="Badge"], [class*="Pill"]{
+  background: rgba(255,255,255,.06) !important;
+  color: var(--text-0) !important;
+  border: 1px solid var(--line-1) !important;
+  border-radius: 999px !important;
+}
+
+.badge.ok, .pill.ok, [class*="success"]{
+  background: rgba(63,143,111,.18) !important;
+  border-color: rgba(63,143,111,.45) !important;
+}
+
+.badge.warn, .pill.warn, [class*="warning"]{
+  background: rgba(176,138,58,.18) !important;
+  border-color: rgba(176,138,58,.45) !important;
+}
+
+.badge.danger, .pill.danger, [class*="error"], [class*="failed"]{
+  background: rgba(184,75,75,.18) !important;
+  border-color: rgba(184,75,75,.45) !important;
+}
+
+/* Code blocks / trace areas */
+pre, code, .code, [class*="Code"], [class*="Trace"]{
+  background: #0a1111 !important;
+  color: rgba(220,255,245,.9) !important;
+  border: 1px solid rgba(120,220,190,.18) !important;
+  border-radius: 10px !important;
+}
+
+/* Scrollbars (optional, subtle) */
+*::-webkit-scrollbar { height: 10px; width: 10px; }
+*::-webkit-scrollbar-thumb { background: rgba(255,255,255,.10); border-radius: 999px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.16); }
+*::-webkit-scrollbar-track { background: rgba(255,255,255,.03); }

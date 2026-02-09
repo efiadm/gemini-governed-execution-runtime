@@ -52,8 +52,8 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
             </TableHeader>
             <TableBody>
               {results.map((test) => (
-                <TableRow key={test.id} style={{ backgroundColor: currentTestId === test.id && isRunning ? 'rgba(46, 139, 117, 0.08)' : 'transparent' }}>
-                  <TableCell className="text-xs font-medium" style={{ color: '#e6e8eb' }}>{test.name}</TableCell>
+                <TableRow key={test.id} className={currentTestId === test.id && isRunning ? "bg-blue-50" : ""}>
+                  <TableCell className="text-xs font-medium">{test.name}</TableCell>
                   <TableCell className="text-center">
                     {test.baselineResult === "pass" ? (
                       <CheckCircle2 className="w-4 h-4 text-green-600 mx-auto" />
@@ -87,8 +87,8 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
                       <span className="text-slate-300">—</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-center text-xs font-mono" style={{ color: '#e6e8eb' }}>{test.attempts || "—"}</TableCell>
-                  <TableCell className="text-center text-xs font-mono" style={{ color: '#e6e8eb' }}>{test.latency_ms || "—"}ms</TableCell>
+                  <TableCell className="text-center text-xs font-mono">{test.attempts || "—"}</TableCell>
+                  <TableCell className="text-center text-xs font-mono">{test.latency_ms || "—"}ms</TableCell>
                   <TableCell className="text-center">
                     {test.governedResult && (
                       <Button variant="ghost" size="sm" onClick={() => handleView(test)} className="h-7">

@@ -42,12 +42,12 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
       <TableRow>
         <TableCell className="text-xs font-medium" style={{ color: '#e6e8eb' }}>
           {label}
-          {isBillable && <Badge className="ml-2 text-[9px]" style={{ backgroundColor: 'rgba(200, 90, 84, 0.1)', color: '#c85a54' }}>Billable</Badge>}
+          {isBillable && <Badge className="ml-2 bg-red-100 text-red-700 text-[9px]">Billable</Badge>}
         </TableCell>
         <TableCell className="text-center text-xs font-mono" style={{ color: '#e6e8eb' }}>{baseVal || "—"}{unit}</TableCell>
         <TableCell className="text-center text-xs">
           <div className="flex items-center justify-center gap-1">
-            <span className="font-mono" style={{ color: '#e6e8eb' }}>{govVal || "—"}{unit}</span>
+            <span className="font-mono">{govVal || "—"}{unit}</span>
             {showDelta && baseVal && govVal && (
               <span className={`text-[10px] ${getDelta(govVal, baseVal) > 0 ? 'text-red-600' : 'text-green-600'}`}>
                 {getDelta(govVal, baseVal) > 0 ? <ArrowUp className="w-3 h-3 inline" /> : <ArrowDown className="w-3 h-3 inline" />}
@@ -58,7 +58,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
         </TableCell>
         <TableCell className="text-center text-xs">
           <div className="flex items-center justify-center gap-1">
-            <span className="font-mono" style={{ color: '#e6e8eb' }}>{hybVal || "—"}{unit}</span>
+            <span className="font-mono">{hybVal || "—"}{unit}</span>
             {showDelta && baseVal && hybVal && (
               <span className={`text-[10px] ${getDelta(hybVal, baseVal) > 0 ? 'text-red-600' : 'text-green-600'}`}>
                 {getDelta(hybVal, baseVal) > 0 ? <ArrowUp className="w-3 h-3 inline" /> : <ArrowDown className="w-3 h-3 inline" />}
@@ -155,7 +155,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg p-4 mb-6" style={{ backgroundColor: 'rgba(31, 111, 91, 0.05)', borderLeft: '4px solid #1f6f5b' }}>
+      <div className="rounded-lg p-4 mb-6" style={{ backgroundColor: 'rgba(31, 111, 91, 0.08)', borderLeft: '4px solid #1f6f5b' }}>
         <h2 className="text-base font-bold mb-1" style={{ color: '#e6e8eb' }}>Execution vs Reliability Tradeoffs</h2>
         <p className="text-xs" style={{ color: '#9aa1a9' }}>
           <strong>Plane A (Execution):</strong> Base generation cost. <strong>Plane B (Diagnostics):</strong> Optional validation overhead. <strong>Plane C (Repairs):</strong> Conditional recovery cost. 

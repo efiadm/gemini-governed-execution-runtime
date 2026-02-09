@@ -1,36 +1,94 @@
 import { estimateTokens } from "./utils";
 
+/**
+ * Calculates metrics from evidence following the Plane A/B/C model:
+ * 
+ * Plane A (Execution) - Billable model generation
+ * - Base model latency (first attempt)
+ * - Base tokens (pre-repair)
+ * - Base cost
+ * 
+ * Plane B (Diagnostics) - Non-billable runtime-local work that OFFSETS Plane A
+ * - Validation time (parsing + contract checking)
+ * - Render time (formatting + structuring)
+ * - Evidence assembly (metadata + telemetry)
+ * This plane GROWS with governed/hybrid as more safeguards are added
+ * 
+ * Plane C (Repairs) - Conditional billable recovery
+ * - Extra model calls (attempts beyond first)
+ * - Extra tokens (repair overhead)
+ * - Repair latency (model time for repairs)
+ * - Repair cost
+ */
 export function calculateMetrics(evidence, rawOutput, prompt, mode) {
   const attempts = evidence?.attempts || 1;
   const repairs = Math.max(0, evidence?.repairs || 0);
   
-  // Base token estimates per attempt
+  // === PLANE A: Base Execution (first attempt) ===
   const basePromptTokens = estimateTokens(prompt);
   const baseCompletionTokens = estimateTokens(rawOutput || "");
   const baseTokensPerAttempt = basePromptTokens + baseCompletionTokens;
   
-  // Total tokens accounting for all attempts
+  // Total tokens across all attempts (Plane A + Plane C)
   const totalPromptTokens = basePromptTokens * attempts;
   const totalCompletionTokens = baseCompletionTokens * attempts;
   const totalModelTokens = totalPromptTokens + totalCompletionTokens;
   
-  // Extra tokens due to repair (attempts beyond first)
+  // === PLANE C: Repair overhead (attempts beyond first) ===
   const extraTokensDueToRepair = Math.max(0, (attempts - 1) * baseTokensPerAttempt);
   
-  // Use real evidence latencies
+  // Model latencies from evidence
   const totalLatency = evidence?.latency_ms || 0;
   const modelLatency = evidence?.model_latency_ms || 0;
   const localLatency = evidence?.local_latency_ms || 0;
   
-  // Repair model latency estimate (if multiple attempts)
+  // Repair model latency (Plane C)
   let repairModelLatency = 0;
   if (attempts > 1 && modelLatency > 0) {
     const avgModelLatencyPerAttempt = modelLatency / attempts;
     repairModelLatency = Math.round(avgModelLatencyPerAttempt * (attempts - 1));
   }
   
-  // Base model latency (first attempt)
+  // Base model latency (Plane A - first attempt only)
   const baseModelLatency = Math.max(0, modelLatency - repairModelLatency);
+  
+  // === PLANE B: Runtime-local breakdown ===
+  // Plane B represents NON-BILLABLE local work that offsets Plane A
+  // For baseline: Plane B = 0 (no governance overhead)
+  // For governed/hybrid: Plane B grows as validation and processing increase
+  
+  let validationMs = 0;
+  let renderMs = 0;
+  let evidenceAssemblyMs = 0;
+  
+  if (mode === "baseline") {
+    // Baseline has no local governance work
+    validationMs = 0;
+    renderMs = 0;
+    evidenceAssemblyMs = 0;
+  } else {
+    // Governed/Hybrid: Use real local_latency_ms from evidence
+    // Break it down proportionally based on attempt details if available
+    const attemptDetails = evidence?.attemptDetails || [];
+    
+    if (attemptDetails.length > 0) {
+      // Sum local_ms from all attempts to get total validation time
+      validationMs = attemptDetails.reduce((sum, att) => sum + (att.local_ms || 0), 0);
+      
+      // Estimate render time (formatting JSON, structuring output)
+      // This is typically 5-15% of validation time
+      renderMs = Math.round(validationMs * 0.1);
+      
+      // Evidence assembly is the remainder
+      evidenceAssemblyMs = Math.max(0, localLatency - validationMs - renderMs);
+    } else {
+      // Fallback: distribute local_latency_ms across components
+      // 70% validation, 15% render, 15% evidence assembly
+      validationMs = Math.round(localLatency * 0.7);
+      renderMs = Math.round(localLatency * 0.15);
+      evidenceAssemblyMs = Math.round(localLatency * 0.15);
+    }
+  }
   
   const metrics = {
     billable: {
@@ -48,11 +106,14 @@ export function calculateMetrics(evidence, rawOutput, prompt, mode) {
       grounding_used: evidence?.grounding === "on",
       tool_calls_count: 0,
     },
+    // Plane B: Non-billable runtime-local work (offsets Plane A)
     local: {
-      local_validation_ms: localLatency,
-      local_render_ms: 0,
+      local_validation_ms: validationMs,
+      local_render_ms: renderMs,
+      local_evidence_assembly_ms: evidenceAssemblyMs,
       total_local_ms: localLatency,
     },
+    // Plane A: Base execution metrics
     total: {
       total_latency_ms: totalLatency,
       model_latency_ms: modelLatency,

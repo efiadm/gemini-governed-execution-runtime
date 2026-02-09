@@ -118,6 +118,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
     </div>
   );
 
+  // Plane A: Execution (Base Generation) - Billable model work
   const executionRows = (
     <>
       <MetricRow label="Model Latency (base call)" getValue={(m) => {
@@ -141,20 +142,17 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
     </>
   );
 
+  // Plane B: Diagnostics (Runtime-local) - NON-BILLABLE work that offsets Plane A
   const diagnosticsRows = (
     <>
       <MetricRow label="Validation Time" getValue={(m) => m?.local?.local_validation_ms ?? 0} unit="ms" />
       <MetricRow label="Render Time" getValue={(m) => m?.local?.local_render_ms ?? 0} unit="ms" />
-      <MetricRow label="Evidence Assembly" getValue={(m) => {
-        const total = m?.local?.total_local_ms ?? 0;
-        const validation = m?.local?.local_validation_ms ?? 0;
-        const render = m?.local?.local_render_ms ?? 0;
-        return Math.max(0, total - validation - render);
-      }} unit="ms" />
+      <MetricRow label="Evidence Assembly" getValue={(m) => m?.local?.local_evidence_assembly_ms ?? 0} unit="ms" />
       <MetricRow label="Total Runtime-local" getValue={(m) => m?.local?.total_local_ms ?? 0} unit="ms" showDelta />
     </>
   );
 
+  // Plane C: Repairs (Recovery Calls) - Conditional billable work
   const repairRows = (
     <>
       <MetricRow label="Extra Model Calls" getValue={(m) => m?.repair?.extra_model_calls_due_to_repair ?? 0} isBillable showDelta />

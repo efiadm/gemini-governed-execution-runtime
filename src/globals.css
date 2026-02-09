@@ -5,28 +5,28 @@
 @layer base {
   /* ============================================
      LOTUS / GEMINI GOVERNED UI THEME
-     Hunter Green + Dark Surfaces
      Competition-Grade Submission
+     Hunter Green + Enriched Dark Surfaces
      ============================================ */
   
   .lotus {
     color-scheme: dark;
     
-    /* Background surfaces (mapped to LOTUS palette) */
+    /* Core palette (shadcn-compatible HSL) */
     --background: 192 8% 5%;           /* bg-1: #0b1010 */
-    --foreground: 0 0% 92%;            /* text-0: rgba(255,255,255,.92) */
+    --foreground: 0 0% 92%;            /* text-0 */
     
     --card: 180 13% 8%;                /* bg-2: #0f1616 */
-    --card-foreground: 0 0% 92%;       /* text-0 */
+    --card-foreground: 0 0% 92%;
     
     --popover: 180 15% 10%;            /* bg-3: #141d1d */
-    --popover-foreground: 0 0% 92%;    /* text-0 */
+    --popover-foreground: 0 0% 92%;
     
     --primary: 162 41% 29%;            /* accent: #2d6b57 */
     --primary-foreground: 0 0% 100%;
     
     --secondary: 180 15% 12%;          /* bg-4: #1a2525 */
-    --secondary-foreground: 0 0% 78%;  /* text-1 */
+    --secondary-foreground: 0 0% 78%;
     
     --muted: 180 15% 10%;              /* bg-3 */
     --muted-foreground: 0 0% 62%;      /* text-2 */
@@ -37,81 +37,264 @@
     --destructive: 0 44% 52%;          /* danger: #b84b4b */
     --destructive-foreground: 0 0% 100%;
     
-    /* Borders and inputs */
-    --border: 0 0% 100% / 0.08;        /* line-1: rgba(255,255,255,.08) */
-    --input: 0 0% 100% / 0.12;         /* line-2: rgba(255,255,255,.12) */
-    --ring: 162 45% 40%;               /* accent-2 for focus */
+    --border: 0 0% 100% / 0.08;        /* line-1 */
+    --input: 0 0% 100% / 0.12;         /* line-2 */
+    --ring: 162 45% 40%;               /* accent for focus */
     
-    /* Radius */
     --radius: 0.75rem;                 /* 12px */
     
-    /* Chart colors (hunter green shades) */
     --chart-1: 162 41% 29%;
     --chart-2: 162 45% 35%;
     --chart-3: 162 38% 42%;
     --chart-4: 162 35% 48%;
     --chart-5: 162 32% 55%;
     
-    /* Sidebar tokens (if needed) */
-    --sidebar-background: 192 8% 5%;
-    --sidebar-foreground: 0 0% 78%;
-    --sidebar-primary: 162 41% 29%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 162 45% 35%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 100% / 0.08;
-    --sidebar-ring: 162 45% 40%;
+    /* Enrichment variables */
+    --surface-glow: 0 0% 100% / 0.06;
+    --surface-inset: 0 0% 0% / 0.25;
+    --elevation-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   }
   
-  /* Force base elements to use theme tokens */
+  /* Base element styling */
   .lotus body {
-    @apply bg-background text-foreground;
-  }
-  
-  /* Ensure all surfaces respect tokens */
-  .lotus * {
-    @apply border-border;
-  }
-}
-
-@layer base {
-  /* Global resets and accessibility */
-  * {
-    @apply border-border;
-  }
-  
-  body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   
-  /* Focus-visible ring (accessibility) */
-  *:focus-visible {
+  /* Focus-visible (accessibility-first) */
+  .lotus *:focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
   
   /* Disabled state standardization */
-  *:disabled {
+  .lotus *:disabled {
     @apply opacity-50 cursor-not-allowed pointer-events-none;
   }
+  
+  /* Anti-white safeguards (explicit, no wildcards) */
+  .lotus .bg-white { @apply bg-card; }
+  .lotus .bg-slate-50 { @apply bg-card; }
+  .lotus .bg-slate-100 { @apply bg-muted; }
+  .lotus .bg-slate-200 { @apply bg-secondary; }
+  .lotus .bg-gray-50 { @apply bg-card; }
+  .lotus .bg-gray-100 { @apply bg-muted; }
+  .lotus .bg-neutral-50 { @apply bg-card; }
+  .lotus .bg-zinc-50 { @apply bg-card; }
+  
+  .lotus .text-slate-900,
+  .lotus .text-slate-800,
+  .lotus .text-gray-900,
+  .lotus .text-neutral-900,
+  .lotus .text-zinc-900 { @apply text-foreground; }
+  
+  .lotus .text-slate-700,
+  .lotus .text-slate-600,
+  .lotus .text-gray-700 { @apply text-muted-foreground; }
+  
+  .lotus .border-slate-200,
+  .lotus .border-slate-300,
+  .lotus .border-gray-200,
+  .lotus .border-neutral-200 { @apply border-border; }
 }
 
 @layer components {
-  /* Scrollbar styling (optional refinement) */
+  /* ============================================
+     ENRICHMENT PRIMITIVES
+     ============================================ */
+  
+  /* Base surface (cards, panels) */
+  .lotus .surface {
+    @apply bg-card border border-border rounded-xl;
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--card)) 0%,
+      hsl(var(--card) / 0.97) 100%
+    );
+    box-shadow: 
+      inset 0 1px 0 hsl(var(--surface-glow)),
+      0 1px 2px rgba(0, 0, 0, 0.3);
+    position: relative;
+  }
+  
+  /* Elevated surface (modals, popovers) */
+  .lotus .surface-elevated {
+    @apply bg-popover border border-input rounded-xl;
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--popover)) 0%,
+      hsl(var(--popover) / 0.96) 100%
+    );
+    box-shadow: 
+      inset 0 1px 0 hsl(var(--surface-glow)),
+      var(--elevation-shadow);
+  }
+  
+  /* Hoverable surface */
+  .lotus .surface-hoverable {
+    @apply transition-all duration-200;
+  }
+  
+  .lotus .surface-hoverable:hover {
+    @apply bg-secondary;
+    box-shadow: 
+      inset 0 1px 0 hsl(var(--surface-glow)),
+      0 2px 4px rgba(0, 0, 0, 0.4);
+  }
+  
+  /* Engraved/inset panels (headers, key sections) */
+  .lotus .engraved {
+    @apply border border-border rounded-lg;
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--muted) / 0.5) 0%,
+      hsl(var(--muted) / 0.3) 100%
+    );
+    box-shadow: 
+      inset 0 1px 2px hsl(var(--surface-inset)),
+      inset 0 0 0 1px hsl(var(--border));
+  }
+  
+  /* Governed focus ring (hunter green glow) */
+  .lotus .ring-governed:focus-visible {
+    @apply outline-none;
+    box-shadow: 
+      0 0 0 3px rgba(45, 107, 87, 0.28),
+      0 0 8px rgba(60, 138, 115, 0.2);
+  }
+  
+  /* ============================================
+     COMPONENT-SPECIFIC ENRICHMENT
+     ============================================ */
+  
+  /* Tables */
+  .lotus table {
+    @apply border-collapse;
+  }
+  
+  .lotus thead {
+    @apply bg-muted border-b border-input;
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted) / 0.95) 100%
+    );
+  }
+  
+  .lotus thead th {
+    @apply text-muted-foreground font-semibold;
+    box-shadow: inset 0 1px 0 hsl(var(--surface-glow));
+  }
+  
+  .lotus tbody tr {
+    @apply border-b border-border transition-colors;
+  }
+  
+  .lotus tbody tr:hover {
+    @apply bg-secondary/50;
+  }
+  
+  .lotus tbody td {
+    @apply text-foreground;
+  }
+  
+  /* Tabs */
+  .lotus [role="tab"] {
+    @apply text-muted-foreground transition-all;
+    position: relative;
+  }
+  
+  .lotus [role="tab"][data-state="active"] {
+    @apply text-foreground;
+  }
+  
+  .lotus [role="tab"][data-state="active"]::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      hsl(var(--primary)) 20%,
+      hsl(var(--accent)) 80%,
+      transparent 100%
+    );
+    box-shadow: 0 0 8px hsl(var(--primary) / 0.4);
+  }
+  
+  /* Badges (status pills) */
+  .lotus .badge {
+    @apply border border-border rounded-full;
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--muted) / 0.4) 0%,
+      hsl(var(--muted) / 0.2) 100%
+    );
+  }
+  
+  /* Code blocks */
+  .lotus pre,
+  .lotus code {
+    @apply bg-background border border-border rounded-lg;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--background)) 0%,
+      hsl(192 10% 4%) 100%
+    );
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+  
+  /* Scrollbars */
   .lotus ::-webkit-scrollbar {
     @apply h-2.5 w-2.5;
   }
   
   .lotus ::-webkit-scrollbar-thumb {
     @apply rounded-full;
-    background: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0.08) 100%
+    );
   }
   
   .lotus ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.16);
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.18) 0%,
+      rgba(255, 255, 255, 0.12) 100%
+    );
   }
   
   .lotus ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.03);
+    @apply bg-background/50;
+  }
+  
+  /* ============================================
+     RADIX/SHADCN SPECIFIC TARGETS
+     ============================================ */
+  
+  /* Popovers, Dropdowns, Dialogs */
+  .lotus [data-radix-popper-content-wrapper] {
+    z-index: 50;
+  }
+  
+  .lotus [role="dialog"],
+  .lotus [role="menu"],
+  .lotus [role="listbox"] {
+    @apply surface-elevated;
+  }
+  
+  /* Select dropdowns */
+  .lotus [cmdk-root],
+  .lotus [cmdk-list] {
+    @apply bg-popover text-popover-foreground;
+  }
+  
+  /* Ensure option elements are dark */
+  .lotus option {
+    @apply bg-popover text-popover-foreground;
   }
 }

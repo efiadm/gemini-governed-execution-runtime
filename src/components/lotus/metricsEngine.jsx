@@ -1,47 +1,66 @@
 import { estimateTokens } from "./utils";
 
 export function calculateMetrics(evidence, rawOutput, prompt, mode) {
+  const attempts = evidence?.attempts || 1;
+  const repairs = Math.max(0, evidence?.repairs || 0);
+  
+  // Base token estimates per attempt
+  const basePromptTokens = estimateTokens(prompt);
+  const baseCompletionTokens = estimateTokens(rawOutput || "");
+  const baseTokensPerAttempt = basePromptTokens + baseCompletionTokens;
+  
+  // Total tokens accounting for all attempts
+  const totalPromptTokens = basePromptTokens * attempts;
+  const totalCompletionTokens = baseCompletionTokens * attempts;
+  const totalModelTokens = totalPromptTokens + totalCompletionTokens;
+  
+  // Extra tokens due to repair (attempts beyond first)
+  const extraTokensDueToRepair = Math.max(0, (attempts - 1) * baseTokensPerAttempt);
+  
+  // Use real evidence latencies
+  const totalLatency = evidence?.latency_ms || 0;
+  const modelLatency = evidence?.model_latency_ms || 0;
+  const localLatency = evidence?.local_latency_ms || 0;
+  
+  // Repair model latency estimate (if multiple attempts)
+  let repairModelLatency = 0;
+  if (attempts > 1 && modelLatency > 0) {
+    const avgModelLatencyPerAttempt = modelLatency / attempts;
+    repairModelLatency = Math.round(avgModelLatencyPerAttempt * (attempts - 1));
+  }
+  
+  // Base model latency (first attempt)
+  const baseModelLatency = Math.max(0, modelLatency - repairModelLatency);
+  
   const metrics = {
     billable: {
-      prompt_tokens_in: estimateTokens(prompt),
-      completion_tokens_out: estimateTokens(rawOutput || ""),
-      total_model_tokens: 0,
+      prompt_tokens_in: totalPromptTokens,
+      completion_tokens_out: totalCompletionTokens,
+      total_model_tokens: totalModelTokens,
     },
     repair: {
-      repair_attempts_count: evidence?.repairs || 0,
-      extra_model_calls_due_to_repair: evidence?.repairs || 0,
-      extra_tokens_due_to_repair: 0,
+      repair_attempts_count: repairs,
+      extra_model_calls_due_to_repair: Math.max(0, attempts - 1),
+      extra_tokens_due_to_repair: extraTokensDueToRepair,
+      repair_model_latency_ms: repairModelLatency,
     },
     tools: {
       grounding_used: evidence?.grounding === "on",
       tool_calls_count: 0,
     },
     local: {
-      local_validation_ms: 0,
+      local_validation_ms: localLatency,
       local_render_ms: 0,
-      local_storage_ms: 0,
-      total_local_ms: 0,
+      total_local_ms: localLatency,
     },
     total: {
-      total_latency_ms: evidence?.latency_ms || 0,
-      model_latency_ms: evidence?.model_latency_ms || 0,
+      total_latency_ms: totalLatency,
+      model_latency_ms: modelLatency,
+      base_model_latency_ms: baseModelLatency,
+      attempts: attempts,
     },
     hybrid_tokens_saved: evidence?.hybrid_tokens_saved || 0,
   };
-
-  metrics.billable.total_model_tokens = metrics.billable.prompt_tokens_in + metrics.billable.completion_tokens_out;
-
-  if (evidence?.repairs > 0) {
-    metrics.repair.extra_tokens_due_to_repair = evidence.repairs * (metrics.billable.prompt_tokens_in * 0.3 + 500);
-  }
-
-  if (mode === "governed" || mode === "hybrid") {
-    const validationCount = evidence?.attempts || 1;
-    metrics.local.local_validation_ms = validationCount * 5;
-    metrics.local.local_render_ms = 10;
-    metrics.local.local_storage_ms = 5;
-    metrics.local.total_local_ms = metrics.local.local_validation_ms + metrics.local.local_render_ms + metrics.local.local_storage_ms;
-  }
 
   return metrics;
 }

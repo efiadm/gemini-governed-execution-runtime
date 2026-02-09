@@ -26,6 +26,11 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
     if (!tokens) return 0;
     return (tokens / 1000) * COST_PER_1K_TOKENS;
   };
+  
+  const formatCurrency = (cost) => {
+    if (typeof cost !== "number") return cost;
+    return `$${cost.toFixed(4)}`;
+  };
 
   const calculateEfficiencyScore = (m) => {
     if (!m || !m.billable?.total_model_tokens || !m.total?.model_latency_ms) return null;
@@ -38,17 +43,29 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
     const govVal = getValue(governed);
     const hybVal = getValue(hybrid);
     
+    const formatValue = (val) => {
+      if (val == null || val === undefined) return "—";
+      if (typeof val === "string") return val;
+      return val;
+    };
+    
+    const canShowDelta = (base, comp) => {
+      return base != null && comp != null && typeof base === "number" && typeof comp === "number";
+    };
+    
     return (
       <TableRow>
         <TableCell className="text-xs font-medium text-foreground">
           {label}
           {isBillable && <Badge className="ml-2 bg-destructive text-destructive-foreground text-[9px]">Billable</Badge>}
         </TableCell>
-        <TableCell className="text-center text-xs font-mono">{baseVal || "—"}{unit}</TableCell>
+        <TableCell className="text-center text-xs font-mono">
+          {formatValue(baseVal)}{typeof baseVal === "number" ? unit : ""}
+        </TableCell>
         <TableCell className="text-center text-xs">
           <div className="flex items-center justify-center gap-1">
-            <span className="font-mono">{govVal || "—"}{unit}</span>
-            {showDelta && baseVal && govVal && (
+            <span className="font-mono">{formatValue(govVal)}{typeof govVal === "number" ? unit : ""}</span>
+            {showDelta && canShowDelta(baseVal, govVal) && (
               <span className={`text-[10px] ${getDelta(govVal, baseVal) > 0 ? 'text-red-600' : 'text-green-600'}`}>
                 {getDelta(govVal, baseVal) > 0 ? <ArrowUp className="w-3 h-3 inline" /> : <ArrowDown className="w-3 h-3 inline" />}
                 {Math.abs(getDelta(govVal, baseVal)).toFixed(0)}
@@ -58,8 +75,8 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
         </TableCell>
         <TableCell className="text-center text-xs">
           <div className="flex items-center justify-center gap-1">
-            <span className="font-mono">{hybVal || "—"}{unit}</span>
-            {showDelta && baseVal && hybVal && (
+            <span className="font-mono">{formatValue(hybVal)}{typeof hybVal === "number" ? unit : ""}</span>
+            {showDelta && canShowDelta(baseVal, hybVal) && (
               <span className={`text-[10px] ${getDelta(hybVal, baseVal) > 0 ? 'text-red-600' : 'text-green-600'}`}>
                 {getDelta(hybVal, baseVal) > 0 ? <ArrowUp className="w-3 h-3 inline" /> : <ArrowDown className="w-3 h-3 inline" />}
                 {Math.abs(getDelta(hybVal, baseVal)).toFixed(0)}
@@ -104,52 +121,52 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
   const executionRows = (
     <>
       <MetricRow label="Model Latency (base call)" getValue={(m) => {
-        const baseLatency = m?.total?.model_latency_ms || 0;
-        const repairLatency = (m?.repair?.extra_model_calls_due_to_repair || 0) * (baseLatency / (m?.total?.attempts || 1));
-        return Math.max(0, baseLatency - repairLatency).toFixed(0);
+        return m?.total?.base_model_latency_ms ?? m?.total?.model_latency_ms ?? 0;
       }} unit="ms" isBillable showDelta />
       <MetricRow label="Base Tokens (pre-repair)" getValue={(m) => {
-        const total = m?.billable?.total_model_tokens || 0;
-        const extra = m?.repair?.extra_tokens_due_to_repair || 0;
+        const total = m?.billable?.total_model_tokens ?? 0;
+        const extra = m?.repair?.extra_tokens_due_to_repair ?? 0;
         return Math.max(0, total - extra);
       }} isBillable showDelta />
       <MetricRow label="Estimated Cost" getValue={(m) => {
-        const total = m?.billable?.total_model_tokens || 0;
-        const extra = m?.repair?.extra_tokens_due_to_repair || 0;
-        return `$${calculateCost(Math.max(0, total - extra)).toFixed(4)}`;
+        const total = m?.billable?.total_model_tokens ?? 0;
+        const extra = m?.repair?.extra_tokens_due_to_repair ?? 0;
+        const cost = calculateCost(Math.max(0, total - extra));
+        return formatCurrency(cost);
       }} isBillable />
-      <MetricRow label="Efficiency (tok/sec)" getValue={(m) => calculateEfficiencyScore(m)} />
+      <MetricRow label="Efficiency (tok/sec)" getValue={(m) => {
+        const score = calculateEfficiencyScore(m);
+        return score ?? 0;
+      }} />
     </>
   );
 
   const diagnosticsRows = (
     <>
-      <MetricRow label="Validation Time" getValue={(m) => m?.local?.local_validation_ms} unit="ms" />
-      <MetricRow label="Render Time" getValue={(m) => m?.local?.local_render_ms} unit="ms" />
+      <MetricRow label="Validation Time" getValue={(m) => m?.local?.local_validation_ms ?? 0} unit="ms" />
+      <MetricRow label="Render Time" getValue={(m) => m?.local?.local_render_ms ?? 0} unit="ms" />
       <MetricRow label="Evidence Assembly" getValue={(m) => {
-        const total = m?.local?.total_local_ms || 0;
-        const validation = m?.local?.local_validation_ms || 0;
-        const render = m?.local?.local_render_ms || 0;
-        return Math.max(0, total - validation - render).toFixed(0);
+        const total = m?.local?.total_local_ms ?? 0;
+        const validation = m?.local?.local_validation_ms ?? 0;
+        const render = m?.local?.local_render_ms ?? 0;
+        return Math.max(0, total - validation - render);
       }} unit="ms" />
-      <MetricRow label="Total Runtime-local" getValue={(m) => m?.local?.total_local_ms} unit="ms" showDelta />
+      <MetricRow label="Total Runtime-local" getValue={(m) => m?.local?.total_local_ms ?? 0} unit="ms" showDelta />
     </>
   );
 
   const repairRows = (
     <>
-      <MetricRow label="Extra Model Calls" getValue={(m) => m?.repair?.extra_model_calls_due_to_repair || 0} isBillable showDelta />
-      <MetricRow label="Extra Tokens (repairs)" getValue={(m) => m?.repair?.extra_tokens_due_to_repair?.toFixed(0) || 0} isBillable showDelta />
+      <MetricRow label="Extra Model Calls" getValue={(m) => m?.repair?.extra_model_calls_due_to_repair ?? 0} isBillable showDelta />
+      <MetricRow label="Extra Tokens (repairs)" getValue={(m) => m?.repair?.extra_tokens_due_to_repair ?? 0} isBillable showDelta />
       <MetricRow label="Repair Latency (model)" getValue={(m) => {
-        const baseLatency = m?.total?.model_latency_ms || 0;
-        const repairCalls = m?.repair?.extra_model_calls_due_to_repair || 0;
-        const attempts = m?.total?.attempts || 1;
-        return (repairCalls > 0 ? (baseLatency / attempts) * repairCalls : 0).toFixed(0);
+        return m?.repair?.repair_model_latency_ms ?? 0;
       }} unit="ms" isBillable showDelta />
       <MetricRow label="Repair Cost" getValue={(m) => {
-        const extra = m?.repair?.extra_tokens_due_to_repair || 0;
-        return `$${calculateCost(extra).toFixed(4)}`;
-      }} isBillable showDelta />
+        const extra = m?.repair?.extra_tokens_due_to_repair ?? 0;
+        const cost = calculateCost(extra);
+        return formatCurrency(cost);
+      }} isBillable />
     </>
   );
 

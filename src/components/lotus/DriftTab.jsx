@@ -20,7 +20,7 @@ export default function DriftTab() {
   if (!runState.drift) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-sm text-slate-400 italic">No drift data yet. Run a prompt to see drift analysis.</p>
+        <p className="text-sm text-muted-foreground italic">No drift data yet. Run a prompt to see drift analysis.</p>
       </div>
     );
   }
@@ -32,47 +32,47 @@ export default function DriftTab() {
     <div className="space-y-6">
       {/* Drift Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="border-slate-200">
+        <Card className="surface">
           <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Structure Quality</CardTitle>
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase">Structure Quality</CardTitle>
           </CardHeader>
           <CardContent>
             {drift.structure_drift !== null ? (
               <>
-                <p className="text-2xl font-bold text-slate-900">{drift.structure_drift}%</p>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-2xl font-bold text-foreground">{drift.structure_drift}%</p>
+                <p className="text-xs text-muted-foreground mt-1">
                   {runState.mode === "baseline" ? "Baseline (unstructured)" : "Contract compliance"}
                 </p>
               </>
             ) : (
-              <p className="text-xs text-slate-400 italic">Not applicable in baseline mode (no governance layer).</p>
+              <p className="text-xs text-muted-foreground italic">Not applicable in baseline mode (no governance layer).</p>
             )}
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200">
+        <Card className="surface">
           <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Authority Drift</CardTitle>
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase">Authority Drift</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               {drift.authority_drift_flags.total > 0 && (
                 <AlertTriangle className="w-5 h-5 text-amber-600" />
               )}
-              <p className="text-2xl font-bold text-slate-900">
+              <p className="text-2xl font-bold text-foreground">
                 {drift.authority_drift_flags.total}
               </p>
             </div>
-            <p className="text-xs text-slate-500 mt-1">Override attempts detected</p>
+            <p className="text-xs text-muted-foreground mt-1">Override attempts detected</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Mode Divergence */}
       {drift.mode_divergence && (
-        <Card className="border-slate-200">
+        <Card className="surface">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-slate-700">Mode Divergence</CardTitle>
+            <CardTitle className="text-sm font-semibold text-card-foreground">Mode Divergence</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -193,9 +193,9 @@ export default function DriftTab() {
 
       {/* Recent Runs Trend */}
       {recentRuns.length > 0 && (
-        <Card className="border-slate-200">
+        <Card className="surface">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-slate-700">Recent Runs (Last 5)</CardTitle>
+            <CardTitle className="text-sm font-semibold text-card-foreground">Recent Runs (Last 5)</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">

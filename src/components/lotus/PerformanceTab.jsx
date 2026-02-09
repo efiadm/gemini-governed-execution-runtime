@@ -9,7 +9,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
   const [showOnlyBillable, setShowOnlyBillable] = useState(false);
 
   if (!allModeMetrics || Object.keys(allModeMetrics).length === 0) {
-    return <p className="text-sm text-slate-400 italic">No performance data yet. Run tests to see metrics.</p>;
+    return <p className="text-sm text-muted-foreground italic">No performance data yet. Run tests to see metrics.</p>;
   }
 
   const { baseline, governed, hybrid } = allModeMetrics;

@@ -33,11 +33,11 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
       </div>
 
       {results.length === 0 ? (
-        <p className="text-sm text-slate-400 italic text-center py-8">
+        <p className="text-sm text-muted-foreground italic text-center py-8">
           No test results yet. Click "Run Test Suite" to execute all tests.
         </p>
       ) : (
-        <div className="border border-slate-200 rounded-lg overflow-hidden">
+        <div className="surface-elevated overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-50">

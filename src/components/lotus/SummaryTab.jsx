@@ -17,7 +17,7 @@ export default function SummaryTab() {
   if (!runState.run_id) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-sm text-slate-400 italic">No runs yet. Execute a prompt to see summary.</p>
+        <p className="text-sm text-muted-foreground italic">No runs yet. Execute a prompt to see summary.</p>
       </div>
     );
   }
@@ -48,9 +48,9 @@ export default function SummaryTab() {
     <div className="space-y-6">
       {/* Lane Comparison Table - only show if multiple lanes have data */}
       {lanesWithData >= 2 && (
-        <Card className="border-slate-200">
+        <Card className="surface">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-slate-700">Lane Comparison</CardTitle>
+            <CardTitle className="text-sm font-semibold text-card-foreground">Lane Comparison</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -98,9 +98,9 @@ export default function SummaryTab() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-slate-200">
+        <Card className="surface">
           <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Run Info</CardTitle>
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase">Run Info</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="flex justify-between text-xs">
@@ -118,9 +118,9 @@ export default function SummaryTab() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200">
+        <Card className="surface">
           <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Validation</CardTitle>
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase">Validation</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center gap-2">
@@ -155,9 +155,9 @@ export default function SummaryTab() {
         </Card>
 
         {mode !== "baseline" && validation.repairs > 0 && hasBaseline && (
-          <Card className="border-slate-200">
+          <Card className="surface">
             <CardHeader className="pb-3">
-              <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Conditional Overhead</CardTitle>
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase">Conditional Overhead</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <p className="text-[10px] text-slate-500 mb-3">Overhead incurs only when validation fails and recovery path activates.</p>
@@ -193,9 +193,9 @@ export default function SummaryTab() {
       </div>
 
       {runState.artifacts && runState.artifacts.length > 0 && (
-        <Card className="border-slate-200">
+        <Card className="surface">
           <CardHeader className="pb-3">
-            <CardTitle className="text-xs font-semibold text-slate-500 uppercase">Recent Artifacts</CardTitle>
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase">Recent Artifacts</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex gap-2 flex-wrap">

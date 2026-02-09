@@ -69,7 +69,7 @@ export default function UnderTheHoodPanel() {
       {/* Compact Metric Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {perf.total_latency_ms && (
-          <Card className="bg-card border-border">
+          <Card className="surface">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-semibold text-muted-foreground uppercase flex items-center gap-2">
                 <Clock className="w-3 h-3" />
@@ -87,7 +87,7 @@ export default function UnderTheHoodPanel() {
         )}
 
         {perf.total_model_tokens && (
-          <Card className="bg-card border-border">
+          <Card className="surface">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-semibold text-muted-foreground uppercase flex items-center gap-2">
                 <Zap className="w-3 h-3" />
@@ -104,7 +104,7 @@ export default function UnderTheHoodPanel() {
           </Card>
         )}
 
-        <Card className="bg-card border-border">
+        <Card className="surface">
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase flex items-center gap-2">
               <Activity className="w-3 h-3" />
@@ -132,7 +132,7 @@ export default function UnderTheHoodPanel() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card border-border">
+        <Card className="surface">
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase flex items-center gap-2">
               <TrendingUp className="w-3 h-3" />

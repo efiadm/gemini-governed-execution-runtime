@@ -3,6 +3,8 @@ export const PRESET_CATEGORIES = {
   retrieval: "Retrieval",
   failure: "Failure",
   communication: "Communication",
+  constraints: "Constraint Collision",
+  safety: "Safety & De-escalation",
 };
 
 export const PRESET_PROMPTS = {

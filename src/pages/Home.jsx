@@ -4,33 +4,33 @@ import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 
-import PromptPanel from "@/components/lotus/PromptPanel";
-import OutputPanel from "@/components/lotus/OutputPanel";
-import SummaryPanel from "@/components/lotus/SummaryPanel";
-import EvidenceTab from "@/components/lotus/EvidenceTab";
-import TestsTab from "@/components/lotus/TestsTab";
-import PerformanceTab from "@/components/lotus/PerformanceTab";
-import ArtifactsTab from "@/components/lotus/ArtifactsTab";
-import DriftTab from "@/components/lotus/DriftTab";
-import UnderTheHoodPanel from "@/components/lotus/UnderTheHoodPanel";
-import TruncationWidget from "@/components/lotus/TruncationWidget";
-import ProgressStepper from "@/components/lotus/ProgressStepper";
-import SummaryTab from "@/components/lotus/SummaryTab";
+import PromptPanel from "@/components/gemini3/PromptPanel";
+import OutputPanel from "@/components/gemini3/OutputPanel";
+import SummaryPanel from "@/components/gemini3/SummaryPanel";
+import EvidenceTab from "@/components/gemini3/EvidenceTab";
+import TestsTab from "@/components/gemini3/TestsTab";
+import PerformanceTab from "@/components/gemini3/PerformanceTab";
+import ArtifactsTab from "@/components/gemini3/ArtifactsTab";
+import DriftTab from "@/components/gemini3/DriftTab";
+import UnderTheHoodPanel from "@/components/gemini3/UnderTheHoodPanel";
+import TruncationWidget from "@/components/gemini3/TruncationWidget";
+import ProgressStepper from "@/components/gemini3/ProgressStepper";
+import SummaryTab from "@/components/gemini3/SummaryTab";
 
 
 
-import { runBaseline, runGoverned, runHybrid } from "@/components/lotus/runtimeEngine";
-import { runAuditPipeline } from "@/components/lotus/auditPipeline";
-import { getSettings } from "@/components/lotus/settingsStore";
-import { TEST_SUITE, runTestSuite } from "@/components/lotus/testSuite";
-import { calculateMetrics, calculateTruncationRisk } from "@/components/lotus/metricsEngine";
-import { generateRequestId } from "@/components/lotus/utils";
-import { getStoredModel, setStoredModel } from "@/components/lotus/modelsRegistry";
-import { PRESET_PROMPTS } from "@/components/lotus/presets";
-import { updateRunState, resetRunState, getRunState, addToRunHistory } from "@/components/lotus/runStore";
-import { computeDriftTelemetry } from "@/components/lotus/driftEngine";
-import { computeHallucinationTelemetry } from "@/components/lotus/hallucinationDetector";
-import { hashPrompt } from "@/components/lotus/utils";
+import { runBaseline, runGoverned, runHybrid } from "@/components/gemini3/runtimeEngine";
+import { runAuditPipeline } from "@/components/gemini3/auditPipeline";
+import { getSettings } from "@/components/gemini3/settingsStore";
+import { TEST_SUITE, runTestSuite } from "@/components/gemini3/testSuite";
+import { calculateMetrics, calculateTruncationRisk } from "@/components/gemini3/metricsEngine";
+import { generateRequestId } from "@/components/gemini3/utils";
+import { getStoredModel, setStoredModel } from "@/components/gemini3/modelsRegistry";
+import { PRESET_PROMPTS } from "@/components/gemini3/presets";
+import { updateRunState, resetRunState, getRunState, addToRunHistory } from "@/components/gemini3/runStore";
+import { computeDriftTelemetry } from "@/components/gemini3/driftEngine";
+import { computeHallucinationTelemetry } from "@/components/gemini3/hallucinationDetector";
+import { hashPrompt } from "@/components/gemini3/utils";
 
 
 

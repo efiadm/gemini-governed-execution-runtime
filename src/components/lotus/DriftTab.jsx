@@ -77,16 +77,16 @@ export default function DriftTab() {
           <CardContent>
             <div className="space-y-3">
               {drift.mode_divergence.baseline_governed !== null && (
-                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                  <span className="text-sm text-slate-700">Baseline ↔ Governed</span>
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <span className="text-sm text-foreground">Baseline ↔ Governed</span>
                   <Badge variant={drift.mode_divergence.baseline_governed > 0.7 ? "default" : "destructive"}>
                     {(drift.mode_divergence.baseline_governed * 100).toFixed(1)}% similar
                   </Badge>
                 </div>
               )}
               {drift.mode_divergence.governed_hybrid !== null && (
-                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                  <span className="text-sm text-slate-700">Governed ↔ Hybrid</span>
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <span className="text-sm text-foreground">Governed ↔ Hybrid</span>
                   <Badge variant={drift.mode_divergence.governed_hybrid > 0.7 ? "default" : "destructive"}>
                     {(drift.mode_divergence.governed_hybrid * 100).toFixed(1)}% similar
                   </Badge>
@@ -99,15 +99,15 @@ export default function DriftTab() {
 
       {/* Authority Drift Flags */}
       {drift.authority_drift_flags.flags.length > 0 && (
-        <Card className="border-amber-200 bg-amber-50">
+        <Card className="surface border-2 border-amber-600">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-amber-800">Authority Drift Flags</CardTitle>
+            <CardTitle className="text-sm font-semibold text-foreground">Authority Drift Flags</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {drift.authority_drift_flags.flags.map((flag, i) => (
-                <div key={i} className="flex items-center justify-between p-2 bg-white rounded border border-amber-200">
-                  <span className="text-xs text-slate-700">{flag.name.replace(/_/g, " ")}</span>
+                <div key={i} className="flex items-center justify-between p-2 bg-muted rounded border border-amber-600/30">
+                  <span className="text-xs text-foreground">{flag.name.replace(/_/g, " ")}</span>
                   <Badge variant="outline" className="text-xs">{flag.count} occurrence(s)</Badge>
                 </div>
               ))}
@@ -118,32 +118,32 @@ export default function DriftTab() {
 
       {/* Hallucination Risk */}
       {hallucination && (
-        <Card className={`border-2 ${
-          hallucination.risk === "HIGH" ? "border-red-300 bg-red-50" :
-          hallucination.risk === "MEDIUM" ? "border-yellow-300 bg-yellow-50" :
-          "border-green-300 bg-green-50"
+        <Card className={`surface border-2 ${
+          hallucination.risk === "HIGH" ? "border-destructive" :
+          hallucination.risk === "MEDIUM" ? "border-amber-600" :
+          "border-primary"
         }`}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-slate-800">Hallucination Pattern Recognition</CardTitle>
+            <CardTitle className="text-sm font-semibold text-foreground">Hallucination Pattern Recognition</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3">
               <Badge className={`text-sm ${
-                hallucination.risk === "HIGH" ? "bg-red-600" :
-                hallucination.risk === "MEDIUM" ? "bg-yellow-600" :
-                "bg-green-600"
+                hallucination.risk === "HIGH" ? "bg-destructive text-destructive-foreground" :
+                hallucination.risk === "MEDIUM" ? "bg-amber-600 text-white" :
+                "bg-primary text-primary-foreground"
               }`}>
                 {hallucination.risk}
               </Badge>
-              <span className="text-xs text-slate-600">Based on citation integrity and validation</span>
+              <span className="text-xs text-muted-foreground">Based on citation integrity and validation</span>
             </div>
 
             {hallucination.citationIntegrity && (
               <div className="space-y-2">
-                <h4 className="text-xs font-semibold text-slate-700">Citation Integrity</h4>
+                <h4 className="text-xs font-semibold text-foreground">Citation Integrity</h4>
                 
                 {hallucination.citationIntegrity.uncitedLinks.length > 0 && (
-                  <div className="text-xs text-red-700 bg-white p-2 rounded border border-red-200">
+                  <div className="text-xs text-destructive bg-card p-2 rounded border border-destructive/30">
                     <strong>Uncited Links ({hallucination.citationIntegrity.uncitedLinks.length}):</strong>
                     <ul className="mt-1 ml-4 list-disc space-y-1">
                       {hallucination.citationIntegrity.uncitedLinks.slice(0, 3).map((url, i) => (
@@ -154,7 +154,7 @@ export default function DriftTab() {
                 )}
 
                 {hallucination.citationIntegrity.placeholderLinks.length > 0 && (
-                  <div className="text-xs text-red-700 bg-white p-2 rounded border border-red-200">
+                  <div className="text-xs text-destructive bg-card p-2 rounded border border-destructive/30">
                     <strong>Placeholder Links ({hallucination.citationIntegrity.placeholderLinks.length}):</strong>
                     <ul className="mt-1 ml-4 list-disc space-y-1">
                       {hallucination.citationIntegrity.placeholderLinks.map((url, i) => (
@@ -165,14 +165,14 @@ export default function DriftTab() {
                 )}
 
                 {hallucination.citationIntegrity.unusedSources.length > 0 && (
-                  <div className="text-xs text-amber-700 bg-white p-2 rounded border border-amber-200">
+                  <div className="text-xs text-amber-400 bg-card p-2 rounded border border-amber-600/30">
                     <strong>Unused Sources ({hallucination.citationIntegrity.unusedSources.length}):</strong>
                     <span className="ml-1">Sources provided but not referenced in output</span>
                   </div>
                 )}
 
                 {hallucination.citationIntegrity.uncitedClaimsWarning && (
-                  <div className="text-xs text-amber-700 bg-white p-2 rounded border border-amber-200">
+                  <div className="text-xs text-amber-400 bg-card p-2 rounded border border-amber-600/30">
                     <strong>Warning:</strong> Specific claims detected with grounding=on but no sources cited
                   </div>
                 )}
@@ -181,7 +181,7 @@ export default function DriftTab() {
                  hallucination.citationIntegrity.placeholderLinks.length === 0 &&
                  hallucination.citationIntegrity.unusedSources.length === 0 &&
                  !hallucination.citationIntegrity.uncitedClaimsWarning && (
-                  <p className="text-xs text-green-700 bg-white p-2 rounded border border-green-200">
+                  <p className="text-xs text-primary bg-card p-2 rounded border border-primary/30">
                     ✓ No citation integrity issues detected
                   </p>
                 )}
@@ -200,10 +200,10 @@ export default function DriftTab() {
           <CardContent>
             <div className="overflow-x-auto">
               <div className="min-w-[800px]">
-                <div className="border border-slate-200 rounded-lg overflow-hidden">
+                <div className="border border-border rounded-lg overflow-hidden">
                   <Table>
                 <TableHeader>
-                  <TableRow className="bg-slate-50">
+                  <TableRow className="bg-muted">
                     <TableHead className="text-xs">Mode</TableHead>
                     <TableHead className="text-xs">Grounding</TableHead>
                     <TableHead className="text-xs">Model</TableHead>
@@ -222,7 +222,7 @@ export default function DriftTab() {
                         <Badge variant="outline" className="text-[10px]">{run.grounding || "—"}</Badge>
                       </TableCell>
                       <TableCell className="text-xs">
-                        <span className="text-[10px] text-slate-600">{run.model || "—"}</span>
+                        <span className="text-[10px] text-muted-foreground">{run.model || "—"}</span>
                       </TableCell>
                       <TableCell className="text-xs font-mono">
                         {run.drift?.structure_drift !== null ? run.drift.structure_drift + "%" : "—"}

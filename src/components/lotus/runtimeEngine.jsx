@@ -14,6 +14,7 @@ import { emitEvent, EventTypes } from "./eventBus";
 import { updateRunState, addAttempt, addArtifact } from "./runStore";
 import { attemptLocalRepair, ensureRequiredFields } from "./localRepair";
 import { checkCache, saveToCache } from "./cacheReplay";
+import { buildNormalizedPerformance } from "./metricsEngine";
 
 /**
  * Unified execution pipeline: runOnce
@@ -272,11 +273,15 @@ export async function runOnce({ mode, grounding, model, prompt, settings = {}, o
       },
     };
     
+    // Build normalized performance object for UI consumption
+    const performance = buildNormalizedPerformance(evidence, rawOutput, prompt, mode, model, useGrounding ? "on" : "off");
+    
     return {
       output: parsedOutput,
       rawOutput,
       validation,
       evidence,
+      performance,
     };
     
   } catch (error) {
@@ -397,10 +402,14 @@ export async function runBaseline(prompt, groundingSetting, model, onProgress) {
 
   emitEvent(EventTypes.RUN_COMPLETED, { mode: "baseline", success: true });
 
+  // Baseline: all Plane B and Plane C are zero
+  const performance = buildNormalizedPerformance(evidence, rawOutput, prompt, "baseline", model, useGrounding ? "on" : "off");
+
   return {
     output: rawOutput,
     rawOutput,
     evidence,
+    performance,
   };
 }
 

@@ -22,6 +22,99 @@ import { estimateTokens } from "./utils";
  * - Repair latency (model time for repairs)
  * - Repair cost
  */
+/**
+ * Builds the canonical normalized performance object consumed by UI
+ * Separates Execution (Plane A), Runtime-Local (Plane B), Repairs (Plane C), and Audit
+ */
+export function buildNormalizedPerformance(evidence, rawOutput, prompt, mode, model, grounding) {
+  if (!evidence) {
+    return {
+      execution: { mode, model, grounding, prompt_tokens_in: 0, completion_tokens_out: 0, total_model_tokens: 0, model_latency_ms: 0, end_to_end_latency_ms: 0, repairs_used: 0, extra_model_calls: 0, extra_tokens_repairs: 0 },
+      runtime_local: { validation_ms: 0, parse_ms: 0, render_ms: 0, evidence_assembly_ms: 0, artifact_io_ms: 0, total_runtime_local_ms: 0 },
+      repairs: { triggered: false, calls: 0, billable_ms: 0, billable_tokens: 0, notes: [] },
+      audit: { enabled: false, status: "off", billable_ms: 0, billable_tokens: 0, model: null, started_at: null, finished_at: null, error: null },
+    };
+  }
+
+  const attempts = evidence?.attempts || 1;
+  const repairs = Math.max(0, evidence?.repairs || 0);
+  const basePromptTokens = estimateTokens(prompt);
+  const baseCompletionTokens = estimateTokens(rawOutput || "");
+  const totalPromptTokens = basePromptTokens * attempts;
+  const totalCompletionTokens = baseCompletionTokens * attempts;
+  const totalModelTokens = totalPromptTokens + totalCompletionTokens;
+  const extraTokensDueToRepair = Math.max(0, (attempts - 1) * (basePromptTokens + baseCompletionTokens));
+  
+  const modelLatency = evidence?.model_latency_ms || 0;
+  const localLatency = evidence?.local_latency_ms || 0;
+  const totalLatency = evidence?.latency_ms || 0;
+  
+  let repairModelLatency = 0;
+  if (attempts > 1 && modelLatency > 0) {
+    repairModelLatency = Math.round((modelLatency / attempts) * (attempts - 1));
+  }
+  
+  // Plane B breakdown
+  let validationMs = 0, parseMs = 0, renderMs = 0, evidenceAssemblyMs = 0, artifactIoMs = 0;
+  if (localLatency > 0) {
+    const attemptDetails = evidence?.attemptDetails || [];
+    if (attemptDetails.length > 0) {
+      validationMs = attemptDetails.reduce((sum, att) => sum + (att.local_ms || 0), 0);
+      parseMs = Math.round(validationMs * 0.2);
+      renderMs = Math.round(validationMs * 0.15);
+      evidenceAssemblyMs = Math.round(validationMs * 0.1);
+      artifactIoMs = Math.max(0, localLatency - validationMs - parseMs - renderMs - evidenceAssemblyMs);
+    } else {
+      validationMs = Math.round(localLatency * 0.5);
+      parseMs = Math.round(localLatency * 0.15);
+      renderMs = Math.round(localLatency * 0.15);
+      evidenceAssemblyMs = Math.round(localLatency * 0.1);
+      artifactIoMs = Math.round(localLatency * 0.1);
+    }
+  }
+
+  return {
+    execution: {
+      mode,
+      model,
+      grounding,
+      prompt_tokens_in: totalPromptTokens,
+      completion_tokens_out: totalCompletionTokens,
+      total_model_tokens: totalModelTokens,
+      model_latency_ms: modelLatency,
+      end_to_end_latency_ms: totalLatency,
+      repairs_used: repairs,
+      extra_model_calls: Math.max(0, attempts - 1),
+      extra_tokens_repairs: extraTokensDueToRepair,
+    },
+    runtime_local: {
+      validation_ms: validationMs,
+      parse_ms: parseMs,
+      render_ms: renderMs,
+      evidence_assembly_ms: evidenceAssemblyMs,
+      artifact_io_ms: artifactIoMs,
+      total_runtime_local_ms: localLatency,
+    },
+    repairs: {
+      triggered: repairs > 0,
+      calls: repairs,
+      billable_ms: repairModelLatency,
+      billable_tokens: extraTokensDueToRepair,
+      notes: repairs > 0 ? ["Repair loop triggered on validation failure"] : [],
+    },
+    audit: {
+      enabled: false,
+      status: "off",
+      billable_ms: 0,
+      billable_tokens: 0,
+      model: null,
+      started_at: null,
+      finished_at: null,
+      error: null,
+    },
+  };
+}
+
 export function calculateMetrics(evidence, rawOutput, prompt, mode) {
   const attempts = evidence?.attempts || 1;
   const repairs = Math.max(0, evidence?.repairs || 0);
@@ -55,37 +148,23 @@ export function calculateMetrics(evidence, rawOutput, prompt, mode) {
   const baseModelLatency = Math.max(0, modelLatency - repairModelLatency);
   
   // === PLANE B: Runtime-Local (App-Side) breakdown ===
-  // Plane B represents NON-BILLABLE app-side work (validation, parsing, evidence)
-  // This is work done LOCALLY in the application runtime, NOT on the model side
-  // Mode-agnostic: if local_latency_ms exists, break it down; otherwise = 0
-  
   let validationMs = 0;
   let renderMs = 0;
   let evidenceAssemblyMs = 0;
   
   if (localLatency > 0) {
-    // Break down local_latency_ms based on attempt details if available
     const attemptDetails = evidence?.attemptDetails || [];
     
     if (attemptDetails.length > 0) {
-      // Sum local_ms from all attempts to get total validation time
       validationMs = attemptDetails.reduce((sum, att) => sum + (att.local_ms || 0), 0);
-      
-      // Estimate render time (formatting JSON, structuring output)
-      // This is typically 5-15% of validation time
       renderMs = Math.round(validationMs * 0.1);
-      
-      // Evidence assembly is the remainder
       evidenceAssemblyMs = Math.max(0, localLatency - validationMs - renderMs);
     } else {
-      // Fallback: distribute local_latency_ms across components
-      // 70% validation, 15% render, 15% evidence assembly
       validationMs = Math.round(localLatency * 0.7);
       renderMs = Math.round(localLatency * 0.15);
       evidenceAssemblyMs = Math.round(localLatency * 0.15);
     }
   }
-  // If localLatency = 0 (baseline), all Plane B values remain 0
   
   const metrics = {
     billable: {
@@ -103,14 +182,12 @@ export function calculateMetrics(evidence, rawOutput, prompt, mode) {
       grounding_used: evidence?.grounding === "on",
       tool_calls_count: 0,
     },
-    // Plane B: Non-billable app runtime work (offsets Plane A)
     runtime_local: {
       validation_ms: validationMs,
       render_ms: renderMs,
       evidence_assembly_ms: evidenceAssemblyMs,
       total_runtime_local_ms: localLatency,
     },
-    // Plane A: Base execution metrics
     total: {
       total_latency_ms: totalLatency,
       model_latency_ms: modelLatency,

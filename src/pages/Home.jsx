@@ -221,18 +221,8 @@ export default function Home() {
       
       setTestResults(results);
       
-      const allMetrics = { baseline: {}, governed: {}, hybrid: {} };
-      results.forEach(r => {
-        ["baseline", "governed", "hybrid"].forEach(m => {
-          if (r[`${m}Metrics`]) {
-            Object.keys(r[`${m}Metrics`]).forEach(key => {
-              allMetrics[m][key] = (allMetrics[m][key] || 0) + r[`${m}Metrics`][key];
-            });
-          }
-        });
-      });
-      
-      setAllModeMetrics(allMetrics);
+      // Don't aggregate test metrics - they have different structure
+      // PerformanceTab expects single-run metrics, not aggregated test metrics
       toast.success("Test suite complete");
     } catch (err) {
       toast.error(`Test suite error: ${err.message}`);

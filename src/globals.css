@@ -12,7 +12,7 @@ css
   color-scheme: dark;
 
   /* Core Palette (HSL for shadcn compatibility) */
-  --background: 210 12% 10%;           /* Soft matte dark grey background */
+  --background: 195 35% 8%;            /* Deep teal background */
   --foreground: 0 0% 88%;              /* Light grey text */
 
   --card: 215 10% 14%;                 /* Light black surface */

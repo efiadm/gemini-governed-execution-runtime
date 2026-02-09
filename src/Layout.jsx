@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 
 export default function Layout({ children, currentPageName }) {
-  // Apply lotus theme class to HTML element on mount
+  // Apply Gemini 3 theme class to HTML element on mount
   useEffect(() => {
-    document.documentElement.classList.add('lotus');
+    document.documentElement.classList.add('gemini3');
     return () => {
-      document.documentElement.classList.remove('lotus');
+      document.documentElement.classList.remove('gemini3');
     };
   }, []);
 

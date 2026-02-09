@@ -4,12 +4,12 @@
 
 @layer base {
   /* ============================================
-     LOTUS / GEMINI GOVERNED UI THEME
+     GEMINI 3 GOVERNED EXECUTION THEME
      Competition-Grade Submission
      Hunter Green + Enriched Dark Surfaces
      ============================================ */
   
-  .lotus {
+  .gemini3 {
     color-scheme: dark;
     
     /* Core palette (shadcn-compatible HSL) */
@@ -51,51 +51,51 @@
   }
   
   /* Base element styling */
-  .lotus body {
+  .gemini3 body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   
   /* Focus-visible (accessibility-first) */
-  .lotus *:focus-visible {
+  .gemini3 *:focus-visible {
     @apply outline-none;
     box-shadow: 0 0 0 3px rgba(60, 138, 115, 0.4), 0 0 12px rgba(60, 138, 115, 0.3);
   }
   
   /* Disabled state standardization */
-  .lotus *:disabled {
+  .gemini3 *:disabled {
     @apply opacity-40 cursor-not-allowed;
     pointer-events: none !important;
   }
   
   /* Anti-white safeguards (explicit, no wildcards) */
-  .lotus .bg-white { background: hsl(var(--card)) !important; }
-  .lotus .bg-slate-50 { background: hsl(var(--card)) !important; }
-  .lotus .bg-slate-100 { background: hsl(var(--muted)) !important; }
-  .lotus .bg-slate-200 { background: hsl(var(--secondary)) !important; }
-  .lotus .bg-gray-50 { background: hsl(var(--card)) !important; }
-  .lotus .bg-gray-100 { background: hsl(var(--muted)) !important; }
-  .lotus .bg-neutral-50 { background: hsl(var(--card)) !important; }
-  .lotus .bg-zinc-50 { background: hsl(var(--card)) !important; }
+  .gemini3 .bg-white { background: hsl(var(--card)) !important; }
+  .gemini3 .bg-slate-50 { background: hsl(var(--card)) !important; }
+  .gemini3 .bg-slate-100 { background: hsl(var(--muted)) !important; }
+  .gemini3 .bg-slate-200 { background: hsl(var(--secondary)) !important; }
+  .gemini3 .bg-gray-50 { background: hsl(var(--card)) !important; }
+  .gemini3 .bg-gray-100 { background: hsl(var(--muted)) !important; }
+  .gemini3 .bg-neutral-50 { background: hsl(var(--card)) !important; }
+  .gemini3 .bg-zinc-50 { background: hsl(var(--card)) !important; }
   
-  .lotus .text-slate-900,
-  .lotus .text-slate-800,
-  .lotus .text-gray-900,
-  .lotus .text-neutral-900,
-  .lotus .text-zinc-900 { color: hsl(var(--foreground)) !important; }
+  .gemini3 .text-slate-900,
+  .gemini3 .text-slate-800,
+  .gemini3 .text-gray-900,
+  .gemini3 .text-neutral-900,
+  .gemini3 .text-zinc-900 { color: hsl(var(--foreground)) !important; }
   
-  .lotus .text-slate-700,
-  .lotus .text-slate-600,
-  .lotus .text-gray-700,
-  .lotus .text-gray-600 { color: hsl(var(--muted-foreground)) !important; }
+  .gemini3 .text-slate-700,
+  .gemini3 .text-slate-600,
+  .gemini3 .text-gray-700,
+  .gemini3 .text-gray-600 { color: hsl(var(--muted-foreground)) !important; }
   
-  .lotus .text-slate-500,
-  .lotus .text-slate-400 { color: hsl(var(--muted-foreground) / 0.8) !important; }
+  .gemini3 .text-slate-500,
+  .gemini3 .text-slate-400 { color: hsl(var(--muted-foreground) / 0.8) !important; }
   
-  .lotus .border-slate-200,
-  .lotus .border-slate-300,
-  .lotus .border-gray-200,
-  .lotus .border-neutral-200 { border-color: hsl(var(--border)) !important; }
+  .gemini3 .border-slate-200,
+  .gemini3 .border-slate-300,
+  .gemini3 .border-gray-200,
+  .gemini3 .border-neutral-200 { border-color: hsl(var(--border)) !important; }
 }
 
 @layer components {
@@ -104,7 +104,7 @@
      ============================================ */
   
   /* Base surface (cards, panels) */
-  .lotus .surface {
+  .gemini3 .surface {
     @apply rounded-xl border;
     background: linear-gradient(
       to bottom,
@@ -119,7 +119,7 @@
   }
   
   /* Elevated surface (modals, popovers, dropdowns) */
-  .lotus .surface-elevated {
+  .gemini3 .surface-elevated {
     @apply rounded-xl border;
     background: linear-gradient(
       to bottom,
@@ -134,11 +134,11 @@
   }
   
   /* Hoverable surface (subtle lift) */
-  .lotus .surface-hoverable {
+  .gemini3 .surface-hoverable {
     @apply transition-all duration-200;
   }
   
-  .lotus .surface-hoverable:hover:not(:disabled) {
+  .gemini3 .surface-hoverable:hover:not(:disabled) {
     background: linear-gradient(
       to bottom,
       hsl(var(--secondary)) 0%,
@@ -151,7 +151,7 @@
   }
   
   /* Engraved/inset panels */
-  .lotus .engraved {
+  .gemini3 .engraved {
     @apply rounded-lg border;
     background: linear-gradient(
       to bottom,
@@ -169,30 +169,30 @@
      ============================================ */
   
   /* All buttons base */
-  .lotus button,
-  .lotus [role="button"] {
+  .gemini3 button,
+  .gemini3 [role="button"] {
     @apply transition-all duration-150;
     position: relative;
   }
   
   /* Hover state (brighten) */
-  .lotus button:hover:not(:disabled),
-  .lotus [role="button"]:hover:not(:disabled) {
+  .gemini3 button:hover:not(:disabled),
+  .gemini3 [role="button"]:hover:not(:disabled) {
     transform: translateY(-1px);
     filter: brightness(1.1);
   }
   
   /* Active/Pressed state (MUST BE VISIBLE) */
-  .lotus button:active:not(:disabled),
-  .lotus [role="button"]:active:not(:disabled) {
+  .gemini3 button:active:not(:disabled),
+  .gemini3 [role="button"]:active:not(:disabled) {
     transform: translateY(2px) !important;
     filter: brightness(0.85) !important;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
   }
   
   /* Focus-visible (green ring) */
-  .lotus button:focus-visible,
-  .lotus [role="button"]:focus-visible {
+  .gemini3 button:focus-visible,
+  .gemini3 [role="button"]:focus-visible {
     @apply outline-none;
     box-shadow: 
       0 0 0 3px rgba(60, 138, 115, 0.5),
@@ -200,8 +200,8 @@
   }
   
   /* Disabled state (MUST BE OBVIOUS) */
-  .lotus button:disabled,
-  .lotus [role="button"]:disabled {
+  .gemini3 button:disabled,
+  .gemini3 [role="button"]:disabled {
     @apply opacity-40 cursor-not-allowed;
     filter: grayscale(0.5);
     transform: none !important;
@@ -209,9 +209,9 @@
   }
   
   /* Primary button (hunter green) */
-  .lotus button[class*="primary"],
-  .lotus .bg-primary,
-  .lotus .bg-accent {
+  .gemini3 button[class*="primary"],
+  .gemini3 .bg-primary,
+  .gemini3 .bg-accent {
     background: linear-gradient(
       to bottom,
       hsl(var(--primary)) 0%,
@@ -222,9 +222,9 @@
       0 2px 8px rgba(45, 107, 87, 0.3);
   }
   
-  .lotus button[class*="primary"]:hover:not(:disabled),
-  .lotus .bg-primary:hover:not(:disabled),
-  .lotus .bg-accent:hover:not(:disabled) {
+  .gemini3 button[class*="primary"]:hover:not(:disabled),
+  .gemini3 .bg-primary:hover:not(:disabled),
+  .gemini3 .bg-accent:hover:not(:disabled) {
     background: linear-gradient(
       to bottom,
       hsl(var(--accent)) 0%,
@@ -232,9 +232,9 @@
     ) !important;
   }
   
-  .lotus button[class*="primary"]:active:not(:disabled),
-  .lotus .bg-primary:active:not(:disabled),
-  .lotus .bg-accent:active:not(:disabled) {
+  .gemini3 button[class*="primary"]:active:not(:disabled),
+  .gemini3 .bg-primary:active:not(:disabled),
+  .gemini3 .bg-accent:active:not(:disabled) {
     background: hsl(162 41% 22%) !important;
     box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5) !important;
   }
@@ -244,7 +244,7 @@
      ============================================ */
   
   /* Tables */
-  .lotus table {
+  .gemini3 table {
     @apply border-collapse;
     background: linear-gradient(
       to bottom,
@@ -253,7 +253,7 @@
     );
   }
   
-  .lotus thead {
+  .gemini3 thead {
     background: linear-gradient(
       to bottom,
       hsl(var(--muted)) 0%,
@@ -262,44 +262,44 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   }
   
-  .lotus thead th {
+  .gemini3 thead th {
     @apply text-muted-foreground font-semibold;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
     padding: 0.75rem 1rem;
   }
   
-  .lotus tbody tr {
+  .gemini3 tbody tr {
     @apply border-b transition-colors;
     border-color: rgba(255, 255, 255, 0.06);
   }
   
-  .lotus tbody tr:hover {
+  .gemini3 tbody tr:hover {
     background: rgba(255, 255, 255, 0.03);
   }
   
-  .lotus tbody td {
+  .gemini3 tbody td {
     @apply text-foreground;
     padding: 0.75rem 1rem;
   }
   
   /* Tabs (active state must be obvious) */
-  .lotus [role="tab"] {
+  .gemini3 [role="tab"] {
     @apply text-muted-foreground transition-all;
     position: relative;
     padding: 0.75rem 1.5rem;
   }
   
-  .lotus [role="tab"]:hover:not([data-state="active"]) {
+  .gemini3 [role="tab"]:hover:not([data-state="active"]) {
     @apply text-foreground;
     background: rgba(255, 255, 255, 0.03);
   }
   
-  .lotus [role="tab"][data-state="active"] {
+  .gemini3 [role="tab"][data-state="active"] {
     @apply text-foreground;
     background: rgba(60, 138, 115, 0.08);
   }
   
-  .lotus [role="tab"][data-state="active"]::after {
+  .gemini3 [role="tab"][data-state="active"]::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -317,8 +317,8 @@
   }
   
   /* Badges (status pills) */
-  .lotus .badge,
-  .lotus [class*="Badge"] {
+  .gemini3 .badge,
+  .gemini3 [class*="Badge"] {
     @apply rounded-full border;
     background: linear-gradient(
       to bottom,
@@ -330,8 +330,8 @@
   }
   
   /* Code blocks */
-  .lotus pre,
-  .lotus code {
+  .gemini3 pre,
+  .gemini3 code {
     @apply rounded-lg border;
     background: linear-gradient(
       135deg,
@@ -342,18 +342,18 @@
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
   }
   
-  .lotus pre {
+  .gemini3 pre {
     padding: 1rem;
   }
   
-  .lotus code {
+  .gemini3 code {
     padding: 0.25rem 0.5rem;
   }
   
   /* Inputs and selects */
-  .lotus input,
-  .lotus textarea,
-  .lotus select {
+  .gemini3 input,
+  .gemini3 textarea,
+  .gemini3 select {
     background: linear-gradient(
       to bottom,
       hsl(var(--muted)) 0%,
@@ -363,15 +363,15 @@
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
   }
   
-  .lotus input:hover:not(:disabled),
-  .lotus textarea:hover:not(:disabled),
-  .lotus select:hover:not(:disabled) {
+  .gemini3 input:hover:not(:disabled),
+  .gemini3 textarea:hover:not(:disabled),
+  .gemini3 select:hover:not(:disabled) {
     border-color: rgba(255, 255, 255, 0.16) !important;
   }
   
-  .lotus input:focus,
-  .lotus textarea:focus,
-  .lotus select:focus {
+  .gemini3 input:focus,
+  .gemini3 textarea:focus,
+  .gemini3 select:focus {
     border-color: rgba(60, 138, 115, 0.6) !important;
     box-shadow: 
       inset 0 1px 2px rgba(0, 0, 0, 0.3),
@@ -379,11 +379,11 @@
   }
   
   /* Scrollbars */
-  .lotus ::-webkit-scrollbar {
+  .gemini3 ::-webkit-scrollbar {
     @apply h-2.5 w-2.5;
   }
   
-  .lotus ::-webkit-scrollbar-thumb {
+  .gemini3 ::-webkit-scrollbar-thumb {
     @apply rounded-full;
     background: linear-gradient(
       to bottom,
@@ -392,7 +392,7 @@
     );
   }
   
-  .lotus ::-webkit-scrollbar-thumb:hover {
+  .gemini3 ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(
       to bottom,
       rgba(255, 255, 255, 0.20) 0%,
@@ -400,7 +400,7 @@
     );
   }
   
-  .lotus ::-webkit-scrollbar-track {
+  .gemini3 ::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0.2);
   }
   
@@ -409,13 +409,13 @@
      ============================================ */
   
   /* Popovers, Dropdowns, Dialogs */
-  .lotus [data-radix-popper-content-wrapper] {
+  .gemini3 [data-radix-popper-content-wrapper] {
     z-index: 50;
   }
   
-  .lotus [role="dialog"],
-  .lotus [role="menu"],
-  .lotus [role="listbox"] {
+  .gemini3 [role="dialog"],
+  .gemini3 [role="menu"],
+  .gemini3 [role="listbox"] {
     background: linear-gradient(
       to bottom,
       hsl(var(--popover)) 0%,
@@ -428,13 +428,13 @@
   }
   
   /* Select dropdowns */
-  .lotus [cmdk-root],
-  .lotus [cmdk-list] {
+  .gemini3 [cmdk-root],
+  .gemini3 [cmdk-list] {
     @apply bg-popover text-popover-foreground;
   }
   
   /* Ensure option elements are dark */
-  .lotus option {
+  .gemini3 option {
     background: hsl(var(--popover));
     color: hsl(var(--popover-foreground));
   }

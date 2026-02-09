@@ -66,7 +66,7 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
             <CardTitle className="text-sm font-semibold text-card-foreground">Answer</CardTitle>
             <div className="flex items-center gap-2">
               {evidence?.safe_mode_applied && (
-                <Badge className="bg-amber-100 text-amber-800 text-xs">Safe Mode</Badge>
+                <Badge variant="secondary" className="text-xs">Safe Mode</Badge>
               )}
               <Button variant="ghost" size="sm" onClick={handleCopy} className="h-7">
                 <Copy className="w-3 h-3" />
@@ -116,13 +116,13 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
                   <RenderedSection title="Next Steps" items={output.next_steps} />
                   {output.sources && (
                     <div className="space-y-2">
-                      <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Sources</h4>
-                      <p className="text-xs text-slate-600">{output.sources.note}</p>
+                      <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Sources</h4>
+                      <p className="text-xs text-muted-foreground">{output.sources.note}</p>
                       {output.sources.items && output.sources.items.length > 0 && (
                         <ul className="space-y-1">
                           {output.sources.items.map((src, i) => (
-                            <li key={i} className="text-xs text-slate-600">
-                              • {src.title} {src.url && <a href={src.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">↗</a>}
+                            <li key={i} className="text-xs text-muted-foreground">
+                              • {src.title} {src.url && <a href={src.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">↗</a>}
                             </li>
                           ))}
                         </ul>
@@ -131,11 +131,7 @@ export default function OutputPanel({ output, evidence, mode, isRunning, showTel
                   )}
                   {output.risk && (
                     <div className="flex items-center gap-2">
-                      <Badge className={`text-xs ${
-                        output.risk.level === "high" ? "bg-red-100 text-red-800" :
-                        output.risk.level === "medium" ? "bg-amber-100 text-amber-800" :
-                        "bg-green-100 text-green-800"
-                      }`}>
+                      <Badge variant={output.risk.level === "high" ? "destructive" : "secondary"} className="text-xs">
                         Risk: {output.risk.level}
                       </Badge>
                     </div>

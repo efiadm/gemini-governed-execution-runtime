@@ -40,7 +40,7 @@ export default function PromptPanel({
             <SelectContent className="max-h-[400px]">
               {Object.entries(PRESET_CATEGORIES).map(([catKey, catLabel]) => (
                 <React.Fragment key={catKey}>
-                  <div className="px-2 py-1.5 text-xs font-semibold text-slate-600 bg-slate-50">{catLabel}</div>
+                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted">{catLabel}</div>
                   {Object.entries(PRESET_PROMPTS)
                     .filter(([_, preset]) => preset.category === catKey)
                     .map(([key, preset]) => (

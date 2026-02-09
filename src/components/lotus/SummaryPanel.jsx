@@ -85,10 +85,10 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
             />
           </div>
           <Badge className={`${
-            evidence.validation_passed ? "bg-green-600" :
-            evidence.safe_mode_applied ? "bg-green-600" :
-            "bg-red-600"
-          } text-white text-xs px-2 py-1 whitespace-nowrap`}>
+            evidence.validation_passed ? "bg-primary" :
+            evidence.safe_mode_applied ? "bg-primary" :
+            "bg-destructive"
+          } text-primary-foreground text-xs px-2 py-1 whitespace-nowrap`}>
             {evidence.validation_passed ? "✓ Contract Satisfied" : evidence.safe_mode_applied ? "✓ Model-Limited Execution (Contained)" : "✗ Failed"}
           </Badge>
         </div>

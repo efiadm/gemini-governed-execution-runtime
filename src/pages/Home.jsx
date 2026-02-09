@@ -268,12 +268,12 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-card border-b border-border">
+      <header className="sticky top-0 z-50 surface border-b border-border">
         <div className="max-w-[1800px] mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center">
-                <span className="text-white text-xs font-bold">G3</span>
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                <span className="text-primary-foreground text-xs font-bold">G3</span>
               </div>
               <div>
                 <h1 className="text-base font-bold text-foreground">Gemini 3 Governed Execution</h1>

@@ -220,6 +220,37 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
           <p className="text-xs text-muted-foreground mb-3">
             <strong>Plane C (Repairs) activates only on validation failure.</strong> When validation passes on first attempt, governed and hybrid modes incur Plane A + Plane B costs only — comparable to baseline with added contract guarantees and auditability.
           </p>
+          <div className="grid grid-cols-3 gap-4 mb-3">
+            <div className="border border-border rounded-lg p-3">
+              <div className="text-xs font-semibold text-foreground mb-1">Baseline</div>
+              <div className="text-xs text-muted-foreground">
+                {baseline?.repair?.repair_attempts_count === 0 ? 
+                  "✅ No repairs (expected)" : 
+                  `⚠️ ${baseline?.repair?.repair_attempts_count || 0} repairs`}
+              </div>
+            </div>
+            <div className="border border-border rounded-lg p-3">
+              <div className="text-xs font-semibold text-foreground mb-1">Governed</div>
+              <div className="text-xs text-muted-foreground">
+                {governed?.repair?.repair_attempts_count === 0 ? 
+                  "✅ Plane C inactive" : 
+                  `🔧 ${governed?.repair?.repair_attempts_count} repairs triggered`}
+              </div>
+            </div>
+            <div className="border border-border rounded-lg p-3">
+              <div className="text-xs font-semibold text-foreground mb-1">Hybrid</div>
+              <div className="text-xs text-muted-foreground">
+                {hybrid?.repair?.repair_attempts_count === 0 ? 
+                  "✅ Plane C inactive" : 
+                  `🔧 ${hybrid?.repair?.repair_attempts_count} repairs triggered`}
+              </div>
+              {hybrid?.hybrid_tokens_saved > 0 && (
+                <div className="text-xs text-primary mt-1">
+                  💾 {hybrid.hybrid_tokens_saved} tokens saved
+                </div>
+              )}
+            </div>
+          </div>
           <ul className="space-y-2 text-xs text-muted-foreground">
             <li>• <strong>Best case (validation passes):</strong> Plane A (base execution) + Plane B (runtime validation) — no repairs triggered</li>
             <li>• <strong>Recovery case (validation fails):</strong> Plane C activates — extra model calls until contract satisfied or safe mode applied</li>

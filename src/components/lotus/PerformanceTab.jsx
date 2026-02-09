@@ -9,10 +9,14 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
   const [showOnlyBillable, setShowOnlyBillable] = useState(false);
 
   if (!allModeMetrics || Object.keys(allModeMetrics).length === 0) {
-    return <p className="text-sm text-muted-foreground italic">No performance data yet. Run tests to see metrics.</p>;
+    return <p className="text-sm text-muted-foreground italic">No performance data yet. Run a prompt to see metrics.</p>;
   }
 
   const { baseline, governed, hybrid } = allModeMetrics;
+  
+  // Graceful degradation: show warning if baseline missing, but don't block display
+  const hasBaseline = !!baseline;
+  const showBaselineWarning = !hasBaseline && (governed || hybrid);
   
   const getDelta = (val, baseVal) => {
     if (!val || !baseVal) return null;
@@ -50,7 +54,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
     };
     
     const canShowDelta = (base, comp) => {
-      return base != null && comp != null && typeof base === "number" && typeof comp === "number";
+      return hasBaseline && base != null && comp != null && typeof base === "number" && typeof comp === "number";
     };
     
     return (
@@ -170,6 +174,15 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
 
   return (
     <div className="space-y-6">
+      {showBaselineWarning && (
+        <div className="bg-amber-900/20 border-l-4 border-amber-500 rounded-lg p-4">
+          <h3 className="text-sm font-bold text-amber-400 mb-1">⚠️ Baseline Missing</h3>
+          <p className="text-xs text-amber-300">
+            Run Baseline once with the same prompt to enable Performance Δ comparison. Current metrics are shown below.
+          </p>
+        </div>
+      )}
+      
       <div className="bg-card border-l-4 border-primary rounded-lg p-4 mb-6">
         <h2 className="text-base font-bold text-foreground mb-1">Execution vs Reliability Tradeoffs</h2>
         <p className="text-xs text-muted-foreground">

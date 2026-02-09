@@ -104,11 +104,12 @@ export default function Home() {
         result = await runHybrid(prompt, grounding, model, onProgress, settings);
       }
       
-      // Execution complete - update UI immediately
+      // Execution complete - calculate metrics immediately
+      const metrics = calculateMetrics(result.evidence, result.rawOutput, prompt, runMode);
+      
+      // Update UI immediately
       setCurrentOutput(result.output);
       setCurrentEvidence(result.evidence);
-
-      const metrics = calculateMetrics(result.evidence, result.rawOutput, prompt, runMode);
       setAllModeMetrics(prev => ({ ...prev, [runMode]: metrics }));
       
       if (runMode === "baseline") {
@@ -161,21 +162,34 @@ export default function Home() {
         artifacts: getRunState().artifacts || [],
       };
 
-      // Compute drift and hallucination telemetry
+      // Compute drift and hallucination telemetry (Plane B work, already completed)
       const drift = computeDriftTelemetry(runRecord, evidenceHistory.current.map(h => h.evidence));
       const hallucination = computeHallucinationTelemetry(runRecord);
 
       runRecord.drift = drift;
       runRecord.hallucination = hallucination;
 
+      // Populate ALL tab data immediately (no lazy loading)
+      const tabData = {
+        summary: { metrics, evidence: result.evidence },
+        performance: { allModeMetrics: { ...allModeMetrics, [runMode]: metrics }, baselineMetrics: baselineRef.current },
+        drift,
+        hallucination,
+        evidence: result.evidence,
+        artifacts: getRunState().artifacts || [],
+      };
+      
+      runRecord.tabData = tabData;
+
       // Add to history
       addToRunHistory(runRecord);
 
-      // Update global run store
+      // Update global run store with all data
       updateRunState({
         ...runRecord,
         drift,
         hallucination,
+        tabData,
       });
 
       await base44.entities.GovernanceRun.create({

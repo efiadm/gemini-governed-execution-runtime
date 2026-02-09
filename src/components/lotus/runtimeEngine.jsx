@@ -8,12 +8,282 @@ import {
   detectCorrectionMode,
   shouldUseGrounding,
 } from "./governanceContract";
-import { getArtifactContext, shouldInjectContext } from "./artifactStore";
+import { getArtifactContext, shouldInjectContext, storeArtifact } from "./artifactStore";
 import { generateRequestId, estimateTokens, hashPrompt } from "./utils";
 import { emitEvent, EventTypes } from "./eventBus";
 import { updateRunState, addAttempt, addArtifact } from "./runStore";
 import { attemptLocalRepair, ensureRequiredFields } from "./localRepair";
 import { checkCache, saveToCache } from "./cacheReplay";
+
+/**
+ * Unified execution pipeline: runOnce
+ * Executes a single run with proper Plane A/B/C timing and metric collection
+ */
+export async function runOnce({ mode, grounding, model, prompt, settings = {}, onProgress }) {
+  const t0 = performance.now();
+  const requestId = generateRequestId();
+  const useGrounding = shouldUseGrounding(grounding, prompt);
+  const correctionMode = detectCorrectionMode(prompt);
+  const repairCap = settings.repairCap ?? 1;
+  
+  // Timing collectors
+  const timing = {
+    planeA: { start: 0, end: 0, ms: 0 },
+    planeB: { validation: 0, render: 0, evidence: 0, total: 0 },
+    planeC: { repairs: [] },
+  };
+  
+  // Result collectors
+  let parsedOutput = null;
+  let rawOutput = "";
+  let validation = { passed: false, errors: [] };
+  let safeModeApplied = false;
+  const attemptDetails = [];
+  let localRepairsCount = 0;
+  
+  emitEvent(EventTypes.RUN_STARTED, { mode, requestId, prompt });
+  
+  try {
+    if (mode === "baseline") {
+      return await runBaseline(prompt, grounding, model, onProgress);
+    }
+    
+    // === PLANE A: Base Model Call (First Attempt) ===
+    onProgress?.("contract");
+    timing.planeB.start = performance.now();
+    
+    const systemPrompt = buildGovernedSystemPrompt(useGrounding, correctionMode);
+    let contextInjected = false;
+    let hybridTokensSaved = 0;
+    
+    // Hybrid: Check artifact context (Plane B work)
+    if (mode === "hybrid") {
+      const artifactContext = await getArtifactContext(prompt);
+      const shouldInject = shouldInjectContext(artifactContext, prompt);
+      if (shouldInject) {
+        contextInjected = true;
+        const contextHeader = `[Hybrid Context: ${artifactContext.summary}]`;
+        hybridTokensSaved = estimateTokens(artifactContext.fullContext) - estimateTokens(contextHeader);
+      }
+    }
+    
+    timing.planeB.evidence += performance.now() - timing.planeB.start;
+    
+    onProgress?.("validate");
+    const fullPrompt = `${systemPrompt}\n\nUser prompt: ${prompt}`;
+    
+    // PLANE A: First model call
+    timing.planeA.start = performance.now();
+    emitEvent(EventTypes.MODEL_CALLED, { attempt: 1, kind: "initial" });
+    rawOutput = await callModel(fullPrompt, useGrounding);
+    timing.planeA.end = performance.now();
+    timing.planeA.ms = timing.planeA.end - timing.planeA.start;
+    emitEvent(EventTypes.MODEL_RESULT, { rawLength: rawOutput.length, modelMs: timing.planeA.ms });
+    
+    // === PLANE B: Validation + Parse (Runtime-local) ===
+    const validationStart = performance.now();
+    emitEvent(EventTypes.LOCAL_STEP, { step: "validation", attempt: 1 });
+    
+    // Local repair attempt
+    const localRepairResult = attemptLocalRepair(rawOutput);
+    if (localRepairResult.success && localRepairResult.parsed) {
+      localRepairsCount = localRepairResult.repairs.length;
+      const fieldResult = ensureRequiredFields(localRepairResult.parsed, { grounded: useGrounding, correctionMode });
+      if (fieldResult.modified) {
+        localRepairsCount += fieldResult.addedFields.length;
+      }
+      parsedOutput = fieldResult.parsed;
+    } else {
+      try {
+        parsedOutput = tryParseJson(rawOutput);
+      } catch (e) {
+        parsedOutput = null;
+        validation = { passed: false, errors: [`JSON parse failed: ${e.message}`] };
+      }
+    }
+    
+    if (parsedOutput) {
+      validation = validateGovernedOutput(parsedOutput, { grounded: useGrounding, correctionMode, hadRepairs: false });
+    }
+    
+    timing.planeB.validation = performance.now() - validationStart;
+    
+    attemptDetails.push({
+      attempt: 1,
+      kind: "initial",
+      ok: validation.passed,
+      model_ms: timing.planeA.ms,
+      local_ms: timing.planeB.validation,
+      errors: validation.errors,
+      raw_preview: rawOutput.substring(0, 240),
+      raw_full: rawOutput,
+    });
+    addAttempt(attemptDetails[0]);
+    
+    // === PLANE C: Repair Loop (Conditional Billable) ===
+    let repairAttempts = 0;
+    while (!validation.passed && repairAttempts < repairCap) {
+      repairAttempts++;
+      onProgress?.("repair");
+      emitEvent(EventTypes.REPAIR_ATTEMPT, { repair: repairAttempts });
+      
+      const repairStart = performance.now();
+      const repairPrompt = buildRepairPrompt(validation.errors, rawOutput);
+      const repairFullPrompt = `${systemPrompt}\n\n${repairPrompt}`;
+      
+      emitEvent(EventTypes.MODEL_CALLED, { attempt: 1 + repairAttempts, kind: "repair" });
+      rawOutput = await callModel(repairFullPrompt, useGrounding);
+      const repairModelMs = performance.now() - repairStart;
+      
+      timing.planeC.repairs.push({
+        attempt: 1 + repairAttempts,
+        model_ms: repairModelMs,
+        tokens: estimateTokens(rawOutput),
+      });
+      
+      emitEvent(EventTypes.MODEL_RESULT, { rawLength: rawOutput.length, modelMs: repairModelMs });
+      
+      // Validate repair
+      const repairValidationStart = performance.now();
+      try {
+        parsedOutput = tryParseJson(rawOutput);
+        validation = validateGovernedOutput(parsedOutput, { grounded: useGrounding, correctionMode, hadRepairs: true });
+      } catch (e) {
+        parsedOutput = null;
+        validation = { passed: false, errors: [`JSON parse failed on repair ${repairAttempts}: ${e.message}`] };
+      }
+      const repairValidationMs = performance.now() - repairValidationStart;
+      timing.planeB.validation += repairValidationMs;
+      
+      attemptDetails.push({
+        attempt: 1 + repairAttempts,
+        kind: "repair",
+        ok: validation.passed,
+        model_ms: repairModelMs,
+        local_ms: repairValidationMs,
+        errors: validation.errors,
+        raw_preview: rawOutput.substring(0, 240),
+        raw_full: rawOutput,
+      });
+      addAttempt(attemptDetails[attemptDetails.length - 1]);
+    }
+    
+    // === PLANE B: Safe Mode (if needed) ===
+    if (!validation.passed) {
+      const safeModeStart = performance.now();
+      emitEvent(EventTypes.LOCAL_STEP, { step: "safe_mode" });
+      parsedOutput = generateSafeModeOutput(useGrounding, correctionMode);
+      safeModeApplied = true;
+      validation = { passed: false, errors: ["Contract not satisfied within repair cap; output contained."] };
+      timing.planeB.evidence += performance.now() - safeModeStart;
+    }
+    
+    // === PLANE B: Render + Evidence Assembly ===
+    const renderStart = performance.now();
+    onProgress?.("evidence");
+    
+    // Always write artifacts (runtime-local, system-side storage)
+    addArtifact({ type: "contract", content: "Governed JSON Schema", mode, timestamp: Date.now() });
+    if (safeModeApplied) {
+      addArtifact({ type: "safe_mode", reason: "Contract validation failed; fail-safe containment applied", mode, timestamp: Date.now() });
+    }
+    if (localRepairsCount > 0) {
+      addArtifact({ type: "local_repair", repairs: [`${localRepairsCount} local repairs`], mode, timestamp: Date.now() });
+    }
+    if (mode === "hybrid" && contextInjected) {
+      addArtifact({ type: "hybrid_context", tokens_saved: hybridTokensSaved, mode, timestamp: Date.now() });
+    }
+    
+    // Store artifact for long-term context (Hybrid feature)
+    if (parsedOutput?.answer) {
+      storeArtifact(
+        `${mode} execution`,
+        parsedOutput.answer.substring(0, 200)
+      );
+    }
+    
+    timing.planeB.render = performance.now() - renderStart;
+    timing.planeB.total = timing.planeB.validation + timing.planeB.render + timing.planeB.evidence;
+    
+    const totalLatency = performance.now() - t0;
+    
+    // Calculate repair metrics (Plane C)
+    const repairModelMs = timing.planeC.repairs.reduce((sum, r) => sum + r.model_ms, 0);
+    const repairTokens = timing.planeC.repairs.reduce((sum, r) => sum + r.tokens, 0);
+    
+    // Add execution metrics artifact
+    addArtifact({
+      type: "execution_metrics",
+      billable_model_ms: timing.planeA.ms,
+      runtime_local_ms: timing.planeB.total,
+      repair_model_ms: repairModelMs,
+      mode,
+      timestamp: Date.now(),
+    });
+    
+    emitEvent(EventTypes.RUN_COMPLETED, { mode, success: true, safeModeApplied });
+    
+    // Build evidence record
+    const evidence = {
+      request_id: requestId,
+      timestamp: new Date().toISOString(),
+      mode,
+      model,
+      grounding: useGrounding ? "on" : "off",
+      prompt_hash: hashPrompt(prompt),
+      prompt_preview: prompt.substring(0, 100),
+      prompt_full: prompt,
+      
+      // Total latency
+      latency_ms: Math.round(totalLatency),
+      
+      // Plane A: Base model execution
+      model_latency_ms: Math.round(timing.planeA.ms + repairModelMs),
+      base_model_latency_ms: Math.round(timing.planeA.ms),
+      
+      // Plane B: Runtime-local work
+      local_latency_ms: Math.round(timing.planeB.total),
+      local_validation_ms: Math.round(timing.planeB.validation),
+      local_render_ms: Math.round(timing.planeB.render),
+      local_evidence_ms: Math.round(timing.planeB.evidence),
+      
+      // Plane C: Repairs
+      attempts: attemptDetails.length,
+      repairs: repairAttempts,
+      repair_model_latency_ms: Math.round(repairModelMs),
+      local_repairs: localRepairsCount,
+      
+      validation_passed: validation.passed && !safeModeApplied,
+      safe_mode_applied: safeModeApplied,
+      safe_mode_status: safeModeApplied ? "Contained (Fail-Safe)" : null,
+      correction_mode: correctionMode,
+      repair_cap: repairCap,
+      audit_excluded: true,
+      
+      hybrid_context_injected: contextInjected,
+      hybrid_tokens_saved: hybridTokensSaved,
+      
+      attemptDetails,
+      validation_summary: {
+        total_checks: Math.max(1, validation.errors.length + (validation.passed ? 5 : 0)),
+        passed_checks: validation.passed && !safeModeApplied ? 5 : 0,
+        failed_checks: safeModeApplied ? 1 : validation.errors.length,
+        failures: safeModeApplied ? ["Contract not satisfied within repair cap; output contained."] : validation.errors,
+      },
+    };
+    
+    return {
+      output: parsedOutput,
+      rawOutput,
+      validation,
+      evidence,
+    };
+    
+  } catch (error) {
+    emitEvent(EventTypes.RUN_COMPLETED, { mode, success: false, error: error.message });
+    throw error;
+  }
+}
 
 async function callModel(prompt, grounded) {
   try {
@@ -134,7 +404,14 @@ export async function runBaseline(prompt, groundingSetting, model, onProgress) {
   };
 }
 
+/**
+ * Legacy wrapper - use runOnce instead
+ */
 export async function runGoverned(prompt, groundingSetting, model, onProgress, settings = {}) {
+  return runOnce({ mode: "governed", grounding: groundingSetting, model, prompt, settings, onProgress });
+}
+
+export async function runGovernedLegacy(prompt, groundingSetting, model, onProgress, settings = {}) {
   const t0 = Date.now();
   const requestId = generateRequestId();
   const useGrounding = shouldUseGrounding(groundingSetting, prompt);
@@ -335,7 +612,14 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress, s
   };
 }
 
+/**
+ * Legacy wrapper - use runOnce instead
+ */
 export async function runHybrid(prompt, groundingSetting, model, onProgress, settings = {}) {
+  return runOnce({ mode: "hybrid", grounding: groundingSetting, model, prompt, settings, onProgress });
+}
+
+export async function runHybridLegacy(prompt, groundingSetting, model, onProgress, settings = {}) {
   const t0 = Date.now();
   const requestId = generateRequestId();
   const useGrounding = shouldUseGrounding(groundingSetting, prompt);

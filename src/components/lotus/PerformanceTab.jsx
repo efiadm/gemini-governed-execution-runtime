@@ -142,13 +142,13 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
     </>
   );
 
-  // Plane B: Diagnostics (Runtime-local) - NON-BILLABLE work that offsets Plane A
+  // Plane B: Diagnostics (App Runtime) - NON-BILLABLE app-side work
   const diagnosticsRows = (
     <>
-      <MetricRow label="Validation Time" getValue={(m) => m?.local?.local_validation_ms ?? 0} unit="ms" />
-      <MetricRow label="Render Time" getValue={(m) => m?.local?.local_render_ms ?? 0} unit="ms" />
-      <MetricRow label="Evidence Assembly" getValue={(m) => m?.local?.local_evidence_assembly_ms ?? 0} unit="ms" />
-      <MetricRow label="Total Runtime-local" getValue={(m) => m?.local?.total_local_ms ?? 0} unit="ms" showDelta />
+      <MetricRow label="Validation Time" getValue={(m) => m?.runtime_local?.validation_ms ?? 0} unit="ms" />
+      <MetricRow label="Render Time" getValue={(m) => m?.runtime_local?.render_ms ?? 0} unit="ms" />
+      <MetricRow label="Evidence Assembly" getValue={(m) => m?.runtime_local?.evidence_assembly_ms ?? 0} unit="ms" />
+      <MetricRow label="Total App Runtime" getValue={(m) => m?.runtime_local?.total_runtime_local_ms ?? 0} unit="ms" showDelta />
     </>
   );
 
@@ -173,9 +173,9 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
       <div className="bg-card border-l-4 border-primary rounded-lg p-4 mb-6">
         <h2 className="text-base font-bold text-foreground mb-1">Execution vs Reliability Tradeoffs</h2>
         <p className="text-xs text-muted-foreground">
-          <strong>Plane A:</strong> Billable model work (always active). <strong>Plane B:</strong> NON-billable local work that offsets Plane A by handling validation/parsing/evidence (grows with safeguards). <strong>Plane C:</strong> Conditional billable repairs (only when needed). 
+          <strong>Plane A:</strong> Billable model execution (always active). <strong>Plane B:</strong> NON-billable app-side work that offsets Plane A by handling validation/parsing/evidence locally (grows with safeguards). <strong>Plane C:</strong> Conditional billable repairs (only when validation fails). 
           <span className="block mt-1 text-primary font-semibold">
-            Plane B intentionally absorbs work to reduce Plane A dependency. As governance adds safeguards, Plane B grows — this is expected and desirable.
+            "Runtime-local" = work done in your application, not on model servers. Plane B intentionally absorbs work to reduce billable Plane A dependency. As governance adds safeguards, Plane B grows — this is expected and desirable.
           </span>
         </p>
       </div>
@@ -188,8 +188,8 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
       />
 
       <PlaneTable
-        title="🔍 Plane B: Diagnostics (Runtime-Local)"
-        subtitle="⚙️ NON-billable local work that OFFSETS Plane A • Validation + parsing + evidence assembly • Grows with governance safeguards • Baseline = 0ms, Governed/Hybrid = 10-20ms+"
+        title="🔍 Plane B: Diagnostics (App Runtime)"
+        subtitle="⚙️ NON-billable app-side work that OFFSETS Plane A • Validation + parsing + evidence assembly • Grows with governance safeguards • Baseline = 0ms, Governed/Hybrid = 10-20ms+"
         rows={diagnosticsRows}
         bgColor="bg-muted"
       />

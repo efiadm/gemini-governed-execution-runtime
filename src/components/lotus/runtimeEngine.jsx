@@ -288,7 +288,13 @@ export async function runGoverned(prompt, groundingSetting, model, onProgress, s
   onProgress?.("evidence");
   const totalLatency = Date.now() - t0;
 
-  addArtifact({ type: "performance", billable_ms: totalModelMs, app_runtime_ms: totalLocalMs, mode: "governed", timestamp: Date.now() });
+  addArtifact({ 
+    type: "execution_metrics", 
+    billable_model_ms: totalModelMs, 
+    runtime_local_ms: totalLocalMs, 
+    mode: "governed", 
+    timestamp: Date.now() 
+  });
   emitEvent(EventTypes.ARTIFACT_EMITTED, { type: "performance" });
   
   emitEvent(EventTypes.RUN_COMPLETED, { mode: "governed", success: true, safeModeApplied });
@@ -501,7 +507,13 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress, set
   onProgress?.("evidence");
   const totalLatency = Date.now() - t0;
 
-  addArtifact({ type: "performance", billable_ms: totalModelMs, app_runtime_ms: totalLocalMs, mode: "hybrid", timestamp: Date.now() });
+  addArtifact({ 
+    type: "execution_metrics", 
+    billable_model_ms: totalModelMs, 
+    runtime_local_ms: totalLocalMs, 
+    mode: "hybrid", 
+    timestamp: Date.now() 
+  });
   emitEvent(EventTypes.ARTIFACT_EMITTED, { type: "performance" });
   
   emitEvent(EventTypes.RUN_COMPLETED, { mode: "hybrid", success: true, safeModeApplied });
@@ -529,7 +541,7 @@ export async function runHybrid(prompt, groundingSetting, model, onProgress, set
       safe_mode_status: safeModeApplied ? "Contained (Fail-Safe)" : null,
       correction_mode: correctionMode,
       repair_cap: repairCap,
-      execution_only: true,
+      audit_excluded: true,
       hybrid_context_injected: contextInjected,
       hybrid_context_header: contextHeader,
       hybrid_tokens_saved: tokensSaved,

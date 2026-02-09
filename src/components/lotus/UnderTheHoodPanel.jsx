@@ -79,8 +79,8 @@ export default function UnderTheHoodPanel() {
             <CardContent>
               <p className="text-lg font-bold text-foreground">{perf.total_latency_ms}ms</p>
               <div className="text-[10px] text-muted-foreground space-y-0.5 mt-1">
-                <div>Model (billable): {perf.total_model_latency_ms || "—"}ms</div>
-                <div>Runtime-local: {perf.total_local_latency_ms || "—"}ms</div>
+                <div>💵 Billable: {perf.total_model_latency_ms || "—"}ms</div>
+                <div>⚙️ App Runtime: {perf.total_local_latency_ms || "—"}ms</div>
               </div>
             </CardContent>
           </Card>

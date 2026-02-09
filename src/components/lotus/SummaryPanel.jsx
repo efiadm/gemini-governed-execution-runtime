@@ -100,7 +100,7 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
               <span className="text-[10px] font-medium text-muted-foreground">Latency</span>
             </div>
             <p className="text-base font-bold text-foreground">{evidence.latency_ms}ms</p>
-            <p className="text-[10px] text-muted-foreground">💵 {evidence.model_latency_ms}ms ⚙️ {evidence.local_latency_ms}ms</p>
+            <p className="text-[10px] text-muted-foreground">💵 Billable: {evidence.model_latency_ms}ms • ⚙️ Runtime-local: {evidence.local_latency_ms}ms</p>
           </div>
 
           <div className="rounded-lg p-2 bg-secondary border border-border">
@@ -109,7 +109,7 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
               <span className="text-[10px] font-medium text-muted-foreground">Attempts</span>
             </div>
             <p className="text-base font-bold text-foreground">{evidence.attempts}</p>
-            <p className="text-[10px] text-muted-foreground">💵 {evidence.repairs} {evidence.local_repairs > 0 ? `⚙️ ${evidence.local_repairs}` : ''}</p>
+            <p className="text-[10px] text-muted-foreground">💵 Model repairs: {evidence.repairs} {evidence.local_repairs > 0 ? `• ⚙️ Local: ${evidence.local_repairs}` : ''}</p>
           </div>
 
           {evidence.repairs > 0 && <BaselineDeltaCard metrics={metrics} mode={mode} repairs={evidence.repairs} />}

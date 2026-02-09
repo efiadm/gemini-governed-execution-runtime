@@ -16,6 +16,7 @@ import UnderTheHoodPanel from "@/components/lotus/UnderTheHoodPanel";
 import TruncationWidget from "@/components/lotus/TruncationWidget";
 import ProgressStepper from "@/components/lotus/ProgressStepper";
 import SummaryTab from "@/components/lotus/SummaryTab";
+import SettingsPanel from "@/components/lotus/SettingsPanel";
 
 
 
@@ -271,6 +272,7 @@ export default function Home() {
               </div>
               </div>
               <div className="flex items-center gap-2">
+              <SettingsPanel />
               <Button
                 variant="ghost"
                 size="sm"

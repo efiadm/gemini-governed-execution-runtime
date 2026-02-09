@@ -52,8 +52,9 @@ export function calculateMetrics(evidence, rawOutput, prompt, mode) {
   // Base model latency (Plane A - first attempt only)
   const baseModelLatency = Math.max(0, modelLatency - repairModelLatency);
   
-  // === PLANE B: Runtime-local breakdown ===
-  // Plane B represents NON-BILLABLE local work that offsets Plane A
+  // === PLANE B: Runtime-Local (App-Side) breakdown ===
+  // Plane B represents NON-BILLABLE app-side work (validation, parsing, evidence)
+  // This is work done LOCALLY in the application runtime, NOT on the model side
   // Mode-agnostic: if local_latency_ms exists, break it down; otherwise = 0
   
   let validationMs = 0;

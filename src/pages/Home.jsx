@@ -24,7 +24,7 @@ import { runBaseline, runGoverned, runHybrid } from "@/components/lotus/runtimeE
 import { runAuditPipeline } from "@/components/lotus/auditPipeline";
 import { getSettings } from "@/components/lotus/settingsStore";
 import { TEST_SUITE, runTestSuite } from "@/components/lotus/testSuite";
-import { calculateMetrics, calculateTruncationRisk } from "@/components/lotus/metricsEngine";
+import { calculateMetrics, calculateTruncationRisk, buildNormalizedPerformance } from "@/components/lotus/metricsEngine";
 import { generateRequestId } from "@/components/lotus/utils";
 import { getStoredModel, setStoredModel } from "@/components/lotus/modelsRegistry";
 import { PRESET_PROMPTS } from "@/components/lotus/presets";
@@ -104,7 +104,8 @@ export default function Home() {
         result = await runHybrid(prompt, grounding, model, onProgress, settings);
       }
       
-      // Execution complete - calculate metrics immediately
+      // Execution complete - use normalized performance from runtime
+      const performance = result.performance || buildNormalizedPerformance(result.evidence, result.rawOutput, prompt, runMode, model, grounding);
       const metrics = calculateMetrics(result.evidence, result.rawOutput, prompt, runMode);
       
       // Update UI immediately
@@ -169,10 +170,10 @@ export default function Home() {
       runRecord.drift = drift;
       runRecord.hallucination = hallucination;
 
-      // Populate ALL tab data immediately (no lazy loading)
+      // Populate ALL tab data immediately (eagerly, no lazy loading)
       const tabData = {
-        summary: { metrics, evidence: result.evidence },
-        performance: { allModeMetrics: { ...allModeMetrics, [runMode]: metrics }, baselineMetrics: baselineRef.current },
+        summary: { metrics, evidence: result.evidence, performance },
+        performance: { allModeMetrics: { ...allModeMetrics, [runMode]: metrics }, baselineMetrics: baselineRef.current, performance },
         drift,
         hallucination,
         evidence: result.evidence,
@@ -180,6 +181,7 @@ export default function Home() {
       };
       
       runRecord.tabData = tabData;
+      runRecord.performance = performance;
 
       // Add to history
       addToRunHistory(runRecord);

@@ -12,40 +12,41 @@ css
   color-scheme: dark;
 
   /* Core Palette (HSL for shadcn compatibility) */
-  --background: 186 20% 4%;           /* #070a0a - page background */
-  --foreground: 0 0% 92%;              /* rgba(255,255,255,.92) - primary text */
+  --background: 210 12% 10%;           /* Soft matte dark grey background */
+  --foreground: 0 0% 88%;              /* Light grey text */
 
-  --card: 180 22% 8%;                  /* #0f1616 - primary surfaces */
-  --card-foreground: 0 0% 92%;
+  --card: 215 10% 14%;                 /* Light black surface */
+  --card-foreground: 0 0% 88%;
 
-  --popover: 180 24% 10%;              /* #141d1d - elevated surfaces */
-  --popover-foreground: 0 0% 78%;      /* rgba(255,255,255,.78) */
+  --popover: 215 12% 16%;              /* Elevated light black */
+  --popover-foreground: 0 0% 82%;
 
-  --primary: 160 42% 30%;              /* #2d6b57 - hunter green */
+  --primary: 160 42% 35%;              /* Hunter green */
   --primary-foreground: 0 0% 98%;
 
-  --secondary: 180 30% 12%;            /* #1a2525 - hover surfaces */
-  --secondary-foreground: 0 0% 92%;
+  --secondary: 215 10% 18%;            /* Hover surfaces */
+  --secondary-foreground: 0 0% 88%;
 
-  --muted: 180 22% 8%;                 /* #0f1616 - same as card */
-  --muted-foreground: 0 0% 62%;        /* rgba(255,255,255,.62) */
+  --muted: 215 8% 16%;                 /* Muted surfaces */
+  --muted-foreground: 0 0% 60%;        /* Soft light grey */
 
-  --accent: 160 45% 38%;               /* #3c8a73 - accent green */
+  --accent: 160 45% 40%;               /* Brighter hunter green accent */
   --accent-foreground: 0 0% 98%;
 
-  --destructive: 0 42% 51%;            /* #b84b4b - danger red */
+  --destructive: 0 42% 51%;            /* Danger red */
   --destructive-foreground: 0 0% 98%;
 
-  --border: 0 0% 100% / 0.08;          /* rgba(255,255,255,.08) */
-  --input: 180 24% 10%;                /* #141d1d */
-  --ring: 160 45% 38%;                 /* #3c8a73 - focus ring */
+  --border: 0 0% 100% / 0.10;          /* Subtle light grey border */
+  --input: 215 12% 16%;
+  --ring: 160 50% 45%;                 /* Hunter green focus ring */
 
   --radius: 0.75rem;                   /* 12px */
 
   /* Custom tokens for depth */
-  --bg-hover: 180 30% 12%;             /* #1a2525 */
-  --line-subtle: 0 0% 100% / 0.12;     /* rgba(255,255,255,.12) */
-  --shadow: 0px 10px 30px rgba(0,0,0,0.45);
+  --bg-hover: 215 10% 20%;             /* Hover state */
+  --line-subtle: 0 0% 100% / 0.14;     /* Subtle borders */
+  --shadow: 0px 12px 32px rgba(0,0,0,0.4);
+  --shadow-elevated: 0px 20px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
 }
 
 /* Base Elements */
@@ -67,8 +68,8 @@ body {
     @apply bg-card border border-border rounded-xl;
     background-image: linear-gradient(
       to bottom,
-      hsl(var(--card)),
-      hsl(180 22% 7%)
+      hsl(215 10% 16%),
+      hsl(215 10% 12%)
     );
     box-shadow: var(--shadow);
     position: relative;
@@ -81,7 +82,7 @@ body {
     left: 0;
     right: 0;
     height: 1px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.06);
     border-radius: 12px 12px 0 0;
   }
 
@@ -90,10 +91,10 @@ body {
     border: 1px solid hsl(var(--line-subtle));
     background-image: linear-gradient(
       to bottom,
-      hsl(var(--popover)),
-      hsl(180 24% 9%)
+      hsl(215 12% 18%),
+      hsl(215 12% 14%)
     );
-    box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
+    box-shadow: var(--shadow-elevated);
   }
 
   .surface-hoverable {

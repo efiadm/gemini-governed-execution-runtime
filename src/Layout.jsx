@@ -4,133 +4,253 @@ export default function Layout({ children, currentPageName }) {
   return (
     <>
       <style>{`
-        :root {
-          --app-bg: #0f1113;
-          --panel-bg: #1a1f22;
-          --panel-secondary: #20262a;
-          --panel-border: #2a3238;
-          --output-bg: #1e2226;
-          --input-bg: #1e2428;
-          --input-border: #2a3238;
-          --input-focus: #1f6f5b;
-          --text-primary: #e6e8eb;
-          --text-secondary: #9aa1a9;
-          --text-muted: #6f7679;
-          --accent-primary: #1f6f5b;
-          --accent-secondary: #8b7abf;
-          --error-red: #c85a54;
-        }
-        
-        body {
-          background-color: var(--app-bg);
-          color: var(--text-primary);
-        }
-        
-        /* Override shadcn defaults - panels and cards */
-        .bg-white { background-color: var(--panel-bg) !important; }
-        .bg-slate-50 { background-color: var(--panel-bg) !important; }
-        .bg-slate-100 { background-color: var(--panel-secondary) !important; }
-        .bg-gray-50 { background-color: var(--panel-bg) !important; }
-        .bg-background { background-color: var(--app-bg) !important; }
-        
-        /* Text colors */
-        .text-slate-900 { color: var(--text-primary) !important; }
-        .text-slate-800 { color: var(--text-primary) !important; }
-        .text-slate-700 { color: var(--text-secondary) !important; }
-        .text-slate-600 { color: var(--text-muted) !important; }
-        .text-slate-500 { color: var(--text-muted) !important; }
-        .text-slate-400 { color: var(--text-muted) !important; }
-        
-        /* Borders */
-        .border-slate-200 { border-color: var(--panel-border) !important; }
-        .border-slate-300 { border-color: var(--panel-border) !important; }
-        .border { border-color: var(--panel-border) !important; }
-        
-        /* Success/green states */
-        .bg-green-50 { background-color: rgba(31, 111, 91, 0.1) !important; }
-        .bg-green-100 { background-color: rgba(31, 111, 91, 0.15) !important; }
-        .bg-green-600 { background-color: var(--accent-primary) !important; }
-        .text-green-600 { color: var(--accent-primary) !important; }
-        .text-green-700 { color: var(--accent-primary) !important; }
-        .text-green-800 { color: var(--accent-primary) !important; }
-        .border-green-200 { border-color: var(--accent-primary) !important; }
-        
-        /* Blue/teal states */
-        .bg-blue-50 { background-color: rgba(46, 139, 117, 0.08) !important; }
-        .bg-blue-100 { background-color: rgba(46, 139, 117, 0.12) !important; }
-        .text-blue-600 { color: var(--accent-secondary) !important; }
-        .text-blue-700 { color: var(--accent-secondary) !important; }
-        .border-blue-200 { border-color: var(--panel-border) !important; }
-        
-        /* Error/red states */
-        .bg-red-50 { background-color: rgba(200, 90, 84, 0.1) !important; }
-        .bg-red-100 { background-color: rgba(200, 90, 84, 0.12) !important; }
-        .bg-red-600 { background-color: var(--error-red) !important; }
-        .text-red-600 { color: var(--error-red) !important; }
-        .text-red-700 { color: var(--error-red) !important; }
-        .border-red-200 { border-color: var(--error-red) !important; }
-        
-        /* Orange/warning states */
-        .bg-orange-50 { background-color: rgba(200, 120, 84, 0.08) !important; }
-        .text-orange-600 { color: #c0866d !important; }
-        .text-orange-700 { color: #c0866d !important; }
-        
-        /* Violet/purple accents */
-        .bg-violet-50 { background-color: rgba(31, 111, 91, 0.05) !important; }
-        .bg-indigo-50 { background-color: rgba(31, 111, 91, 0.05) !important; }
-        .bg-amber-50 { background-color: rgba(200, 120, 84, 0.06) !important; }
-        .border-violet-600 { border-color: var(--accent-primary) !important; }
-        .bg-violet-600 { background-color: var(--accent-secondary) !important; }
-        .text-violet-600 { color: var(--accent-secondary) !important; }
-        .text-violet-700 { color: var(--accent-secondary) !important; }
-        
-        /* Shadows - subtle only */
-        .shadow { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3) !important; }
-        .shadow-lg { box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.3) !important; }
-        .shadow-sm { box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.2) !important; }
-        
-        /* Gradients - minimal */
-        .bg-gradient-to-br { background: var(--app-bg) !important; }
-        .bg-gradient-to-r { background: rgba(31, 111, 91, 0.08) !important; }
-        
-        /* Input fields */
-        input, textarea, select, [role="combobox"] {
-          background-color: var(--input-bg) !important;
-          border-color: var(--input-border) !important;
-          color: var(--text-primary) !important;
-        }
-        
-        input:focus, textarea:focus, select:focus, [role="combobox"]:focus {
-          border-color: var(--input-focus) !important;
-          box-shadow: none !important;
-          outline: none !important;
-        }
-        
-        /* Buttons */
-        button { color: var(--text-primary); }
-        button:disabled { opacity: 0.3; }
-        
-        /* Output panel - slightly lighter */
-        .bg-slate-900 { background-color: var(--output-bg) !important; }
-        
-        /* Additional surface variants */
-        .bg-slate-800 { background-color: var(--panel-secondary) !important; }
-        
-        /* Table rows - alternating shades for readability */
-        tbody tr { background-color: var(--panel-bg); }
-        tbody tr:nth-child(even) { background-color: rgba(0, 0, 0, 0.2); }
-        
-        /* Ensure proper contrast on all surfaces */
-        .text-slate-100 { color: var(--text-primary) !important; }
-        
-        /* Empty states should not be white */
-        .text-slate-400 { color: var(--text-muted) !important; }
-        
-        /* Popover and dropdown backgrounds */
-        [role="menu"], [role="dialog"], [role="listbox"] {
-          background-color: var(--panel-secondary) !important;
-          border-color: var(--panel-border) !important;
-        }
+/* =========================================================
+   LOTUS DARK (Hunter Green) — GLOBAL OVERRIDES
+   ========================================================= */
+
+:root {
+  --bg-0: #070a09;
+  --bg-1: #0b0f0d;
+  --bg-2: #0f1512;
+  --bg-3: #131b16;
+  --panel: #0c110f;
+
+  --text-0: #e7f0ea;
+  --text-1: #c7d6cc;
+  --text-2: #8ea597;
+
+  --border-0: rgba(231, 240, 234, 0.10);
+  --border-1: rgba(231, 240, 234, 0.16);
+
+  --shadow-0: 0 10px 30px rgba(0,0,0,0.45);
+  --shadow-1: 0 1px 0 rgba(255,255,255,0.04) inset;
+
+  --green-0: #1a6f4b;
+  --green-1: #1f8a5c;
+  --green-2: #2db37a;
+  --green-glow: rgba(45, 179, 122, 0.25);
+
+  --warn-0: #f6c453;
+  --bad-0: #f26b6b;
+  --good-0: #3bd18a;
+
+  --radius-0: 14px;
+  --radius-1: 18px;
+
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+}
+
+html, body {
+  background: var(--bg-0) !important;
+  color: var(--text-0) !important;
+  font-family: var(--sans) !important;
+}
+
+:where(body) * {
+  scrollbar-color: rgba(231,240,234,0.25) transparent;
+}
+
+:where(main, .app, .App, #root, .page, .container, .content, .layout, .shell) {
+  background: var(--bg-0) !important;
+  color: var(--text-0) !important;
+}
+
+:where(
+  .panel, .card, .section, .box, .widget, .tile,
+  .tab-panel, .tabpanel, .tabs-panel, .tabContent, .tab-content,
+  .summary, .summary-panel, .summary-card,
+  .under-the-hood, .evidence, .performance, .drift, .artifacts, .tests
+) {
+  background: linear-gradient(180deg, var(--bg-2), var(--bg-1)) !important;
+  color: var(--text-0) !important;
+  border: 1px solid var(--border-0) !important;
+  border-radius: var(--radius-1) !important;
+  box-shadow: var(--shadow-1), var(--shadow-0) !important;
+}
+
+:where(.panel .panel, .card .card, .tab-content .panel, .tab-panel .card, .summary .card) {
+  background: linear-gradient(180deg, var(--bg-3), var(--bg-2)) !important;
+  border-color: var(--border-0) !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-0) !important;
+  letter-spacing: 0.2px;
+}
+label, .label, .muted, .helptext, .hint, small {
+  color: var(--text-2) !important;
+}
+
+button, .btn, .button {
+  background: var(--bg-2) !important;
+  color: var(--text-0) !important;
+  border: 1px solid var(--border-0) !important;
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+  box-shadow: var(--shadow-1) !important;
+}
+button:hover, .btn:hover, .button:hover {
+  background: var(--bg-3) !important;
+  border-color: var(--border-1) !important;
+}
+button:active, .btn:active, .button:active {
+  transform: translateY(1px);
+}
+
+:where(.primary, .btn-primary, .button-primary, .run, .cta) {
+  background: linear-gradient(180deg, rgba(31,138,92,0.95), rgba(26,111,75,0.95)) !important;
+  border-color: rgba(45,179,122,0.35) !important;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.45), 0 0 0 2px rgba(45,179,122,0.10) inset !important;
+}
+:where(.primary, .btn-primary, .button-primary, .run, .cta):hover {
+  box-shadow: 0 10px 26px rgba(0,0,0,0.45), 0 0 0 2px rgba(45,179,122,0.16) inset, 0 0 0 6px rgba(45,179,122,0.10) !important;
+}
+
+input, textarea, select {
+  background: rgba(11, 15, 13, 0.95) !important;
+  color: var(--text-0) !important;
+  border: 1px solid rgba(231,240,234,0.18) !important;
+  border-radius: 12px !important;
+  outline: none !important;
+}
+textarea { font-family: var(--sans) !important; }
+
+input::placeholder, textarea::placeholder {
+  color: rgba(142,165,151,0.75) !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: rgba(45,179,122,0.55) !important;
+  box-shadow: 0 0 0 4px rgba(45,179,122,0.18) !important;
+}
+
+:where(.dropdown-menu, .menu, .select-menu, .Select-menu, .Select__menu, .MuiMenu-paper, .MuiPopover-paper) {
+  background: var(--bg-2) !important;
+  color: var(--text-0) !important;
+  border: 1px solid var(--border-0) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--shadow-0) !important;
+}
+:where(.dropdown-item, .menu-item, .select-item, .Select__option, .MuiMenuItem-root) {
+  color: var(--text-0) !important;
+}
+:where(.dropdown-item:hover, .menu-item:hover, .select-item:hover, .Select__option--is-focused, .MuiMenuItem-root:hover) {
+  background: rgba(45,179,122,0.14) !important;
+}
+
+:where(.preset, .preset-select, .prompt-preset, .PresetSelect, .select-control, .Select__control, .MuiSelect-select) {
+  background: linear-gradient(180deg, var(--bg-3), var(--bg-2)) !important;
+  border: 1px solid rgba(231,240,234,0.22) !important;
+  box-shadow: 0 0 0 1px rgba(45,179,122,0.10) inset, var(--shadow-1) !important;
+}
+
+:where(.tabs, .Tabs, .tabbar, .tab-bar, .nav-tabs, .tablist, .tab-list) {
+  background: transparent !important;
+}
+
+:where(.tab, .Tab, .tab-item, .nav-link) {
+  color: var(--text-1) !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 999px !important;
+  padding: 8px 12px !important;
+}
+
+:where(.tab.active, .Tab--active, .tab-item.active, .nav-link.active, [aria-selected="true"]) {
+  color: var(--text-0) !important;
+  background: rgba(45,179,122,0.12) !important;
+  border-color: rgba(45,179,122,0.25) !important;
+  box-shadow: 0 0 0 4px rgba(45,179,122,0.08) !important;
+}
+
+:where(.tab-panel, .tabpanel, .tab-content, .TabPanel, .tabs-content, [role="tabpanel"]) {
+  background: linear-gradient(180deg, var(--bg-2), var(--bg-1)) !important;
+  color: var(--text-0) !important;
+  border: 1px solid var(--border-0) !important;
+  border-radius: var(--radius-1) !important;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: var(--bg-1) !important;
+  color: var(--text-0) !important;
+  border: 1px solid var(--border-0) !important;
+  border-radius: var(--radius-1) !important;
+  overflow: hidden !important;
+}
+thead th {
+  background: linear-gradient(180deg, rgba(19,27,22,0.95), rgba(15,21,18,0.95)) !important;
+  color: var(--text-1) !important;
+  border-bottom: 1px solid var(--border-0) !important;
+}
+tbody td {
+  border-bottom: 1px solid rgba(231,240,234,0.06) !important;
+  color: var(--text-0) !important;
+}
+tbody tr:hover td {
+  background: rgba(45,179,122,0.06) !important;
+}
+
+:where(.badge, .pill, .tag, .chip) {
+  background: rgba(231,240,234,0.08) !important;
+  color: var(--text-0) !important;
+  border: 1px solid rgba(231,240,234,0.14) !important;
+  border-radius: 999px !important;
+  padding: 4px 10px !important;
+  font-size: 12px !important;
+}
+:where(.badge.good, .pill.good, .status-pass, .passed) {
+  background: rgba(59,209,138,0.14) !important;
+  border-color: rgba(59,209,138,0.28) !important;
+}
+:where(.badge.warn, .pill.warn, .status-warn) {
+  background: rgba(246,196,83,0.14) !important;
+  border-color: rgba(246,196,83,0.28) !important;
+}
+:where(.badge.bad, .pill.bad, .status-fail, .failed) {
+  background: rgba(242,107,107,0.14) !important;
+  border-color: rgba(242,107,107,0.28) !important;
+}
+
+pre, code, .code, .json, .mono {
+  font-family: var(--mono) !important;
+}
+pre, .code-block, .json-block {
+  background: rgba(7,10,9,0.9) !important;
+  color: var(--text-0) !important;
+  border: 1px solid rgba(231,240,234,0.10) !important;
+  border-radius: 12px !important;
+  padding: 12px !important;
+  overflow: auto !important;
+}
+
+:where(.modal, .dialog, .popover, .sheet, .drawer, [role="dialog"]) {
+  background: linear-gradient(180deg, var(--bg-3), var(--bg-2)) !important;
+  color: var(--text-0) !important;
+  border: 1px solid var(--border-0) !important;
+  border-radius: var(--radius-1) !important;
+  box-shadow: var(--shadow-0) !important;
+}
+
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: rgba(231,240,234,0.18);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: rgba(231,240,234,0.28); }
+
+:where(
+  .panel, .card, .section, .tab-panel, .tab-content, [role="tabpanel"],
+  .summary, .under-the-hood, .evidence, .performance, .drift, .artifacts, .tests
+) :where(div, section, article) {
+  background-color: transparent;
+}
       `}</style>
       <div className="min-h-screen">
         {children}

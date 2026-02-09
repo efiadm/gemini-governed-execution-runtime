@@ -62,7 +62,7 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
                     ) : test.baselineResult === "text" ? (
                       <Badge variant="secondary" className="text-[10px]">Text</Badge>
                     ) : (
-                      <span className="text-slate-300">—</span>
+                      <span className="text-muted-foreground">—</span>
                     )}
                   </TableCell>
                   <TableCell className="text-center">
@@ -71,9 +71,9 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
                     ) : test.governedResult === "fail" ? (
                       <XCircle className="w-4 h-4 text-red-500 mx-auto" />
                     ) : test.governedResult === "safe_mode" ? (
-                      <Badge className="bg-amber-100 text-amber-800 text-[10px]">Safe</Badge>
+                      <Badge className="bg-amber-600 text-white text-[10px]">Safe</Badge>
                     ) : (
-                      <span className="text-slate-300">—</span>
+                      <span className="text-muted-foreground">—</span>
                     )}
                   </TableCell>
                   <TableCell className="text-center">
@@ -82,9 +82,9 @@ export default function TestsTab({ results, isRunning, currentTestId, onRunTestS
                     ) : test.hybridResult === "fail" ? (
                       <XCircle className="w-4 h-4 text-red-500 mx-auto" />
                     ) : test.hybridResult === "safe_mode" ? (
-                      <Badge className="bg-amber-100 text-amber-800 text-[10px]">Safe</Badge>
+                      <Badge className="bg-amber-600 text-white text-[10px]">Safe</Badge>
                     ) : (
-                      <span className="text-slate-300">—</span>
+                      <span className="text-muted-foreground">—</span>
                     )}
                   </TableCell>
                   <TableCell className="text-center text-xs font-mono">{test.attempts || "—"}</TableCell>

@@ -21,21 +21,21 @@ function BaselineDeltaCard({ metrics, mode, repairs }) {
   const latencyDelta = (metrics.total?.model_latency_ms || 0) - (baselineMetrics.model_latency_ms || 0);
 
   return (
-    <div className="rounded-lg p-2" style={{ backgroundColor: tokenDelta > 0 ? 'rgba(200, 120, 84, 0.08)' : tokenDelta < 0 ? 'rgba(46, 139, 117, 0.08)' : '#20262a' }}>
+    <div className={`rounded-lg p-2 ${tokenDelta > 0 ? 'bg-destructive/10 border border-destructive/20' : tokenDelta < 0 ? 'bg-primary/10 border border-primary/20' : 'bg-secondary'}`}>
       <div className="flex items-center gap-1 mb-0.5">
         {tokenDelta > 0 ? (
-          <TrendingUp className="w-3 h-3" style={{ color: '#c0866d' }} />
+          <TrendingUp className="w-3 h-3 text-destructive" />
         ) : tokenDelta < 0 ? (
-          <TrendingDown className="w-3 h-3" style={{ color: '#2e8b75' }} />
+          <TrendingDown className="w-3 h-3 text-primary" />
         ) : (
-          <TrendingUp className="w-3 h-3" style={{ color: '#9aa1a9' }} />
+          <TrendingUp className="w-3 h-3 text-muted-foreground" />
         )}
-        <span className="text-[10px] font-medium" style={{ color: '#9aa1a9' }}>Conditional Overhead</span>
+        <span className="text-[10px] font-medium text-muted-foreground">Conditional Overhead</span>
       </div>
-      <p className="text-base font-bold" style={{ color: tokenDelta > 0 ? '#c0866d' : tokenDelta < 0 ? '#2e8b75' : '#e6e8eb' }}>
+      <p className={`text-base font-bold ${tokenDelta > 0 ? 'text-destructive' : tokenDelta < 0 ? 'text-primary' : 'text-foreground'}`}>
         {tokenDelta > 0 ? '+' : ''}{tokenDelta}t
       </p>
-      <p className="text-[10px]" style={{ color: latencyDelta > 0 ? '#c0866d' : latencyDelta < 0 ? '#2e8b75' : '#9aa1a9' }}>
+      <p className={`text-[10px] ${latencyDelta > 0 ? 'text-destructive' : latencyDelta < 0 ? 'text-primary' : 'text-muted-foreground'}`}>
         Recovery path
       </p>
     </div>
@@ -94,38 +94,38 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
         </div>
 
         <div className="grid grid-cols-3 gap-2">
-          <div className="rounded-lg p-2" style={{ backgroundColor: '#20262a' }}>
+          <div className="rounded-lg p-2 bg-secondary border border-border">
             <div className="flex items-center gap-1 mb-0.5">
-              <Clock className="w-3 h-3" style={{ color: '#9aa1a9' }} />
-              <span className="text-[10px] font-medium" style={{ color: '#9aa1a9' }}>Latency</span>
+              <Clock className="w-3 h-3 text-muted-foreground" />
+              <span className="text-[10px] font-medium text-muted-foreground">Latency</span>
             </div>
-            <p className="text-base font-bold" style={{ color: '#e6e8eb' }}>{evidence.latency_ms}ms</p>
-            <p className="text-[10px]" style={{ color: '#9aa1a9' }}>💵 {evidence.model_latency_ms}ms ⚙️ {evidence.local_latency_ms}ms</p>
+            <p className="text-base font-bold text-foreground">{evidence.latency_ms}ms</p>
+            <p className="text-[10px] text-muted-foreground">💵 {evidence.model_latency_ms}ms ⚙️ {evidence.local_latency_ms}ms</p>
           </div>
 
-          <div className="rounded-lg p-2" style={{ backgroundColor: '#20262a' }}>
+          <div className="rounded-lg p-2 bg-secondary border border-border">
             <div className="flex items-center gap-1 mb-0.5">
-              <Zap className="w-3 h-3" style={{ color: '#9aa1a9' }} />
-              <span className="text-[10px] font-medium" style={{ color: '#9aa1a9' }}>Attempts</span>
+              <Zap className="w-3 h-3 text-muted-foreground" />
+              <span className="text-[10px] font-medium text-muted-foreground">Attempts</span>
             </div>
-            <p className="text-base font-bold" style={{ color: '#e6e8eb' }}>{evidence.attempts}</p>
-            <p className="text-[10px]" style={{ color: '#9aa1a9' }}>💵 {evidence.repairs} {evidence.local_repairs > 0 ? `⚙️ ${evidence.local_repairs}` : ''}</p>
+            <p className="text-base font-bold text-foreground">{evidence.attempts}</p>
+            <p className="text-[10px] text-muted-foreground">💵 {evidence.repairs} {evidence.local_repairs > 0 ? `⚙️ ${evidence.local_repairs}` : ''}</p>
           </div>
 
           {evidence.repairs > 0 && <BaselineDeltaCard metrics={metrics} mode={mode} repairs={evidence.repairs} />}
         </div>
 
-        <div className="pt-2 space-y-0.5 text-[10px]" style={{ borderTop: '1px solid #2a3036' }}>
+        <div className="pt-2 space-y-0.5 text-[10px] border-t border-border">
           <div className="flex justify-between items-center">
-            <span style={{ color: '#9aa1a9' }}>Mode / Grounding:</span>
-            <span className="font-medium" style={{ color: '#e6e8eb' }}>{evidence.mode} / {evidence.grounding}</span>
+            <span className="text-muted-foreground">Mode / Grounding:</span>
+            <span className="font-medium text-foreground">{evidence.mode} / {evidence.grounding}</span>
           </div>
           {evidence.validation_summary && (
             <div className="flex justify-between items-center">
-              <span style={{ color: '#9aa1a9' }}>
+              <span className="text-muted-foreground">
                 {evidence.safe_mode_applied ? "Validation:" : "Validation:"}
               </span>
-              <span className="font-medium" style={{ color: '#e6e8eb' }}>
+              <span className="font-medium text-foreground">
                 {evidence.safe_mode_applied 
                   ? "Not satisfied (contained)" 
                   : `${evidence.validation_summary.passed_checks} / ${evidence.validation_summary.total_checks} passed`
@@ -135,14 +135,14 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
           )}
           {evidence.safe_mode_applied && (
             <div className="flex justify-between items-center">
-              <span style={{ color: '#9aa1a9' }}>Evidence:</span>
-              <span className="font-medium" style={{ color: '#1f6f5b' }}>Saved</span>
+              <span className="text-muted-foreground">Evidence:</span>
+              <span className="font-medium text-primary">Saved</span>
             </div>
           )}
           {evidence.hybrid_context_injected && (
             <div className="flex justify-between items-center">
-              <span style={{ color: '#9aa1a9' }}>Hybrid Context:</span>
-              <span className="font-medium" style={{ color: '#1f6f5b' }}>~{evidence.hybrid_tokens_saved}t saved</span>
+              <span className="text-muted-foreground">Hybrid Context:</span>
+              <span className="font-medium text-primary">~{evidence.hybrid_tokens_saved}t saved</span>
             </div>
           )}
         </div>

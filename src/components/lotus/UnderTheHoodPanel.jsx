@@ -18,7 +18,7 @@ export default function UnderTheHoodPanel() {
   if (!runState.run_id) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-sm text-slate-400 italic">No run data. Execute a prompt to see Under the Hood metrics.</p>
+        <p className="text-sm text-muted-foreground italic">No run data. Execute a prompt to see Under the Hood metrics.</p>
       </div>
     );
   }
@@ -31,10 +31,10 @@ export default function UnderTheHoodPanel() {
       {/* Audit Status Banner */}
       {audit && audit.status && (
         <Card className={`border-2 ${
-          audit.status === "complete" ? "border-green-500 bg-green-50" :
-          audit.status === "running" ? "border-blue-500 bg-blue-50" :
-          audit.status === "failed" ? "border-red-500 bg-red-50" :
-          "border-slate-300 bg-slate-50"
+          audit.status === "complete" ? "border-green-500 bg-green-900/20" :
+          audit.status === "running" ? "border-blue-500 bg-blue-900/20" :
+          audit.status === "failed" ? "border-red-500 bg-destructive/20" :
+          "border-border bg-muted"
         }`}>
           <CardContent className="py-3">
             <div className="flex items-center justify-between">
@@ -47,20 +47,20 @@ export default function UnderTheHoodPanel() {
                 }`}>
                   Audit: {audit.status.toUpperCase()}
                 </Badge>
-                {audit.depth && <span className="text-xs text-slate-600">Depth: {audit.depth}</span>}
+                {audit.depth && <span className="text-xs text-muted-foreground">Depth: {audit.depth}</span>}
                 {audit.duration_ms && (
-                  <span className="text-xs text-slate-600">Duration: {audit.duration_ms}ms (non-blocking)</span>
+                  <span className="text-xs text-muted-foreground">Duration: {audit.duration_ms}ms (non-blocking)</span>
                 )}
               </div>
               {audit.started_at && (
-                <div className="text-xs text-slate-500">
+                <div className="text-xs text-muted-foreground">
                   Started: {new Date(audit.started_at).toLocaleTimeString()}
                   {audit.completed_at && ` • Completed: ${new Date(audit.completed_at).toLocaleTimeString()}`}
                 </div>
               )}
             </div>
             {audit.status === "failed" && audit.error && (
-              <p className="text-xs text-red-700 mt-2">Error: {audit.error}</p>
+              <p className="text-xs text-destructive mt-2">Error: {audit.error}</p>
             )}
           </CardContent>
         </Card>
@@ -69,16 +69,16 @@ export default function UnderTheHoodPanel() {
       {/* Compact Metric Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {perf.total_latency_ms && (
-          <Card className="border-slate-200">
+          <Card className="bg-card border-border">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-semibold text-slate-500 uppercase flex items-center gap-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase flex items-center gap-2">
                 <Clock className="w-3 h-3" />
                 Latency
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-lg font-bold text-slate-900">{perf.total_latency_ms}ms</p>
-              <div className="text-[10px] text-slate-500 space-y-0.5 mt-1">
+              <p className="text-lg font-bold text-foreground">{perf.total_latency_ms}ms</p>
+              <div className="text-[10px] text-muted-foreground space-y-0.5 mt-1">
                 <div>Model (billable): {perf.total_model_latency_ms || "—"}ms</div>
                 <div>Runtime-local: {perf.total_local_latency_ms || "—"}ms</div>
               </div>
@@ -87,16 +87,16 @@ export default function UnderTheHoodPanel() {
         )}
 
         {perf.total_model_tokens && (
-          <Card className="border-slate-200">
+          <Card className="bg-card border-border">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-semibold text-slate-500 uppercase flex items-center gap-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase flex items-center gap-2">
                 <Zap className="w-3 h-3" />
                 Tokens
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-lg font-bold text-slate-900">{perf.total_model_tokens}</p>
-              <div className="text-[10px] text-slate-500 space-y-0.5 mt-1">
+              <p className="text-lg font-bold text-foreground">{perf.total_model_tokens}</p>
+              <div className="text-[10px] text-muted-foreground space-y-0.5 mt-1">
                 <div>In: {perf.prompt_tokens || "—"}</div>
                 <div>Out: {perf.completion_tokens || "—"}</div>
               </div>
@@ -104,9 +104,9 @@ export default function UnderTheHoodPanel() {
           </Card>
         )}
 
-        <Card className="border-slate-200">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-semibold text-slate-500 uppercase flex items-center gap-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase flex items-center gap-2">
               <Activity className="w-3 h-3" />
               Validation
             </CardTitle>
@@ -114,17 +114,17 @@ export default function UnderTheHoodPanel() {
           <CardContent>
             <div className="flex items-center gap-2 mb-2">
               {validation.passed ? (
-                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
               ) : validation.passed === null ? (
-                <span className="text-xs text-slate-400">N/A</span>
+                <span className="text-xs text-muted-foreground">N/A</span>
               ) : (
-                <XCircle className="w-5 h-5 text-red-500" />
+                <XCircle className="w-5 h-5 text-destructive" />
               )}
             </div>
             {validation.passed === null ? (
-              <p className="text-[10px] text-slate-400 italic">Not applicable in baseline mode (no governance layer).</p>
+              <p className="text-[10px] text-muted-foreground italic">Not applicable in baseline mode (no governance layer).</p>
             ) : (
-              <div className="text-[10px] text-slate-500 space-y-0.5">
+              <div className="text-[10px] text-muted-foreground space-y-0.5">
                 <div>Attempts: {validation.attempts || 0}</div>
                 <div>Repairs: {validation.repairs || 0}</div>
               </div>
@@ -132,9 +132,9 @@ export default function UnderTheHoodPanel() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-semibold text-slate-500 uppercase flex items-center gap-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase flex items-center gap-2">
               <TrendingUp className="w-3 h-3" />
               Risk
             </CardTitle>
@@ -150,61 +150,61 @@ export default function UnderTheHoodPanel() {
                   {hallucination.risk}
                 </Badge>
                 {drift?.stability_score !== null && (
-                  <div className="text-[10px] text-slate-500 mt-2">
+                  <div className="text-[10px] text-muted-foreground mt-2">
                     Drift: {(drift.stability_score * 100).toFixed(0)}%
                   </div>
                 )}
               </>
             ) : (
-              <p className="text-xs text-slate-400">N/A</p>
+              <p className="text-xs text-muted-foreground">N/A</p>
             )}
           </CardContent>
         </Card>
       </div>
 
       {/* Invariants & Governance Checks */}
-      <Card className="border-slate-200">
+      <Card className="bg-card border-border">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold text-slate-700">Invariants & Governance</CardTitle>
+          <CardTitle className="text-sm font-semibold text-card-foreground">Invariants & Governance</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid grid-cols-2 gap-4 text-xs">
             <div className="space-y-2">
-              <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                <span className="text-slate-600">Contract Applied:</span>
+              <div className="flex items-center justify-between p-2 bg-muted rounded">
+                <span className="text-muted-foreground">Contract Applied:</span>
                 <Badge variant={mode !== "baseline" ? "default" : "outline"}>
                   {mode !== "baseline" ? "Yes" : "No"}
                 </Badge>
               </div>
-              <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                <span className="text-slate-600">Model-Limited Execution:</span>
+              <div className="flex items-center justify-between p-2 bg-muted rounded">
+                <span className="text-muted-foreground">Model-Limited Execution:</span>
                   <Badge variant={evidence?.safe_mode_applied ? "default" : "outline"}>
                     {evidence?.safe_mode_applied ? "Active" : "No"}
                   </Badge>
               </div>
-              <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                <span className="text-slate-600">Grounding:</span>
+              <div className="flex items-center justify-between p-2 bg-muted rounded">
+                <span className="text-muted-foreground">Grounding:</span>
                 <Badge variant="outline">{evidence?.grounding || "off"}</Badge>
               </div>
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                <span className="text-slate-600">Authority Flags:</span>
-                <span className="font-mono text-slate-800">{drift?.authority_drift_flags?.total || 0}</span>
+              <div className="flex items-center justify-between p-2 bg-muted rounded">
+                <span className="text-muted-foreground">Authority Flags:</span>
+                <span className="font-mono text-foreground">{drift?.authority_drift_flags?.total || 0}</span>
               </div>
               {drift?.structure_drift !== null ? (
-                <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                  <span className="text-slate-600">Structure Score:</span>
-                  <span className="font-mono text-slate-800">{drift.structure_drift}%</span>
+                <div className="flex items-center justify-between p-2 bg-muted rounded">
+                  <span className="text-muted-foreground">Structure Score:</span>
+                  <span className="font-mono text-foreground">{drift.structure_drift}%</span>
                 </div>
               ) : (
-                <div className="flex items-center justify-between p-2 bg-slate-100 rounded">
-                  <span className="text-slate-500 text-xs">Structure Score:</span>
-                  <span className="text-slate-400 text-xs italic">Not applicable in baseline mode (no governance layer).</span>
+                <div className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                  <span className="text-muted-foreground text-xs">Structure Score:</span>
+                  <span className="text-muted-foreground text-xs italic">Not applicable in baseline mode (no governance layer).</span>
                 </div>
               )}
-              <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                <span className="text-slate-600">Hybrid Context:</span>
+              <div className="flex items-center justify-between p-2 bg-muted rounded">
+                <span className="text-muted-foreground">Hybrid Context:</span>
                 <Badge variant="outline">
                   {evidence?.hybrid_context_injected ? "Injected" : "No"}
                 </Badge>
@@ -213,12 +213,12 @@ export default function UnderTheHoodPanel() {
           </div>
 
           {validation.errors && validation.errors.length > 0 && (
-            <div className="border-l-4 border-amber-500 bg-amber-50 p-3 rounded">
+            <div className="border-l-4 border-amber-500 bg-amber-900/20 p-3 rounded">
               <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle className="w-4 h-4 text-amber-700" />
-                <span className="text-xs font-semibold text-amber-800">Validation Errors</span>
+                <AlertTriangle className="w-4 h-4 text-amber-500" />
+                <span className="text-xs font-semibold text-amber-400">Validation Errors</span>
               </div>
-              <ul className="text-xs text-amber-700 space-y-1 ml-6 list-disc">
+              <ul className="text-xs text-amber-300 space-y-1 ml-6 list-disc">
                 {validation.errors.slice(0, 3).map((err, i) => (
                   <li key={i}>{err}</li>
                 ))}
@@ -230,24 +230,24 @@ export default function UnderTheHoodPanel() {
 
       {/* Telemetry Details */}
       {(drift || hallucination) && (
-        <Card className="border-slate-200">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-slate-700">Telemetry Details</CardTitle>
+            <CardTitle className="text-sm font-semibold text-card-foreground">Telemetry Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {drift && (
               <div>
-                <h4 className="text-xs font-semibold text-slate-600 mb-2">Drift Analysis</h4>
+                <h4 className="text-xs font-semibold text-muted-foreground mb-2">Drift Analysis</h4>
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-2 bg-slate-50 rounded">
-                    <span className="text-slate-500 block mb-1">Stability Score:</span>
-                    <span className="font-mono text-slate-900">
+                  <div className="p-2 bg-muted rounded">
+                    <span className="text-muted-foreground block mb-1">Stability Score:</span>
+                    <span className="font-mono text-foreground">
                       {drift.stability_score !== null ? (drift.stability_score * 100).toFixed(1) + "%" : "N/A"}
                     </span>
                   </div>
-                  <div className="p-2 bg-slate-50 rounded">
-                    <span className="text-slate-500 block mb-1">Output Hash:</span>
-                    <span className="font-mono text-xs text-slate-700">
+                  <div className="p-2 bg-muted rounded">
+                    <span className="text-muted-foreground block mb-1">Output Hash:</span>
+                    <span className="font-mono text-xs text-foreground">
                       {drift.output_hash?.substring(0, 12) || "N/A"}...
                     </span>
                   </div>
@@ -257,25 +257,25 @@ export default function UnderTheHoodPanel() {
 
             {hallucination && (
               <div>
-                <h4 className="text-xs font-semibold text-slate-600 mb-2">Citation Integrity</h4>
+                <h4 className="text-xs font-semibold text-muted-foreground mb-2">Citation Integrity</h4>
                 <div className="space-y-2 text-xs">
                   {hallucination.citationIntegrity?.uncitedLinks?.length > 0 && (
-                    <div className="p-2 bg-red-50 rounded border border-red-200">
-                      <span className="text-red-700 font-medium">
+                    <div className="p-2 bg-destructive/20 rounded border border-destructive">
+                      <span className="text-destructive font-medium">
                         {hallucination.citationIntegrity.uncitedLinks.length} uncited link(s)
                       </span>
                     </div>
                   )}
                   {hallucination.citationIntegrity?.placeholderLinks?.length > 0 && (
-                    <div className="p-2 bg-red-50 rounded border border-red-200">
-                      <span className="text-red-700 font-medium">
+                    <div className="p-2 bg-destructive/20 rounded border border-destructive">
+                      <span className="text-destructive font-medium">
                         {hallucination.citationIntegrity.placeholderLinks.length} placeholder domain(s)
                       </span>
                     </div>
                   )}
                   {hallucination.citationIntegrity?.uncitedClaimsWarning && (
-                    <div className="p-2 bg-amber-50 rounded border border-amber-200">
-                      <span className="text-amber-700 font-medium">
+                    <div className="p-2 bg-amber-900/20 rounded border border-amber-500">
+                      <span className="text-amber-400 font-medium">
                         Uncited claims with grounding=on
                       </span>
                     </div>
@@ -288,26 +288,26 @@ export default function UnderTheHoodPanel() {
       )}
 
       {/* Evidence Metadata */}
-      <Card className="border-slate-200">
+      <Card className="bg-card border-border">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold text-slate-700">Evidence Metadata</CardTitle>
+          <CardTitle className="text-sm font-semibold text-card-foreground">Evidence Metadata</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div>
-              <span className="text-slate-500">Request ID:</span>
-              <p className="font-mono text-slate-800 text-[10px] break-all">{evidence?.request_id || "N/A"}</p>
+              <span className="text-muted-foreground">Request ID:</span>
+              <p className="font-mono text-foreground text-[10px] break-all">{evidence?.request_id || "N/A"}</p>
             </div>
             <div>
-              <span className="text-slate-500">Prompt Hash:</span>
-              <p className="font-mono text-slate-800">{evidence?.prompt_hash || "N/A"}</p>
+              <span className="text-muted-foreground">Prompt Hash:</span>
+              <p className="font-mono text-foreground">{evidence?.prompt_hash || "N/A"}</p>
             </div>
             <div>
-              <span className="text-slate-500">Timestamp:</span>
-              <p className="text-slate-800">{evidence?.timestamp ? new Date(evidence.timestamp).toLocaleTimeString() : "N/A"}</p>
+              <span className="text-muted-foreground">Timestamp:</span>
+              <p className="text-foreground">{evidence?.timestamp ? new Date(evidence.timestamp).toLocaleTimeString() : "N/A"}</p>
             </div>
             <div>
-              <span className="text-slate-500">Mode:</span>
+              <span className="text-muted-foreground">Mode:</span>
               <Badge variant="outline">{mode}</Badge>
             </div>
           </div>

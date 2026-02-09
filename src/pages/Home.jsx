@@ -306,7 +306,8 @@ export default function Home() {
         {/* 3-Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
           {/* Left: Prompt Panel */}
-          <PromptPanel
+          <div className="surface surface-hoverable">
+            <PromptPanel
             prompt={prompt}
             onPromptChange={setPrompt}
             mode={mode}
@@ -321,27 +322,32 @@ export default function Home() {
             isRunning={isRunning}
             isTestRunning={isTestRunning}
           />
+          </div>
 
           {/* Center: Output Panel */}
-          <OutputPanel
+          <div className="surface">
+            <OutputPanel
             output={currentOutput}
             evidence={currentEvidence}
             mode={mode}
             isRunning={isRunning}
             showTelemetry={showTelemetry}
           />
+          </div>
 
           {/* Right: Summary Panel */}
-          <SummaryPanel
+          <div className="surface">
+            <SummaryPanel
             evidence={currentEvidence}
             metrics={allModeMetrics[mode]}
             mode={mode}
             onDownload={handleDownloadEvidence}
           />
+          </div>
         </div>
 
         {/* Bottom Dock: Tabs */}
-        <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="surface-elevated overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div className="px-6 overflow-x-auto border-b border-border">
               <TabsList className="bg-transparent border-0 p-0 h-12 min-w-max">

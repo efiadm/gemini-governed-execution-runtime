@@ -40,9 +40,9 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
     
     return (
       <TableRow>
-        <TableCell className="text-xs font-medium text-slate-700">
+        <TableCell className="text-xs font-medium text-foreground">
           {label}
-          {isBillable && <Badge className="ml-2 bg-red-100 text-red-700 text-[9px]">Billable</Badge>}
+          {isBillable && <Badge className="ml-2 bg-destructive text-destructive-foreground text-[9px]">Billable</Badge>}
         </TableCell>
         <TableCell className="text-center text-xs font-mono">{baseVal || "—"}{unit}</TableCell>
         <TableCell className="text-center text-xs">
@@ -73,17 +73,17 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
 
   const hasAuditData = allModeMetrics?.governed?.audit || allModeMetrics?.hybrid?.audit;
 
-  const PlaneTable = ({ title, subtitle, rows, bgColor = "bg-slate-50" }) => (
+  const PlaneTable = ({ title, subtitle, rows, bgColor = "bg-muted" }) => (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
-          <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
+          <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
         </div>
       </div>
       <div className="overflow-x-auto">
         <div className="min-w-[700px]">
-          <div className="border border-slate-200 rounded-lg overflow-hidden">
+          <div className="border border-border rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className={bgColor}>
@@ -155,11 +155,11 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-violet-50 to-indigo-50 border-l-4 border-violet-600 rounded-lg p-4 mb-6">
-        <h2 className="text-base font-bold text-slate-900 mb-1">Execution vs Reliability Tradeoffs</h2>
-        <p className="text-xs text-slate-600">
+      <div className="bg-card border-l-4 border-primary rounded-lg p-4 mb-6">
+        <h2 className="text-base font-bold text-foreground mb-1">Execution vs Reliability Tradeoffs</h2>
+        <p className="text-xs text-muted-foreground">
           <strong>Plane A (Execution):</strong> Base generation cost. <strong>Plane B (Diagnostics):</strong> Optional validation overhead. <strong>Plane C (Repairs):</strong> Conditional recovery cost. 
-          <span className="block mt-1 text-violet-700 font-semibold">Governance increases base execution cost but reduces downstream reliability and recovery costs by preventing invalid or unstable outputs.</span>
+          <span className="block mt-1 text-primary font-semibold">Governance increases base execution cost but reduces downstream reliability and recovery costs by preventing invalid or unstable outputs.</span>
         </p>
       </div>
 
@@ -167,30 +167,30 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
         title="🚀 Plane A: Execution (Base Generation)"
         subtitle="💵 Billable — Initial model call to generate response (no repairs)"
         rows={executionRows}
-        bgColor="bg-violet-50"
+        bgColor="bg-muted"
       />
 
       <PlaneTable
         title="🔍 Plane B: Diagnostics (Runtime-Local)"
         subtitle="⚙️ Non-Billable — Browser-side validation, parsing, evidence assembly. Activates in governed/hybrid modes."
         rows={diagnosticsRows}
-        bgColor="bg-blue-50"
+        bgColor="bg-muted"
       />
 
       <PlaneTable
         title="🔧 Plane C: Repairs (Recovery Calls)"
         subtitle="💵 Billable — Extra model calls + tokens only when validation fails. Not triggered on successful first attempt."
         rows={repairRows}
-        bgColor="bg-amber-50"
+        bgColor="bg-muted"
       />
 
-      <Card className="border-blue-200 bg-blue-50">
+      <Card className="border-border bg-card">
         <CardContent className="py-4">
-          <h3 className="text-sm font-bold text-slate-800 mb-3">Conditional Activation Model</h3>
-          <p className="text-xs text-slate-700 mb-3">
+          <h3 className="text-sm font-bold text-foreground mb-3">Conditional Activation Model</h3>
+          <p className="text-xs text-muted-foreground mb-3">
             <strong>Plane C (Repairs) activates only on validation failure.</strong> When validation passes on first attempt, governed and hybrid modes incur Plane A + Plane B costs only — comparable to baseline with added contract guarantees and auditability.
           </p>
-          <ul className="space-y-2 text-xs text-slate-700">
+          <ul className="space-y-2 text-xs text-muted-foreground">
             <li>• <strong>Best case (validation passes):</strong> Plane A (base execution) + Plane B (runtime validation) — no repairs triggered</li>
             <li>• <strong>Recovery case (validation fails):</strong> Plane C activates — extra model calls until contract satisfied or safe mode applied</li>
             <li>• <strong>Safe Mode containment:</strong> When contract remains unsatisfiable after repairs, output is withheld — correct governance outcome</li>
@@ -200,19 +200,19 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
       </Card>
 
       {hasAuditData && (
-        <div className="border-t-4 border-blue-300 pt-6 mt-8">
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4 border-blue-600 rounded-lg p-4 mb-4">
-            <h2 className="text-base font-bold text-slate-900 mb-1">Diagnostics (Optional / Non-Default)</h2>
-            <p className="text-xs text-slate-600">
-              <strong>Post-execution analysis:</strong> Async audits run after response returned. <strong className="text-blue-700">Not included in execution latency or billable metrics.</strong> Enable in settings if needed.
+        <div className="border-t-4 border-primary pt-6 mt-8">
+          <div className="bg-card border-l-4 border-primary rounded-lg p-4 mb-4">
+            <h2 className="text-base font-bold text-foreground mb-1">Diagnostics (Optional / Non-Default)</h2>
+            <p className="text-xs text-muted-foreground">
+              <strong>Post-execution analysis:</strong> Async audits run after response returned. <strong className="text-primary">Not included in execution latency or billable metrics.</strong> Enable in settings if needed.
             </p>
           </div>
-          <h3 className="text-sm font-semibold text-slate-800 mb-3">Audit Path Metrics</h3>
-          <Card className="border-blue-200 bg-blue-50">
+          <h3 className="text-sm font-semibold text-foreground mb-3">Audit Path Metrics</h3>
+          <Card className="border-border bg-card">
             <CardContent className="py-4">
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-slate-600">Audit Status:</span>
+                  <span className="text-muted-foreground">Audit Status:</span>
                   <Badge className={`${
                     (allModeMetrics?.governed?.audit?.status || allModeMetrics?.hybrid?.audit?.status) === "complete" ? "bg-green-600" :
                     (allModeMetrics?.governed?.audit?.status || allModeMetrics?.hybrid?.audit?.status) === "running" ? "bg-blue-600" :
@@ -224,16 +224,16 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
                 </div>
                 {(allModeMetrics?.governed?.audit?.duration_ms || allModeMetrics?.hybrid?.audit?.duration_ms) && (
                   <div className="flex justify-between">
-                    <span className="text-slate-600">Audit Duration:</span>
-                    <span className="font-mono text-slate-800">
+                    <span className="text-muted-foreground">Audit Duration:</span>
+                    <span className="font-mono text-foreground">
                       {allModeMetrics?.governed?.audit?.duration_ms || allModeMetrics?.hybrid?.audit?.duration_ms}ms
                     </span>
                   </div>
                 )}
                 {(allModeMetrics?.governed?.audit?.depth || allModeMetrics?.hybrid?.audit?.depth) && (
                   <div className="flex justify-between">
-                    <span className="text-slate-600">Audit Depth:</span>
-                    <span className="text-slate-800">
+                    <span className="text-muted-foreground">Audit Depth:</span>
+                    <span className="text-foreground">
                       {allModeMetrics?.governed?.audit?.depth || allModeMetrics?.hybrid?.audit?.depth}
                     </span>
                   </div>

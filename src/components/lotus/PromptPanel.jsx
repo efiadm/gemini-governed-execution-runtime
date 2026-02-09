@@ -120,7 +120,7 @@ export default function PromptPanel({
         </div>
 
         <div className="flex gap-2 pt-2">
-          <Button onClick={onRun} disabled={disabled || !prompt.trim()} className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-ring">
+          <Button onClick={() => onRun(mode)} disabled={disabled || !prompt.trim()} className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-ring">
             <Play className="w-4 h-4 mr-2" />
             Run
           </Button>

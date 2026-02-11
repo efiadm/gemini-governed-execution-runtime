@@ -15,8 +15,3 @@ The result is not a prompt trick or a demo wrapper, but an execution runtime tha
 This project is intended as infrastructure. It is model respectful, operationally focused, and designed to scale across use cases rather than optimize a single task.
 
 
-**Docs & Support**
-
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
-
-Support: [https://app.base44.com/support](https://app.base44.com/support)

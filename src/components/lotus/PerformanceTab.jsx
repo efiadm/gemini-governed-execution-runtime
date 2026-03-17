@@ -36,9 +36,9 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
   const calculateEfficiencyScore = (m) => {
     const tok = toNum(m?.billable?.total_model_tokens);
     const lat = toNum(m?.total?.model_latency_ms);
-    if (tok === 0 || lat === 0) return null;
+    if (tok === 0 || lat === 0) return 0;
     // Tokens per second
-    return ((tok / lat) * 1000).toFixed(0);
+    return Number(((tok / lat) * 1000).toFixed(0));
   };
 
 

@@ -101,7 +101,7 @@ export function downloadAuditPdf() {
     cur?.validation?.failures?.[0]?.message ||
     cur?.validation?.message ||
     ev?.validation_failure_reason ||
-    (validationPassed ? "None" : "Contract not satisfied")
+    "None"
   );
 
   let hallucinationText = "N/A";
@@ -166,7 +166,7 @@ export function downloadAuditPdf() {
   const bullets = [
     `- Mode: ${cur?.mode ?? "-"} • Model: ${cur?.model ?? "-"} • Grounding: ${cur?.grounding ?? "-"}`,
     `- Validation ${validationPassed ? "passed" : "failed"}; Safe Mode ${ev?.safe_mode_applied ? "on" : "off"}; Attempts ${attempts}; Repairs ${repairs}.`,
-    `- Latency ${latency}${(ev?.model_latency_ms != null || ev?.local_latency_ms != null) ? ` (model ${ev?.model_latency_ms ?? "-"} ms, local ${ev?.local_latency_ms ?? "-"} ms)` : ""}`,
+    `- Latency ${latency}`,
   ];
   bullets.forEach(line => addText(line));
 

@@ -14,17 +14,23 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
 
   const { baseline, governed, hybrid } = allModeMetrics;
   
+  const safe = (x) => (x ?? 0);
+  const toNum = (v) => {
+    if (v == null || v === "") return 0;
+    if (typeof v === "number") return Number.isFinite(v) ? v : 0;
+    const n = parseFloat(String(v).replace(/[^0-9.\-]/g, ""));
+    return Number.isFinite(n) ? n : 0;
+  };
   const getDelta = (val, baseVal) => {
-    if (!val || !baseVal) return null;
-    const delta = val - baseVal;
-    return delta;
+    const delta = toNum(safe(val)) - toNum(safe(baseVal));
+    return Number.isNaN(delta) ? 0 : delta;
   };
 
   const COST_PER_1K_TOKENS = 0.002; // Example: $0.002 per 1K tokens
   
   const calculateCost = (tokens) => {
-    if (!tokens) return 0;
-    return (tokens / 1000) * COST_PER_1K_TOKENS;
+    const t = toNum(tokens);
+    return (t / 1000) * COST_PER_1K_TOKENS;
   };
 
   const calculateEfficiencyScore = (m) => {
@@ -37,33 +43,51 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
     const baseVal = getValue(baseline);
     const govVal = getValue(governed);
     const hybVal = getValue(hybrid);
-    
+
+    const baseNum = toNum(baseVal);
+    const govNum = toNum(govVal);
+    const hybNum = toNum(hybVal);
+
+    const deltaGov = getDelta(govVal, baseVal);
+    const deltaHyb = getDelta(hybVal, baseVal);
+
+    const showGovDelta = showDelta && !(baseNum === 0 && govNum === 0) && deltaGov !== 0;
+    const showHybDelta = showDelta && !(baseNum === 0 && hybNum === 0) && deltaHyb !== 0;
+
+    const renderVal = (val) => (val === null || val === undefined || val === "" ? "—" : val);
+
     return (
       <TableRow>
         <TableCell className="text-xs font-medium text-slate-700">
           {label}
           {isBillable && <Badge className="ml-2 bg-red-100 text-red-700 text-[9px]">Billable</Badge>}
         </TableCell>
-        <TableCell className="text-center text-xs font-mono">{baseVal || "—"}{unit}</TableCell>
+        <TableCell className="text-center text-xs font-mono">{renderVal(baseVal)}{unit}</TableCell>
         <TableCell className="text-center text-xs">
           <div className="flex items-center justify-center gap-1">
-            <span className="font-mono">{govVal || "—"}{unit}</span>
-            {showDelta && baseVal && govVal && (
-              <span className={`text-[10px] ${getDelta(govVal, baseVal) > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                {getDelta(govVal, baseVal) > 0 ? <ArrowUp className="w-3 h-3 inline" /> : <ArrowDown className="w-3 h-3 inline" />}
-                {Math.abs(getDelta(govVal, baseVal)).toFixed(0)}
+            <span className="font-mono">{renderVal(govVal)}{unit}</span>
+            {showGovDelta && (
+              <span className={`text-[10px] ${deltaGov > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {deltaGov > 0 ? <ArrowUp className="w-3 h-3 inline" /> : <ArrowDown className="w-3 h-3 inline" />}
+                {Math.abs(deltaGov).toFixed(0)}
               </span>
+            )}
+            {!showGovDelta && showDelta && (
+              <span className="text-[10px] text-slate-400">—</span>
             )}
           </div>
         </TableCell>
         <TableCell className="text-center text-xs">
           <div className="flex items-center justify-center gap-1">
-            <span className="font-mono">{hybVal || "—"}{unit}</span>
-            {showDelta && baseVal && hybVal && (
-              <span className={`text-[10px] ${getDelta(hybVal, baseVal) > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                {getDelta(hybVal, baseVal) > 0 ? <ArrowUp className="w-3 h-3 inline" /> : <ArrowDown className="w-3 h-3 inline" />}
-                {Math.abs(getDelta(hybVal, baseVal)).toFixed(0)}
+            <span className="font-mono">{renderVal(hybVal)}{unit}</span>
+            {showHybDelta && (
+              <span className={`text-[10px] ${deltaHyb > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {deltaHyb > 0 ? <ArrowUp className="w-3 h-3 inline" /> : <ArrowDown className="w-3 h-3 inline" />}
+                {Math.abs(deltaHyb).toFixed(0)}
               </span>
+            )}
+            {!showHybDelta && showDelta && (
+              <span className="text-[10px] text-slate-400">—</span>
             )}
           </div>
         </TableCell>

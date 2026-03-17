@@ -73,7 +73,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
       return `(${sign}${mag})`;
     };
 
-    const baseDisplay = baseNum === 0 && !showDelta ? "—" : formatValue(baseNum);
+    const baseDisplay = formatValue(baseNum);
     const govDeltaDisplay = shouldShowGov ? formatDelta(deltaGov) : "—";
     const hybDeltaDisplay = shouldShowHyb ? formatDelta(deltaHyb) : "—";
 

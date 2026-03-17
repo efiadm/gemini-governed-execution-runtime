@@ -5,7 +5,7 @@ const defaultConfig = {
   apiKey: "",
   baseUrl: "",
   selectedModel: "",
-  pricePer1M: 0,
+  pricePer1M: 2.0,
 };
 
 let currentConfig = null;

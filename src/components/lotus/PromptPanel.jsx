@@ -2,11 +2,13 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Play, Trash2, FlaskConical } from "lucide-react";
 import { MODELS_REGISTRY } from "./modelsRegistry";
 import { PRESET_PROMPTS, PRESET_CATEGORIES } from "./presets";
+import { getModelConfig, updateModelConfig, subscribeToModelConfig } from "./modelConfigStore";
 
 export default function PromptPanel({
   prompt,
@@ -116,6 +118,26 @@ export default function PromptPanel({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold text-slate-500">Cost ($ / 1M tokens)</Label>
+            <Input
+              type="number"
+              inputMode="decimal"
+              step="0.01"
+              min="0"
+              value={String(pricePer1M)}
+              onChange={(e) => {
+                const v = parseFloat(e.target.value);
+                const n = Number.isFinite(v) && v >= 0 ? v : 0;
+                setPricePer1M(n);
+                updateModelConfig({ pricePer1M: n });
+              }}
+              disabled={disabled}
+              placeholder="2.00"
+              className="text-sm"
+            />
           </div>
         </div>
 

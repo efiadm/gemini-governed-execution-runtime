@@ -41,7 +41,7 @@ export default function PromptPanel({
     const v = getModelConfig().pricePer1M;
     return Number.isFinite(v) && v >= 0 ? v : 2.0;
   });
-  const [rawPricePer1M, setRawPricePer1M] = React.useState(() => {
+  const [priceInput, setPriceInput] = React.useState(() => {
     const v = getModelConfig().pricePer1M;
     if (!(Number.isFinite(v) && v >= 0)) return "2.0";
     return v === 2 || v === 2.0 ? "2.0" : String(v);
@@ -51,7 +51,7 @@ export default function PromptPanel({
     const unsub = subscribeToModelConfig((cfg) => {
       const v = cfg?.pricePer1M;
       setPricePer1M(Number.isFinite(v) && v >= 0 ? v : 2.0);
-      setRawPricePer1M(Number.isFinite(v) && v >= 0 ? String(v) : "2.0");
+      setPriceInput(Number.isFinite(v) && v >= 0 ? String(v) : "2.0");
     });
     return unsub;
   }, []);
@@ -246,14 +246,15 @@ export default function PromptPanel({
               <Input
                 type="text"
                 inputMode="decimal"
-                value={rawPricePer1M}
+                value={priceInput}
                 onChange={(e) => {
                   const raw = e.target.value;
-                  setRawPricePer1M(raw);
+                  setPriceInput(raw);
                   const parsed = parseFloat(raw);
-                  const n = Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
-                  setPricePer1M(n);
-                  updateModelConfig({ pricePer1M: n });
+                  if (Number.isFinite(parsed) && parsed >= 0) {
+                    setPricePer1M(parsed);
+                    updateModelConfig({ pricePer1M: parsed });
+                  }
                 }}
                 disabled={disabled}
                 placeholder="2.0"

@@ -244,19 +244,19 @@ export default function PromptPanel({
             <div className="space-y-1.5 max-w-md">
               <Label className="text-xs font-semibold text-slate-500">Cost ($ / 1M tokens)</Label>
               <Input
-                type="number"
+                type="text"
                 inputMode="decimal"
-                step="0.0001"
-                min="0"
-                value={String(pricePer1M)}
+                value={rawPricePer1M}
                 onChange={(e) => {
-                  const v = parseFloat(e.target.value);
-                  const n = Number.isFinite(v) && v >= 0 ? v : 0;
+                  const raw = e.target.value;
+                  setRawPricePer1M(raw);
+                  const parsed = parseFloat(raw);
+                  const n = Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
                   setPricePer1M(n);
                   updateModelConfig({ pricePer1M: n });
                 }}
                 disabled={disabled}
-                placeholder="2.00"
+                placeholder="2.0"
                 className="h-8 text-sm"
               />
             </div>

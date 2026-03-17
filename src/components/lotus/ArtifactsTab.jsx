@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Shield, Zap, AlertTriangle, Filter } from "lucide-react";
-import { subscribeToRunState, getRunState } from "./runStore";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+import { subscribeToRunState, getRunState, getRunHistory } from "./runStore";
+
 
 export default function ArtifactsTab() {
   const [artifacts, setArtifacts] = useState([]);

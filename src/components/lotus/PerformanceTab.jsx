@@ -144,10 +144,11 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
         return Math.max(0, total - extra);
       }} isBillable showDelta />
       <MetricRow label="Estimated Cost" getValue={(m) => {
-        const total = m?.billable?.total_model_tokens || 0;
-        const extra = m?.repair?.extra_tokens_due_to_repair || 0;
-        return `$${calculateCost(Math.max(0, total - extra)).toFixed(4)}`;
-      }} isBillable />
+        const total = toNum(m?.billable?.total_model_tokens);
+        const extra = toNum(m?.repair?.extra_tokens_due_to_repair);
+        const cost = calculateCost(Math.max(0, total - extra));
+        return `$${cost.toFixed(4)}`;
+      }} isBillable showDelta />
       <MetricRow label="Efficiency (tok/sec)" getValue={(m) => calculateEfficiencyScore(m)} />
     </>
   );

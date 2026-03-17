@@ -51,6 +51,7 @@ export default function PromptPanel({
     const unsub = subscribeToModelConfig((cfg) => {
       const v = cfg?.pricePer1M;
       setPricePer1M(Number.isFinite(v) && v >= 0 ? v : 2.0);
+      setRawPricePer1M(Number.isFinite(v) && v >= 0 ? String(v) : "2.0");
     });
     return unsub;
   }, []);

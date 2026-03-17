@@ -51,7 +51,7 @@ export default function PromptPanel({
     const unsub = subscribeToModelConfig((cfg) => {
       const v = cfg?.pricePer1M;
       setPricePer1M(Number.isFinite(v) && v >= 0 ? v : 2.0);
-      setPriceInput(Number.isFinite(v) && v >= 0 ? String(v) : "2.0");
+      // Do not sync priceInput here to avoid interrupting typing
     });
     return unsub;
   }, []);
@@ -249,11 +249,14 @@ export default function PromptPanel({
                 value={priceInput}
                 onChange={(e) => {
                   const raw = e.target.value;
-                  setPriceInput(raw);
-                  const parsed = parseFloat(raw);
-                  if (Number.isFinite(parsed) && parsed >= 0) {
-                    setPricePer1M(parsed);
-                    updateModelConfig({ pricePer1M: parsed });
+                  // Allow only digits and a single optional decimal point; allow empty
+                  if (raw === "" || /^[0-9]*\.?[0-9]*$/.test(raw)) {
+                    setPriceInput(raw);
+                    const parsed = parseFloat(raw);
+                    if (Number.isFinite(parsed) && parsed >= 0) {
+                      setPricePer1M(parsed);
+                      updateModelConfig({ pricePer1M: parsed });
+                    }
                   }
                 }}
                 disabled={disabled}

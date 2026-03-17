@@ -23,7 +23,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
   };
   const getDelta = (val, baseVal) => {
     const delta = toNum(safe(val)) - toNum(safe(baseVal));
-    return Number.isNaN(delta) ? 0 : delta;
+    return Number.isFinite(delta) ? delta : 0;
   };
 
   const COST_PER_1K_TOKENS = 0.002; // Example: $0.002 per 1K tokens

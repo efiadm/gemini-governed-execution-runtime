@@ -164,7 +164,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
         const val = Math.max(0, total - validation - render);
         return Number.isFinite(val) ? Number(val.toFixed(0)) : 0;
       }} unit="ms" />
-      <MetricRow label="Total Runtime-local" getValue={(m) => m?.local?.total_local_ms} unit="ms" showDelta />
+      <MetricRow label="Total Runtime-local" getValue={(m) => toNum(m?.local?.total_local_ms)} unit="ms" showDelta />
     </>
   );
 

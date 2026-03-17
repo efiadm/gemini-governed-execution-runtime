@@ -1,5 +1,6 @@
 // Evidence export for external audit runner
 import { getRunState, getRunHistory, getBaselineSnapshot } from "./runStore";
+import jsPDF from "jspdf";
 
 export function exportEvidenceJSON() {
   const runState = getRunState();
@@ -63,7 +64,11 @@ function getBaselineSnapshots() {
   return snapshots;
 }
 
+let isDownloadingJSON = false;
+
 export function downloadEvidenceFile() {
+  if (isDownloadingJSON) return;
+  isDownloadingJSON = true;
   const evidence = exportEvidenceJSON();
   const blob = new Blob([JSON.stringify(evidence, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -74,6 +79,82 @@ export function downloadEvidenceFile() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+  setTimeout(() => { isDownloadingJSON = false; }, 0);
+}
+
+export function downloadAuditPdf() {
+  const evidence = exportEvidenceJSON();
+  const report = generateAuditReport(evidence);
+
+  const doc = new jsPDF({ unit: "pt", format: "letter" });
+  const margin = 40;
+  const pageH = doc.internal.pageSize.getHeight();
+  const pageW = doc.internal.pageSize.getWidth();
+  const maxW = pageW - margin * 2;
+  const lineH = 14;
+  let y = margin;
+
+  const newPageIfNeeded = () => {
+    if (y > pageH - margin) { doc.addPage(); y = margin; }
+  };
+  const addHeading = (t) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    const lines = doc.splitTextToSize(String(t ?? ""), maxW);
+    lines.forEach(l => { newPageIfNeeded(); doc.text(l, margin, y); y += lineH; });
+    y += 4;
+    doc.setFont("helvetica", "normal");
+  };
+  const addText = (t) => {
+    doc.setFontSize(11);
+    const lines = doc.splitTextToSize(String(t ?? ""), maxW);
+    lines.forEach(l => { newPageIfNeeded(); doc.text(l, margin, y); y += lineH; });
+    y += 6;
+  };
+
+  addHeading("Governed Execution Report");
+  addText(`Exported: ${new Date().toLocaleString()}`);
+
+  if (report?.summary) {
+    addHeading("Summary");
+    addText(`Total runs: ${report.summary.total_runs}`);
+    addText(`Modes: ${(report.summary.modes || []).join(", ")}`);
+    addText(`Models: ${(report.summary.models || []).join(", ")}`);
+  }
+
+  if (report?.validation_stats) {
+    addHeading("Validation Stats");
+    addText(`Passed: ${report.validation_stats.passed}/${report.validation_stats.total}`);
+    addText(`Safe mode: ${report.validation_stats.safe_mode}`);
+    addText(`Avg repairs: ${report.validation_stats.avg_repairs}`);
+    addText(`Avg local repairs: ${report.validation_stats.avg_local_repairs}`);
+  }
+
+  if (report?.performance_summary) {
+    addHeading("Performance Summary");
+    addText(`Avg latency: ${report.performance_summary.avg_latency_ms} ms`);
+    addText(`Model latency: ${report.performance_summary.avg_model_latency_ms} ms`);
+    addText(`Local latency: ${report.performance_summary.avg_local_latency_ms} ms`);
+  }
+
+  if (evidence?.current_run?.prompt_text) {
+    addHeading("Prompt");
+    addText(evidence.current_run.prompt_text);
+  }
+
+  const ans = evidence?.current_run?.evidence?.canonical_answer;
+  if (ans) {
+    addHeading("Answer");
+    addText(Array.isArray(ans) ? ans.join("\n") : String(ans));
+  }
+
+  // Ensure PDF contains the same data as JSON (plain text section)
+  addHeading("Evidence JSON");
+  const jsonText = JSON.stringify(evidence, null, 2);
+  const jsonLines = doc.splitTextToSize(jsonText, maxW);
+  jsonLines.forEach(line => { newPageIfNeeded(); doc.text(line, margin, y); y += lineH; });
+
+  doc.save(`trident-report-${Date.now()}.pdf`);
 }
 
 export function generateAuditReport(evidenceJSON) {

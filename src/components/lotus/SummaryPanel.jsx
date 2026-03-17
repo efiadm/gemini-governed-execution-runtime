@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, XCircle, Clock, Zap, Download, FileJson, TrendingUp, TrendingDown } from "lucide-react";
-import { downloadEvidenceFile } from "./auditExporter";
+import { CheckCircle2, XCircle, Clock, Zap, FileJson, FileText, TrendingUp, TrendingDown } from "lucide-react";
+import { downloadEvidenceFile, downloadAuditPdf } from "./auditExporter";
 import { getBaselineSnapshot, getRunState } from "./runStore";
 import PipelineStatus from "./PipelineStatus";
 
@@ -63,14 +63,14 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
           <CardTitle className="text-sm font-semibold text-slate-700">Execution Summary</CardTitle>
           <div className="flex gap-1">
             {onDownload && (
-              <Button variant="ghost" size="sm" onClick={onDownload} className="h-7">
-                <Download className="w-3 h-3 mr-1" />
-                Evidence
+              <Button variant="ghost" size="sm" onClick={downloadAuditPdf} className="h-7">
+                <FileText className="w-3 h-3 mr-1" />
+                Export PDF
               </Button>
             )}
             <Button variant="ghost" size="sm" onClick={downloadEvidenceFile} className="h-7">
               <FileJson className="w-3 h-3 mr-1" />
-              Export
+              Export JSON
             </Button>
           </div>
         </div>

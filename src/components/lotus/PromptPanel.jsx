@@ -41,6 +41,11 @@ export default function PromptPanel({
     const v = getModelConfig().pricePer1M;
     return Number.isFinite(v) && v >= 0 ? v : 2.0;
   });
+  const [rawPricePer1M, setRawPricePer1M] = React.useState(() => {
+    const v = getModelConfig().pricePer1M;
+    if (!(Number.isFinite(v) && v >= 0)) return "2.0";
+    return v === 2 || v === 2.0 ? "2.0" : String(v);
+  });
 
   React.useEffect(() => {
     const unsub = subscribeToModelConfig((cfg) => {

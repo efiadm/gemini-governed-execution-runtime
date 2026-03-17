@@ -155,7 +155,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
 
   const diagnosticsRows = (
     <>
-      <MetricRow label="Validation Time" getValue={(m) => m?.local?.local_validation_ms} unit="ms" />
+      <MetricRow label="Validation Time" getValue={(m) => toNum(m?.local?.local_validation_ms)} unit="ms" />
       <MetricRow label="Render Time" getValue={(m) => m?.local?.local_render_ms} unit="ms" />
       <MetricRow label="Evidence Assembly" getValue={(m) => {
         const total = m?.local?.total_local_ms || 0;

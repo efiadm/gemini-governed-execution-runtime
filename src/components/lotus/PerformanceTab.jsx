@@ -170,7 +170,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
 
   const repairRows = (
     <>
-      <MetricRow label="Extra Model Calls" getValue={(m) => m?.repair?.extra_model_calls_due_to_repair || 0} isBillable showDelta />
+      <MetricRow label="Extra Model Calls" getValue={(m) => toNum(m?.repair?.extra_model_calls_due_to_repair)} isBillable showDelta />
       <MetricRow label="Extra Tokens (repairs)" getValue={(m) => m?.repair?.extra_tokens_due_to_repair?.toFixed(0) || 0} isBillable showDelta />
       <MetricRow label="Repair Latency (model)" getValue={(m) => {
         const baseLatency = m?.total?.model_latency_ms || 0;

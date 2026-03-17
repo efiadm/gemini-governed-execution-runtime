@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ArrowUp, ArrowDown } from "lucide-react";
+
+
 
 export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
   const [showOnlyBillable, setShowOnlyBillable] = useState(false);
@@ -42,7 +42,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
   };
 
 
-  const MetricRow = ({ label, getValue, unit = "", isBillable = false, showDelta = false }) => {
+  const MetricRow = ({ label, getValue, unit = "", isBillable = false, showDelta = false, type = "number" }) => {
     const baseVal = getValue(baseline);
     const govVal = getValue(governed);
     const hybVal = getValue(hybrid);
@@ -51,13 +51,31 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
     const govNum = toNum(govVal);
     const hybNum = toNum(hybVal);
 
-    const deltaGov = getDelta(govVal, baseVal);
-    const deltaHyb = getDelta(hybVal, baseVal);
+    const deltaGov = getDelta(govNum, baseNum);
+    const deltaHyb = getDelta(hybNum, baseNum);
 
-    const showGovDelta = showDelta && !(baseNum === 0 && govNum === 0) && deltaGov !== 0;
-    const showHybDelta = showDelta && !(baseNum === 0 && hybNum === 0) && deltaHyb !== 0;
+    const shouldShowGov = showDelta && !(baseNum === 0 && govNum === 0) && deltaGov !== 0;
+    const shouldShowHyb = showDelta && !(baseNum === 0 && hybNum === 0) && deltaHyb !== 0;
 
-    const renderVal = (val) => (val === null || val === undefined || val === "" ? "—" : val);
+    const formatValue = (n) => {
+      if (n == null) return "—";
+      const v = toNum(n);
+      if (type === "cost") return `$${v.toFixed(4)}`;
+      if (type === "ms") return `${Math.round(v)} ms`;
+      if (type === "tokens") return `${Math.round(v)} tokens`;
+      return `${Math.round(v)}`;
+    };
+
+    const formatDelta = (d) => {
+      if (!Number.isFinite(d) || d === 0) return "—";
+      const sign = d > 0 ? "+" : "-";
+      const mag = type === "cost" ? Math.abs(d).toFixed(4) : String(Math.abs(Math.round(d)));
+      return `(${sign}${mag})`;
+    };
+
+    const baseDisplay = baseNum === 0 && !showDelta ? "—" : formatValue(baseNum);
+    const govDeltaDisplay = shouldShowGov ? formatDelta(deltaGov) : "—";
+    const hybDeltaDisplay = shouldShowHyb ? formatDelta(deltaHyb) : "—";
 
     return (
       <TableRow>
@@ -65,33 +83,17 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
           {label}
           {isBillable && <Badge className="ml-2 bg-red-100 text-red-700 text-[9px]">Billable</Badge>}
         </TableCell>
-        <TableCell className="text-center text-xs font-mono">{renderVal(baseVal)}{unit}</TableCell>
+        <TableCell className="text-center text-xs font-mono">{baseDisplay}</TableCell>
         <TableCell className="text-center text-xs">
-          <div className="flex items-center justify-center gap-1">
-            <span className="font-mono">{renderVal(govVal)}{unit}</span>
-            {showGovDelta && (
-              <span className={`text-[10px] ${deltaGov > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                {deltaGov > 0 ? <ArrowUp className="w-3 h-3 inline" /> : <ArrowDown className="w-3 h-3 inline" />}
-                {Math.abs(deltaGov).toFixed(0)}
-              </span>
-            )}
-            {!showGovDelta && showDelta && (
-              <span className="text-[10px] text-slate-400">—</span>
-            )}
+          <div className="flex items-center justify-center gap-2">
+            <span className="font-mono">{formatValue(govNum)}</span>
+            <span className="text-[10px] text-slate-500">{govDeltaDisplay}</span>
           </div>
         </TableCell>
         <TableCell className="text-center text-xs">
-          <div className="flex items-center justify-center gap-1">
-            <span className="font-mono">{renderVal(hybVal)}{unit}</span>
-            {showHybDelta && (
-              <span className={`text-[10px] ${deltaHyb > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                {deltaHyb > 0 ? <ArrowUp className="w-3 h-3 inline" /> : <ArrowDown className="w-3 h-3 inline" />}
-                {Math.abs(deltaHyb).toFixed(0)}
-              </span>
-            )}
-            {!showHybDelta && showDelta && (
-              <span className="text-[10px] text-slate-400">—</span>
-            )}
+          <div className="flex items-center justify-center gap-2">
+            <span className="font-mono">{formatValue(hybNum)}</span>
+            <span className="text-[10px] text-slate-500">{hybDeltaDisplay}</span>
           </div>
         </TableCell>
       </TableRow>
@@ -137,34 +139,34 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
         const repairLatency = repairCalls * (baseLatency / attempts);
         const val = Math.max(0, baseLatency - repairLatency);
         return Number.isFinite(val) ? Number(val.toFixed(0)) : 0;
-      }} unit="ms" isBillable showDelta />
+      }} type="ms" isBillable showDelta />
       <MetricRow label="Base Tokens (pre-repair)" getValue={(m) => {
         const total = toNum(m?.billable?.total_model_tokens);
         const extra = toNum(m?.repair?.extra_tokens_due_to_repair);
         return Math.max(0, total - extra);
-      }} isBillable showDelta />
+      }} type="tokens" isBillable showDelta />
       <MetricRow label="Estimated Cost" getValue={(m) => {
         const total = toNum(m?.billable?.total_model_tokens);
         const extra = toNum(m?.repair?.extra_tokens_due_to_repair);
         const cost = calculateCost(Math.max(0, total - extra));
-        return `$${cost.toFixed(4)}`;
-      }} isBillable showDelta />
+        return cost;
+      }} type="cost" isBillable showDelta />
       <MetricRow label="Efficiency (tok/sec)" getValue={(m) => calculateEfficiencyScore(m)} />
     </>
   );
 
   const diagnosticsRows = (
     <>
-      <MetricRow label="Validation Time" getValue={(m) => toNum(m?.local?.local_validation_ms)} unit="ms" />
-      <MetricRow label="Render Time" getValue={(m) => toNum(m?.local?.local_render_ms)} unit="ms" />
+      <MetricRow label="Validation Time" getValue={(m) => toNum(m?.local?.local_validation_ms)} type="ms" />
+      <MetricRow label="Render Time" getValue={(m) => toNum(m?.local?.local_render_ms)} type="ms" />
       <MetricRow label="Evidence Assembly" getValue={(m) => {
         const total = toNum(m?.local?.total_local_ms);
         const validation = toNum(m?.local?.local_validation_ms);
         const render = toNum(m?.local?.local_render_ms);
         const val = Math.max(0, total - validation - render);
         return Number.isFinite(val) ? Number(val.toFixed(0)) : 0;
-      }} unit="ms" />
-      <MetricRow label="Total Runtime-local" getValue={(m) => toNum(m?.local?.total_local_ms)} unit="ms" showDelta />
+      }} type="ms" />
+      <MetricRow label="Total Runtime-local" getValue={(m) => toNum(m?.local?.total_local_ms)} type="ms" showDelta />
     </>
   );
 
@@ -174,19 +176,19 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
       <MetricRow label="Extra Tokens (repairs)" getValue={(m) => {
         const extra = toNum(m?.repair?.extra_tokens_due_to_repair);
         return Number.isFinite(extra) ? Number(extra.toFixed(0)) : 0;
-      }} isBillable showDelta />
+      }} type="tokens" isBillable showDelta />
       <MetricRow label="Repair Latency (model)" getValue={(m) => {
         const baseLatency = toNum(m?.total?.model_latency_ms);
         const repairCalls = toNum(m?.repair?.extra_model_calls_due_to_repair);
         const attempts = Math.max(1, toNum(m?.total?.attempts));
         const val = repairCalls > 0 ? (baseLatency / attempts) * repairCalls : 0;
         return Number.isFinite(val) ? Number(val.toFixed(0)) : 0;
-      }} unit="ms" isBillable showDelta />
+      }} type="ms" isBillable showDelta />
       <MetricRow label="Repair Cost" getValue={(m) => {
         const extra = toNum(m?.repair?.extra_tokens_due_to_repair);
         const cost = calculateCost(extra);
-        return `$${cost.toFixed(4)}`;
-      }} isBillable showDelta />
+        return cost;
+      }} type="cost" isBillable showDelta />
     </>
   );
 
@@ -195,28 +197,28 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
       <div className="bg-gradient-to-r from-violet-50 to-indigo-50 border-l-4 border-violet-600 rounded-lg p-4 mb-6">
         <h2 className="text-base font-bold text-slate-900 mb-1">Execution vs Reliability Tradeoffs</h2>
         <p className="text-xs text-slate-600">
-          <strong>Plane A (Execution):</strong> Base generation cost. <strong>Plane B (Diagnostics):</strong> Optional validation overhead. <strong>Plane C (Repairs):</strong> Conditional recovery cost. 
-          <span className="block mt-1 text-violet-700 font-semibold">Governance increases base execution cost but reduces downstream reliability and recovery costs by preventing invalid or unstable outputs.</span>
+          <strong>Plane A (Execution):</strong> Base generation cost. <strong>Plane B (Diagnostics):</strong> Runtime validation overhead (non-billable; active in governed and hybrid modes). <strong>Plane C (Repairs):</strong> Conditional recovery cost.
+          <span className="block mt-1 text-violet-700 font-semibold">Governance increases base execution cost and adds validation overhead, but reduces the risk of invalid or unstable outputs and controls recovery through structured repair and containment.</span>
         </p>
       </div>
 
       <PlaneTable
-        title="🚀 Plane A: Execution (Base Generation)"
-        subtitle="💵 Billable — Initial model call to generate response (no repairs)"
+        title="Plane A: Execution"
+        subtitle="Billable — Initial model call to generate response (no repairs)"
         rows={executionRows}
         bgColor="bg-violet-50"
       />
 
       <PlaneTable
-        title="🔍 Plane B: Diagnostics (Runtime-Local)"
-        subtitle="⚙️ Non-Billable — Browser-side validation, parsing, evidence assembly. Activates in governed/hybrid modes."
+        title="Plane B: Diagnostics"
+        subtitle="Runtime validation overhead (non-billable; active in governed and hybrid modes)"
         rows={diagnosticsRows}
         bgColor="bg-blue-50"
       />
 
       <PlaneTable
-        title="🔧 Plane C: Repairs (Recovery Calls)"
-        subtitle="💵 Billable — Extra model calls + tokens only when validation fails. Not triggered on successful first attempt."
+        title="Plane C: Repairs"
+        subtitle="Billable — Extra model calls + tokens only when validation fails. Not triggered on successful first attempt."
         rows={repairRows}
         bgColor="bg-amber-50"
       />
@@ -263,7 +265,7 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
                   <div className="flex justify-between">
                     <span className="text-slate-600">Audit Duration:</span>
                     <span className="font-mono text-slate-800">
-                      {allModeMetrics?.governed?.audit?.duration_ms || allModeMetrics?.hybrid?.audit?.duration_ms}ms
+                      {allModeMetrics?.governed?.audit?.duration_ms || allModeMetrics?.hybrid?.audit?.duration_ms} ms
                     </span>
                   </div>
                 )}

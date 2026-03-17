@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Settings } from "lucide-react";
 import { getSettings, updateSettings, subscribeToSettings } from "./settingsStore";
+import ModelConfigSection from "./ModelConfigSection";
 
 export default function SettingsPanel() {
   const [settings, setSettings] = useState(getSettings());
@@ -37,6 +38,7 @@ export default function SettingsPanel() {
           </SheetTitle>
         </SheetHeader>
         <div className="mt-6 space-y-4">
+          <ModelConfigSection />
         <div className="space-y-2">
           <Label className="text-xs font-medium text-slate-700">Repair Cap (Execution)</Label>
           <Select

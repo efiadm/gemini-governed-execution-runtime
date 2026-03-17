@@ -240,7 +240,7 @@ export default function PromptPanel({
               <Input
                 type="number"
                 inputMode="decimal"
-                step="0.01"
+                step="0.0001"
                 min="0"
                 value={String(pricePer1M)}
                 onChange={(e) => {

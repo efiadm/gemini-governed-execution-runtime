@@ -126,35 +126,42 @@ export default function EvidenceTab({ evidence, mode, onRunBaseline }) {
       )}
 
       {evidence.validation_summary && (
-      <Card className={`border-slate-200 ${evidence.safe_mode_applied ? "border-green-200 bg-green-50" : ""}`}>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-semibold text-slate-700">Validation Summary</CardTitle>
-        {evidence.safe_mode_applied && (
-          <p className="text-xs text-green-700 mt-2">Model could not satisfy contract within repair cap. Output integrity preserved through model-limited execution.</p>
-        )}
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="grid grid-cols-3 gap-3 text-xs">
-          <div className="bg-slate-50 rounded p-2 text-center">
-            <p className="text-slate-500">Total</p>
-            <p className="text-lg font-bold text-slate-900">{evidence.validation_summary.total_checks}</p>
-          </div>
-          <div className={`rounded p-2 text-center ${evidence.safe_mode_applied ? "bg-orange-50" : "bg-green-50"}`}>
-            <p className={evidence.safe_mode_applied ? "text-orange-600" : "text-green-600"}>Passed</p>
-            <p className={`text-lg font-bold ${evidence.safe_mode_applied ? "text-orange-700" : "text-green-700"}`}>{evidence.validation_summary.passed_checks}</p>
-          </div>
-          <div className={`rounded p-2 text-center ${evidence.safe_mode_applied ? "bg-green-50" : "bg-red-50"}`}>
-            <p className={evidence.safe_mode_applied ? "text-green-600" : "text-red-600"}>Status</p>
-            <p className={`text-lg font-bold ${evidence.safe_mode_applied ? "text-green-700" : "text-red-700"}`}>{evidence.safe_mode_applied ? "Contained" : "Failed"}</p>
-          </div>
-        </div>
-            {evidence.validation_summary.failures && evidence.validation_summary.failures.length > 0 && (
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-slate-700">Failures:</p>
-                {evidence.validation_summary.failures.map((f, i) => (
-                  <p key={i} className="text-xs text-red-700 bg-red-50 p-2 rounded">{f}</p>
-                ))}
-              </div>
+        <Card className={`border-slate-200 ${evidence.safe_mode_applied ? "border-green-200 bg-green-50" : ""}`}>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-slate-700">Validation Summary</CardTitle>
+            {evidence.safe_mode_applied && (
+              <p className="text-xs text-green-700 mt-2">Model could not satisfy contract within repair cap. Output integrity preserved through model-limited execution.</p>
+            )}
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Validation Checks */}
+            <div>
+              <div className="text-xs font-semibold text-slate-600">Validation Checks</div>
+              <p className="text-sm font-bold text-slate-900">
+                {evidence.validation_summary.passed_checks} / {evidence.validation_summary.total_checks} passed
+              </p>
+            </div>
+
+            {/* Contract Status (independent) */}
+            <div>
+              <div className="text-xs font-semibold text-slate-600">Contract Status</div>
+              <p className={`text-sm font-bold ${evidence.validation_passed ? 'text-green-700' : 'text-red-700'}`}>
+                {evidence.validation_passed ? 'Passed' : 'Failed'}
+              </p>
+            </div>
+
+            {/* Failure Reason (if available and contract failed) */}
+            {!evidence.validation_passed && (
+              (() => {
+                const vs = evidence.validation_summary || {};
+                const reason = evidence.failure_reason || evidence.contract_failure_reason || (Array.isArray(vs.failures) && vs.failures[0]) || null;
+                return reason ? (
+                  <div>
+                    <div className="text-xs font-semibold text-slate-600">Failure Reason</div>
+                    <p className="text-xs text-red-700 bg-red-50 p-2 rounded">{reason}</p>
+                  </div>
+                ) : null;
+              })()
             )}
           </CardContent>
         </Card>

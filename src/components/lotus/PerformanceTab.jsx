@@ -131,9 +131,12 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
   const executionRows = (
     <>
       <MetricRow label="Model Latency (base call)" getValue={(m) => {
-        const baseLatency = m?.total?.model_latency_ms || 0;
-        const repairLatency = (m?.repair?.extra_model_calls_due_to_repair || 0) * (baseLatency / (m?.total?.attempts || 1));
-        return Math.max(0, baseLatency - repairLatency).toFixed(0);
+        const baseLatency = toNum(m?.total?.model_latency_ms);
+        const attempts = Math.max(1, toNum(m?.total?.attempts));
+        const repairCalls = toNum(m?.repair?.extra_model_calls_due_to_repair);
+        const repairLatency = repairCalls * (baseLatency / attempts);
+        const val = Math.max(0, baseLatency - repairLatency);
+        return Number.isFinite(val) ? Number(val.toFixed(0)) : 0;
       }} unit="ms" isBillable showDelta />
       <MetricRow label="Base Tokens (pre-repair)" getValue={(m) => {
         const total = m?.billable?.total_model_tokens || 0;

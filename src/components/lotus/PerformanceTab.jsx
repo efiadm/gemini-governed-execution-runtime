@@ -176,10 +176,11 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
         return Number.isFinite(extra) ? Number(extra.toFixed(0)) : 0;
       }} isBillable showDelta />
       <MetricRow label="Repair Latency (model)" getValue={(m) => {
-        const baseLatency = m?.total?.model_latency_ms || 0;
-        const repairCalls = m?.repair?.extra_model_calls_due_to_repair || 0;
-        const attempts = m?.total?.attempts || 1;
-        return (repairCalls > 0 ? (baseLatency / attempts) * repairCalls : 0).toFixed(0);
+        const baseLatency = toNum(m?.total?.model_latency_ms);
+        const repairCalls = toNum(m?.repair?.extra_model_calls_due_to_repair);
+        const attempts = Math.max(1, toNum(m?.total?.attempts));
+        const val = repairCalls > 0 ? (baseLatency / attempts) * repairCalls : 0;
+        return Number.isFinite(val) ? Number(val.toFixed(0)) : 0;
       }} unit="ms" isBillable showDelta />
       <MetricRow label="Repair Cost" getValue={(m) => {
         const extra = m?.repair?.extra_tokens_due_to_repair || 0;

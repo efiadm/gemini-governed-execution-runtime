@@ -122,12 +122,18 @@ export default function SummaryPanel({ evidence, metrics, mode, onDownload }) {
           </div>
           {evidence.validation_summary && (
             <div className="flex justify-between items-center">
-              <span className="text-slate-500">Validation:</span>
+              <span className="text-slate-500">Validation Checks:</span>
               <span className="font-medium text-slate-700">
                 {evidence.validation_summary.passed_checks} / {evidence.validation_summary.total_checks} passed
               </span>
             </div>
           )}
+          <div className="flex justify-between items-center">
+            <span className="text-slate-500">Contract Status:</span>
+            <span className={`font-medium ${evidence.validation_passed ? 'text-green-700' : 'text-red-700'}`}>
+              {evidence.validation_passed ? 'Passed' : 'Failed'}
+            </span>
+          </div>
           {evidence.hybrid_context_injected && (
             <div className="flex justify-between items-center">
               <span className="text-slate-500">Hybrid Context:</span>

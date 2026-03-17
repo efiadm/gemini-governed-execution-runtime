@@ -84,7 +84,36 @@ export function downloadEvidenceFile() {
 
 export function downloadAuditPdf() {
   const evidence = exportEvidenceJSON();
-  const report = generateAuditReport(evidence);
+  const cur = evidence?.current_run || {};
+  const ev = cur?.evidence || {};
+
+  const validationPassed = ((ev?.validation_passed ?? cur?.validation?.passed) === true);
+  const resultText = validationPassed ? "PASS" : "FAIL";
+
+  const validationLabel = validationPassed ? "Passed" : "Failed";
+  const safeModeLabel = ev?.safe_mode_applied ? "Yes" : "No";
+  const attempts = ev?.attempts ?? (cur?.attempt_history?.length ?? "-");
+  const repairs = ev?.repairs ?? cur?.validation?.repairs ?? "-";
+  const latency = (ev?.latency_ms != null) ? `${ev.latency_ms} ms` : "-";
+
+  const failureReason = (
+    cur?.validation?.failures?.[0]?.reason ||
+    cur?.validation?.failures?.[0]?.message ||
+    cur?.validation?.message ||
+    ev?.validation_failure_reason ||
+    (validationPassed ? "None" : "Contract not satisfied")
+  );
+
+  let hallucinationText = "N/A";
+  const h = cur?.hallucination;
+  if (h?.risk_level) {
+    hallucinationText = String(h.risk_level);
+  } else if (typeof h?.score === "number") {
+    hallucinationText = h.score >= 80 ? "Low" : h.score >= 50 ? "Medium" : "High";
+  } else if (typeof h?.citation_integrity?.score === "number") {
+    const s = h.citation_integrity.score;
+    hallucinationText = s >= 80 ? "Low" : s >= 60 ? "Medium" : "High";
+  }
 
   const doc = new jsPDF({ unit: "pt", format: "letter" });
   const margin = 40;
@@ -112,47 +141,34 @@ export function downloadAuditPdf() {
     y += 6;
   };
 
-  addHeading("Governed Execution Report");
-  addText(`Exported: ${new Date().toLocaleString()}`);
+  // Title
+  addHeading("AI Behavior Test Report");
+  addText(`Result: ${resultText}`);
 
-  if (report?.summary) {
-    addHeading("Summary");
-    addText(`Total runs: ${report.summary.total_runs}`);
-    addText(`Modes: ${(report.summary.modes || []).join(", ")}`);
-    addText(`Models: ${(report.summary.models || []).join(", ")}`);
-  }
+  // Summary
+  addHeading("Summary");
+  addText(`Validation: ${validationLabel}`);
+  addText(`Safe Mode: ${safeModeLabel}`);
+  addText(`Attempts: ${attempts}`);
+  addText(`Repairs: ${repairs}`);
+  addText(`Latency: ${latency}`);
 
-  if (report?.validation_stats) {
-    addHeading("Validation Stats");
-    addText(`Passed: ${report.validation_stats.passed}/${report.validation_stats.total}`);
-    addText(`Safe mode: ${report.validation_stats.safe_mode}`);
-    addText(`Avg repairs: ${report.validation_stats.avg_repairs}`);
-    addText(`Avg local repairs: ${report.validation_stats.avg_local_repairs}`);
-  }
+  // Issues
+  addHeading("Issues");
+  addText(`- ${failureReason}`);
 
-  if (report?.performance_summary) {
-    addHeading("Performance Summary");
-    addText(`Avg latency: ${report.performance_summary.avg_latency_ms} ms`);
-    addText(`Model latency: ${report.performance_summary.avg_model_latency_ms} ms`);
-    addText(`Local latency: ${report.performance_summary.avg_local_latency_ms} ms`);
-  }
+  // Risk
+  addHeading("Risk");
+  addText(`Hallucination: ${hallucinationText}`);
 
-  if (evidence?.current_run?.prompt_text) {
-    addHeading("Prompt");
-    addText(evidence.current_run.prompt_text);
-  }
-
-  const ans = evidence?.current_run?.evidence?.canonical_answer;
-  if (ans) {
-    addHeading("Answer");
-    addText(Array.isArray(ans) ? ans.join("\n") : String(ans));
-  }
-
-  // Ensure PDF contains the same data as JSON (plain text section)
-  addHeading("Evidence JSON");
-  const jsonText = JSON.stringify(evidence, null, 2);
-  const jsonLines = doc.splitTextToSize(jsonText, maxW);
-  jsonLines.forEach(line => { newPageIfNeeded(); doc.text(line, margin, y); y += lineH; });
+  // What Happened
+  addHeading("What Happened");
+  const bullets = [
+    `- Mode: ${cur?.mode ?? "-"} • Model: ${cur?.model ?? "-"} • Grounding: ${cur?.grounding ?? "-"}`,
+    `- Validation ${validationPassed ? "passed" : "failed"}; Safe Mode ${ev?.safe_mode_applied ? "on" : "off"}; Attempts ${attempts}; Repairs ${repairs}.`,
+    `- Latency ${latency}${(ev?.model_latency_ms != null || ev?.local_latency_ms != null) ? ` (model ${ev?.model_latency_ms ?? "-"} ms, local ${ev?.local_latency_ms ?? "-"} ms)` : ""}`,
+  ];
+  bullets.forEach(line => addText(line));
 
   doc.save(`trident-report-${Date.now()}.pdf`);
 }

@@ -34,10 +34,13 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
   };
 
   const calculateEfficiencyScore = (m) => {
-    if (!m || !m.billable?.total_model_tokens || !m.total?.model_latency_ms) return null;
+    const tok = toNum(m?.billable?.total_model_tokens);
+    const lat = toNum(m?.total?.model_latency_ms);
+    if (tok === 0 || lat === 0) return null;
     // Tokens per second
-    return ((m.billable.total_model_tokens / m.total.model_latency_ms) * 1000).toFixed(0);
+    return ((tok / lat) * 1000).toFixed(0);
   };
+
 
   const MetricRow = ({ label, getValue, unit = "", isBillable = false, showDelta = false }) => {
     const baseVal = getValue(baseline);

@@ -158,10 +158,11 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
       <MetricRow label="Validation Time" getValue={(m) => toNum(m?.local?.local_validation_ms)} unit="ms" />
       <MetricRow label="Render Time" getValue={(m) => toNum(m?.local?.local_render_ms)} unit="ms" />
       <MetricRow label="Evidence Assembly" getValue={(m) => {
-        const total = m?.local?.total_local_ms || 0;
-        const validation = m?.local?.local_validation_ms || 0;
-        const render = m?.local?.local_render_ms || 0;
-        return Math.max(0, total - validation - render).toFixed(0);
+        const total = toNum(m?.local?.total_local_ms);
+        const validation = toNum(m?.local?.local_validation_ms);
+        const render = toNum(m?.local?.local_render_ms);
+        const val = Math.max(0, total - validation - render);
+        return Number.isFinite(val) ? Number(val.toFixed(0)) : 0;
       }} unit="ms" />
       <MetricRow label="Total Runtime-local" getValue={(m) => m?.local?.total_local_ms} unit="ms" showDelta />
     </>

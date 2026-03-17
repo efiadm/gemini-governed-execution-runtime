@@ -27,6 +27,20 @@ export default function PromptPanel({
 }) {
   const disabled = isRunning || isTestRunning;
 
+  // Price per 1M tokens (frontend-only) from global modelConfigStore
+  const [pricePer1M, setPricePer1M] = React.useState(() => {
+    const v = getModelConfig().pricePer1M;
+    return Number.isFinite(v) && v >= 0 ? v : 2.0;
+  });
+
+  React.useEffect(() => {
+    const unsub = subscribeToModelConfig((cfg) => {
+      const v = cfg?.pricePer1M;
+      setPricePer1M(Number.isFinite(v) && v >= 0 ? v : 2.0);
+    });
+    return unsub;
+  }, []);
+
   return (
     <Card className="border-slate-200 shadow-sm h-full relative z-10">
       <CardHeader className="pb-3">

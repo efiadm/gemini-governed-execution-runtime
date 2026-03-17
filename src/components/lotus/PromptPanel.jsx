@@ -6,9 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Play, Trash2, FlaskConical } from "lucide-react";
-import { MODELS_REGISTRY } from "./modelsRegistry";
+
 import { PRESET_PROMPTS, PRESET_CATEGORIES } from "./presets";
 import { getModelConfig, updateModelConfig, subscribeToModelConfig } from "./modelConfigStore";
+
+function normalizeModels(payload) {
+  const pickId = (m) => (m?.id ?? m?.name ?? (typeof m === "string" ? m : null));
+  if (Array.isArray(payload)) return payload.map(pickId).filter(Boolean);
+  if (Array.isArray(payload?.data)) return payload.data.map(pickId).filter(Boolean);
+  if (Array.isArray(payload?.models)) return payload.models.map(pickId).filter(Boolean);
+  if (payload?.object === "list" && Array.isArray(payload?.data)) return payload.data.map(pickId).filter(Boolean);
+  return [];
+}
 
 export default function PromptPanel({
   prompt,
@@ -40,6 +49,54 @@ export default function PromptPanel({
     });
     return unsub;
   }, []);
+
+  // API/Base URL + dynamic models fetching
+  const [apiKey, setApiKey] = React.useState(getModelConfig().apiKey || "");
+  const [baseUrl, setBaseUrl] = React.useState(getModelConfig().baseUrl || "");
+  const [models, setModels] = React.useState([]);
+  const [loadingModels, setLoadingModels] = React.useState(false);
+  const debounceRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const unsub = subscribeToModelConfig((cfg) => {
+      setApiKey(cfg?.apiKey || "");
+      setBaseUrl(cfg?.baseUrl || "");
+    });
+    return unsub;
+  }, []);
+
+  React.useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      if (!baseUrl?.trim() || !apiKey?.trim()) {
+        setModels([]);
+        return;
+      }
+      setLoadingModels(true);
+      const url = `${baseUrl.replace(/\/+$/, "")}/v1/models`;
+      try {
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
+        const data = await res.json().catch(() => ({}));
+        const list = normalizeModels(data);
+        setModels(list);
+        if (model && !list.includes(model)) {
+          onModelChange("");
+          updateModelConfig({ selectedModel: "" });
+        }
+      } catch (e) {
+        console.warn("Failed to fetch models", e);
+        setModels([]);
+        if (model) {
+          onModelChange("");
+          updateModelConfig({ selectedModel: "" });
+        }
+      } finally {
+        setLoadingModels(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(debounceRef.current);
+  }, [baseUrl, apiKey]);
 
   return (
     <Card className="border-slate-200 shadow-sm h-full relative z-10">
@@ -120,38 +177,83 @@ export default function PromptPanel({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-xs font-semibold text-slate-500">Model</Label>
-            <Select value={model} onValueChange={onModelChange} disabled={disabled}>
-              <SelectTrigger className="text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {MODELS_REGISTRY.map((m) => (
-                  <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5 max-w-md">
+              <Label className="text-xs font-semibold text-slate-500">API Key</Label>
+              <Input
+                type="password"
+                value={apiKey}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setApiKey(v);
+                  updateModelConfig({ apiKey: v });
+                }}
+                placeholder="sk-..."
+                className="h-8 text-sm"
+                disabled={disabled}
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label className="text-xs font-semibold text-slate-500">Cost ($ / 1M tokens)</Label>
-            <Input
-              type="number"
-              inputMode="decimal"
-              step="0.01"
-              min="0"
-              value={String(pricePer1M)}
-              onChange={(e) => {
-                const v = parseFloat(e.target.value);
-                const n = Number.isFinite(v) && v >= 0 ? v : 0;
-                setPricePer1M(n);
-                updateModelConfig({ pricePer1M: n });
-              }}
-              disabled={disabled}
-              placeholder="2.00"
-              className="text-sm"
-            />
+            <div className="space-y-1.5 max-w-md">
+              <Label className="text-xs font-semibold text-slate-500">Base URL</Label>
+              <Input
+                type="text"
+                value={baseUrl}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setBaseUrl(v);
+                  updateModelConfig({ baseUrl: v });
+                }}
+                placeholder="https://api.your-llm.com"
+                className="h-8 text-sm"
+                disabled={disabled}
+              />
+            </div>
+
+            <div className="space-y-1.5 max-w-md">
+              <Label className="text-xs font-semibold text-slate-500">Model</Label>
+              <Select
+                value={model || ""}
+                onValueChange={(val) => {
+                  onModelChange(val);
+                  updateModelConfig({ selectedModel: val });
+                }}
+                disabled={disabled || loadingModels || models.length === 0}
+              >
+                <SelectTrigger className="h-8 text-sm disabled:opacity-60">
+                  <SelectValue placeholder={
+                    !baseUrl?.trim() || !apiKey?.trim()
+                      ? "Enter Base URL & API Key"
+                      : (loadingModels ? "Loading models..." : (models.length ? "Select a model" : "No models found"))
+                  } />
+                </SelectTrigger>
+                <SelectContent>
+                  {models.map((m) => (
+                    <SelectItem key={m} value={m}>{m}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5 max-w-md">
+              <Label className="text-xs font-semibold text-slate-500">Cost ($ / 1M tokens)</Label>
+              <Input
+                type="number"
+                inputMode="decimal"
+                step="0.01"
+                min="0"
+                value={String(pricePer1M)}
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value);
+                  const n = Number.isFinite(v) && v >= 0 ? v : 0;
+                  setPricePer1M(n);
+                  updateModelConfig({ pricePer1M: n });
+                }}
+                disabled={disabled}
+                placeholder="2.00"
+                className="h-8 text-sm"
+              />
+            </div>
           </div>
         </div>
 

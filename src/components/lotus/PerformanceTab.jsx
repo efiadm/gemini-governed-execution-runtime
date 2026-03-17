@@ -139,8 +139,8 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
         return Number.isFinite(val) ? Number(val.toFixed(0)) : 0;
       }} unit="ms" isBillable showDelta />
       <MetricRow label="Base Tokens (pre-repair)" getValue={(m) => {
-        const total = m?.billable?.total_model_tokens || 0;
-        const extra = m?.repair?.extra_tokens_due_to_repair || 0;
+        const total = toNum(m?.billable?.total_model_tokens);
+        const extra = toNum(m?.repair?.extra_tokens_due_to_repair);
         return Math.max(0, total - extra);
       }} isBillable showDelta />
       <MetricRow label="Estimated Cost" getValue={(m) => {

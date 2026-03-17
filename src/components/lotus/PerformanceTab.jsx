@@ -183,8 +183,9 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
         return Number.isFinite(val) ? Number(val.toFixed(0)) : 0;
       }} unit="ms" isBillable showDelta />
       <MetricRow label="Repair Cost" getValue={(m) => {
-        const extra = m?.repair?.extra_tokens_due_to_repair || 0;
-        return `$${calculateCost(extra).toFixed(4)}`;
+        const extra = toNum(m?.repair?.extra_tokens_due_to_repair);
+        const cost = calculateCost(extra);
+        return `$${cost.toFixed(4)}`;
       }} isBillable showDelta />
     </>
   );

@@ -26,11 +26,16 @@ import { getModelConfig } from "./modelConfigStore";
     return Number.isFinite(delta) ? delta : 0;
   };
 
-  const COST_PER_1K_TOKENS = 0.002; // Example: $0.002 per 1K tokens
+  // Pricing source: modelConfigStore
+  const price_per_million_tokens = (() => {
+    const v = getModelConfig()?.pricePer1M;
+    return Number.isFinite(v) && v >= 0 ? v : 2.0; // fallback only for display calc
+  })();
   
   const calculateCost = (tokens) => {
     const t = toNum(tokens);
-    return (t / 1000) * COST_PER_1K_TOKENS;
+    // cost = tokens * price_per_million_tokens / 1,000,000
+    return (t * price_per_million_tokens) / 1_000_000;
   };
 
   const calculateEfficiencyScore = (m) => {

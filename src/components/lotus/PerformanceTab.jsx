@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getModelConfig } from "./modelConfigStore";
 
 
- export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
+
+export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
   const [showOnlyBillable, setShowOnlyBillable] = useState(false);
 
   if (!allModeMetrics || Object.keys(allModeMetrics).length === 0) {
@@ -26,16 +26,11 @@ import { getModelConfig } from "./modelConfigStore";
     return Number.isFinite(delta) ? delta : 0;
   };
 
-  // Pricing source: modelConfigStore
-  const price_per_million_tokens = (() => {
-    const v = getModelConfig()?.pricePer1M;
-    return Number.isFinite(v) && v >= 0 ? v : 2.0; // fallback only for display calc
-  })();
+  const COST_PER_1K_TOKENS = 0.002; // Example: $0.002 per 1K tokens
   
   const calculateCost = (tokens) => {
     const t = toNum(tokens);
-    // cost = tokens * price_per_million_tokens / 1,000,000
-    return (t * price_per_million_tokens) / 1_000_000;
+    return (t / 1000) * COST_PER_1K_TOKENS;
   };
 
   const calculateEfficiencyScore = (m) => {

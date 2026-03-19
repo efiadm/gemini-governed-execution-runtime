@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { getModelConfig } from "./modelConfigStore";
 
 
-
-export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
+ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
   const [showOnlyBillable, setShowOnlyBillable] = useState(false);
 
   if (!allModeMetrics || Object.keys(allModeMetrics).length === 0) {

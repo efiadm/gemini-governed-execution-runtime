@@ -225,15 +225,13 @@ export default function PerformanceTab({ allModeMetrics, baselineMetrics }) {
 
       <Card className="border-blue-200 bg-blue-50">
         <CardContent className="py-4">
-          <h3 className="text-sm font-bold text-slate-800 mb-3">Conditional Activation Model</h3>
-          <p className="text-xs text-slate-700 mb-3">
-            <strong>Plane C (Repairs) activates only on validation failure.</strong> When validation passes on first attempt, governed and hybrid modes incur Plane A + Plane B costs only — comparable to baseline with added contract guarantees and auditability.
-          </p>
+          <h3 className="text-sm font-bold text-slate-800 mb-3">Execution Activation Model</h3>
           <ul className="space-y-2 text-xs text-slate-700">
-            <li>• <strong>Best case (validation passes):</strong> Plane A (base execution) + Plane B (runtime validation) — no repairs triggered</li>
-            <li>• <strong>Recovery case (validation fails):</strong> Plane C activates — extra model calls until contract satisfied or safe mode applied</li>
-            <li>• <strong>Safe Mode containment:</strong> When contract remains unsatisfiable after repairs, output is withheld — correct governance outcome</li>
-            <li>• <strong>Experience accumulation (Hybrid):</strong> Context injection from artifact store reduces token usage in repeat scenarios</li>
+            <li>• Plane A always runs (base execution)</li>
+            <li>• Plane B runs in governed and hybrid modes (runtime validation, non-billable)</li>
+            <li>• Plane C runs only when validation fails (repairs are billable)</li>
+            <li>• Safe mode applies if repairs cannot satisfy the contract</li>
+            <li>• Hybrid can reuse experience (context) to reduce tokens on repeats</li>
           </ul>
         </CardContent>
       </Card>
